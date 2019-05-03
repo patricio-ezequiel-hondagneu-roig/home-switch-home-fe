@@ -66,7 +66,7 @@
 		@Prop()
 		public readonly msg!: string;
 
-		public ecosystem!: [
+		public ecosystem = [
 			{
 				text: 'vuetify-loader',
 				href: 'https://github.com/vuetifyjs/vuetify-loader'
@@ -81,7 +81,7 @@
 			}
 		];
 
-		public importantLinks!: [
+		public importantLinks = [
 			{
 				text: 'Documentation',
 				href: 'https://vuetifyjs.com'
@@ -104,7 +104,7 @@
 			}
 		];
 
-		public whatsNext!: [
+		public whatsNext = [
 			{
 				text: 'Explore components',
 				href: 'https://vuetifyjs.com/components/api-explorer'
