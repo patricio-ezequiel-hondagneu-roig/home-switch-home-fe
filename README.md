@@ -1,4 +1,4 @@
-# home-switch-home
+# home-switch-home-fe
 
 ## Project setup
 ```
