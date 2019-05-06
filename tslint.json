@@ -30,7 +30,6 @@
 			true,
 			"allow-declarations"
 		],
-		"promise-function-async": true,
 		/* Functionality */
 		"await-promise": true,
 		"ban-comma-operator": true,
@@ -80,7 +79,6 @@
 		"no-duplicate-switch-case": true,
 		"no-dynamic-delete": true,
 		"no-eval": true,
-		"no-floating-promises": true,
 		"no-for-in-array": true,
 		"no-invalid-this": [
 			true,
@@ -98,14 +96,11 @@
 			true,
 			"allow-destructuring"
 		],
-		"no-unbound-method": true,
 		"no-unsafe-finally": true,
 		"no-var-keyword": true,
 		"prefer-object-spread": true,
 		"restrict-plus-operands": true,
 		"static-this": true,
-		"strict-boolean-expressions": true,
-		"strict-type-predicates": true,
 		"switch-default": true,
 		"triple-equals": true,
 		"unnecessary-constructor": true,
