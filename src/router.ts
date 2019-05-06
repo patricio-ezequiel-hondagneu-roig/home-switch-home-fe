@@ -22,9 +22,15 @@ export default new Router({
 			component: About
 		},
 		{
-			path: '/perfil/:id',
-			name: 'perfil',
+			path: '/perfil',
+			name: 'perfil-propio',
 			component: Perfil
+		},
+		{
+			path: '/perfil/:idDeUsuario',
+			name: 'perfil-ajeno',
+			component: Perfil,
+			props: true,
 		},
 		{
 			path: '*',
