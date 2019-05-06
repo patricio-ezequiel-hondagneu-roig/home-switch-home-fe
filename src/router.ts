@@ -33,9 +33,13 @@ export default new Router({
 			props: true,
 		},
 		{
-			path: '*',
+			path: '/404',
 			name: '404',
 			component: PaginaNoEncontrada,
+		},
+		{
+			path: '*',
+			redirect: '404'
 		}
 	],
 });
