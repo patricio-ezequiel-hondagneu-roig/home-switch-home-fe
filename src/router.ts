@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
 import About from './views/About.vue';
+import VistaAdministrador from './views/VistaAdministrador.vue';
 import Perfil from './views/Perfil.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 
@@ -20,6 +21,11 @@ export default new Router({
 			path: '/about',
 			name: 'about',
 			component: About
+		},
+		{
+			path: '/admin',
+			name: 'admin',
+			component: VistaAdministrador
 		},
 		{
 			path: '/perfil',
