@@ -2,7 +2,7 @@
 	<v-container>
 		<v-layout text-xs-center wrap>
 			<v-flex xs12>
-				<img src="../assets/logotipos/logo-imagen.svg" alt="Home Switch Home logo">
+				<img src="../assets/images/logo-imagen.svg" alt="Home Switch Home logo">
 			</v-flex>
 
 			<v-flex mb-4>
