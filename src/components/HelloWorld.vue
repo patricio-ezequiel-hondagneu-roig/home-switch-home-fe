@@ -2,7 +2,7 @@
 	<v-container>
 		<v-layout text-xs-center wrap>
 			<v-flex xs12>
-				<v-img :src="require('../assets/logo.svg')" class="my-3" contain height="200"></v-img>
+				<img src="../assets/logotipos/logo-imagen.svg" alt="Home Switch Home logo">
 			</v-flex>
 
 			<v-flex mb-4>
