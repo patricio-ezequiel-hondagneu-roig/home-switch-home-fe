@@ -1,16 +1,15 @@
-import HelloWorld from '@/components/HelloWorld.vue';
+import App from '@/App.vue';
 import { shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
+import VueRouter from 'vue-router';
 import Vuetify from 'vuetify';
 
+Vue.use( VueRouter );
 Vue.use( Vuetify );
 
-describe('HelloWorld.vue', () => {
-	it('renders props.msg when passed', () => {
-		const msg: string = 'new message';
-		const wrapper = shallowMount(HelloWorld, {
-			propsData: { msg },
-		});
-		expect(wrapper.text()).toMatch(msg);
+describe( 'App.vue', ( ) => {
+	it( 'contiene el texto "Home Switch Home"', ( ) => {
+		const wrapper = shallowMount( App );
+		expect( wrapper.text( ) ).toMatch( 'Home Switch Home' );
 	});
 });

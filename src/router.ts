@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
-import About from './views/About.vue';
+import Inicio from './views/Inicio.vue';
 import Perfil from './views/Perfil.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 
@@ -13,24 +12,8 @@ export default new Router({
 	routes: [
 		{
 			path: '/',
-			name: 'home',
-			component: Home,
-		},
-		{
-			path: '/about',
-			name: 'about',
-			component: About
-		},
-		{
-			path: '/perfil',
-			name: 'perfil-propio',
-			component: Perfil
-		},
-		{
-			path: '/perfil/:idDeUsuario',
-			name: 'perfil-ajeno',
-			component: Perfil,
-			props: true,
+			name: 'inicio',
+			component: Inicio,
 		},
 		{
 			path: '/404',
