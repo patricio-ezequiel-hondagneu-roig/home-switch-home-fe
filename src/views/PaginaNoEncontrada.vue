@@ -7,7 +7,7 @@
 		<p class="body-1 mb-4">
 			¿No preferirías buscar en nuestro catálogo de hoteles un lugar para tus próximas vacaciones?
 		</p>
-		<v-btn :to="{ name: 'Home' }" color="primary">Volver al inicio</v-btn>
+		<v-btn :to="{ name: 'inicio' }" color="primary">Volver al inicio</v-btn>
 	</div>
 </template>
 

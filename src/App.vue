@@ -1,15 +1,16 @@
 <template>
 	<v-app>
-		<v-toolbar app>
+		<v-toolbar app dark color="secondary" class="darken-2 primary--text text--lighten-1">
 			<v-toolbar-title class="headline text-uppercase">
-				<span>Vuetify</span>
-				<span class="font-weight-light">MATERIAL DESIGN</span>
+				<span class="font-weight-light">Home</span>
+				<span class="font-weight-bold">Switch</span>
+				<span class="font-weight-light">Home</span>
 			</v-toolbar-title>
 			<v-spacer></v-spacer>
 			<v-toolbar-items>
-				<v-btn flat to="/">Home</v-btn>
-				<v-btn flat to="/about">About</v-btn>
-				<v-btn flat to="/perfil">Perfil</v-btn>
+				<v-btn flat color="primary" class="text--lighten-1" to="/">
+					Inicio
+				</v-btn>
 			</v-toolbar-items>
 		</v-toolbar>
 
@@ -20,13 +21,8 @@
 </template>
 
 <script lang="ts">
-	import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 	import { Component, Vue } from 'vue-property-decorator';
 
-	@Component({
-		components: {
-			HelloWorld,
-		},
-	})
+	@Component({ })
 	export default class App extends Vue { }
 </script>
