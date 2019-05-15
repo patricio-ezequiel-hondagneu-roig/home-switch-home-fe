@@ -5,7 +5,7 @@
 		</v-card-title>
 
 		<v-card-text>
-			<v-form v-model="formularioEsValido" ref="formulario" lazy-validation>
+			<v-form v-model="formularioEsValido" ref="formulario">
 				<v-text-field
 					v-model="nombre"
 					label="Nombre"
@@ -111,6 +111,7 @@ export default class CargarResidencia extends Vue {
 		this.nombre = undefined;
 		this.direccion = undefined;
 		this.descripcion = undefined;
+		this.formularioEsValido = false;
 	}
 }
 </script>
