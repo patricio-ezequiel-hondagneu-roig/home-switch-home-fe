@@ -1,17 +1,22 @@
 <template>
 	<v-container fluid fill-height>
-		<v-layout align-center justify-center>
-			<v-btn flat class="success" @click.stop="mostrarFormularioDeCarga( )">
-				Cargar residencia
-			</v-btn>
-			<v-dialog persistent v-model="formularioDeCargaEsVisible" max-width="40rem">
-				<CargarResidencia
-					@cargar="ocultarFormularioDeCarga( )"
-					@cancelar="ocultarFormularioDeCarga( )"
-				/>
-			</v-dialog>
+		<v-layout align-center justify-center row wrap>
+			<v-flex align-center justify-center>
+				<v-btn flat class="success" @click.stop="mostrarFormularioDeCarga( )">
+					Cargar residencia
+				</v-btn>
+				<v-dialog persistent v-model="formularioDeCargaEsVisible" max-width="40rem">
+					<CargarResidencia
+						@cargar="ocultarFormularioDeCarga( )"
+						@cancelar="ocultarFormularioDeCarga( )"
+					/>
+				</v-dialog>
+			</v-flex>
+			<v-flex xs12>
+				<TablaResidencia> </TablaResidencia>
+			</v-flex>
 		</v-layout>
-		<TablaResidencia> </TablaResidencia>
+
 	</v-container>
 
 </template>

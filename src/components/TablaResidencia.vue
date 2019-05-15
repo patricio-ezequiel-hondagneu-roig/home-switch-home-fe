@@ -2,15 +2,14 @@
 
 	<v-data-table
 		:headers="headers"
-		:items="desserts"
+		:items="residencias"
 		class="elevation-1">
 		<template v-slot:items="props">
-			<td>{{ props.item.name }}</td>
-			<td class="text-xs-right">{{ props.item.calories }}</td>
-			<td class="text-xs-right">{{ props.item.fat }}</td>
-			<td class="text-xs-right">{{ props.item.carbs }}</td>
-			<td class="text-xs-right">{{ props.item.protein }}</td>
-			<td class="text-xs-right">{{ props.item.iron }}</td>
+			<td>{{ props.item.id }}</td>
+			<td class="text-xs-right">{{ props.item.nombre }}</td>
+			<td class="text-xs-right">{{ props.item.direccion }}</td>
+			<td class="text-xs-right">{{ props.item.descripcion }}</td>
+			<td class="text-xs-right">{{ props.item.imagenes.length }}</td>
 			<td class="text-xs-right">
 				<v-btn  color="yellow" @click.stop="modificar(props.item.name)">
 					Modificar
@@ -34,42 +33,38 @@ export default class TablaResidencia extends Vue {
 		return {
 			headers: [
 				{
-					text: 'Dessert (100g serving)',
+					text: 'ID',
 					align: 'left',
 					sortable: false,
-					value: 'name'
+					value: 'id'
 				},
-				{ text: 'Calories', value: 'calories' },
-				{ text: 'Fat (g)', value: 'fat' },
-				{ text: 'Carbs (g)', value: 'carbs' },
-				{ text: 'Protein (g)', value: 'protein' },
-				{ text: 'Iron (%)', value: 'iron' }
+				{ text: 'Nombre', value: 'nombre' },
+				{ text: 'Dirección', value: 'direccion' },
+				{ text: 'Descripción', value: 'descripcion' },
+				{ text: 'Imagenes', value: 'imagenes' }
 				],
-			desserts: [
+			residencias: [
 				{
-					name: 'Frozen Yogurt',
-					calories: 159,
-					fat: 6,
-					carbs: 24,
-					protein: 4,
-					iron: '1%'
+					id: 0,
+					nombre: 'Hotel 1',
+					direccion: 'Calle falsa, 123',
+					descripcion: 'Un hotel',
+					imagenes: ['unaImagen', 'unaImagen', 'unaImagen']
 				},
 				{
-					name: 'Ice cream sandwich',
-					calories: 237,
-					fat: 9,
-					carbs: 37,
-					protein: 4.3,
-					iron: '1%'
+					id: 1,
+					nombre: 'Hotel 2',
+					direccion: 'Calle falsa, 124',
+					descripcion: 'Un hotel 2',
+					imagenes: ['unaImagen', 'unaImagen']
 				},
 				{
-					name: 'Eclair',
-					calories: 262,
-					fat: 16,
-					carbs: 23,
-					protein: 6,
-					iron: '7%'
-				}
+					id: 2,
+					nombre: 'Hotel 3',
+					direccion: 'Calle falsa, 126',
+					descripcion: 'Un hotel 3 y su descripcion execivamente larga para testear la tabla, ok?',
+					imagenes: ['unaImagen']
+				},
 		]
 		};
 	}
