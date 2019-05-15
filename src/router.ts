@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Inicio from './views/Inicio.vue';
-import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
+import CodigoDeAccesoFijo from './views/CodigoDeAccesoFijo.vue';
 import VistaAdministrador from './views/VistaAdministrador.vue';
+import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 
 Vue.use( Router );
 
@@ -19,6 +20,11 @@ export default new Router({
 			path: '/admin',
 			name: 'admin',
 			component: VistaAdministrador
+		},
+		{
+			path: '/IngresarCodigoDeAccesoFijo',
+			name: 'IngresarCodigoDeAccesoFijo',
+			component: CodigoDeAccesoFijo,
 		},
 		{
 			path: '/404',
