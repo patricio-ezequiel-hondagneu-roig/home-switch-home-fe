@@ -84,6 +84,7 @@ export default class CodigoDeAccesoFijo extends Vue {
 		}
 		this.codigo = undefined;
 		this.formularioEsValido = false;
+		console.log("Pepo argento: pedazo de boludoooooo");
 	}
 }
 </script>
