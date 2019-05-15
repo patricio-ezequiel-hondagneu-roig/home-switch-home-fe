@@ -11,16 +11,19 @@
 				/>
 			</v-dialog>
 		</v-layout>
+		<TablaResidencia> </TablaResidencia>
 	</v-container>
+
 </template>
 
 <script lang="ts">
 	import { Component, Vue } from 'vue-property-decorator';
 	import CargarResidencia from '@/components/CargarResidencia.vue';
-
+	import TablaResidencia from '@/components/TablaResidencia.vue';
 	@Component({
 		components: {
 			CargarResidencia,
+			TablaResidencia,
 		},
 	})
 	export default class VistaAdministrador extends Vue {
