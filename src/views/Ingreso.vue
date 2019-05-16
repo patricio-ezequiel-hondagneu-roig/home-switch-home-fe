@@ -58,7 +58,7 @@ export default class Ingreso extends Vue {
 	public validadores = {
 		codigo: [
 			( valor?: string ) => {
-				return ( valor !== undefined && valor.trim( ) !== '' )
+				return ( valor !== undefined && valor !== '' )
 					? true
 					: 'El código de acceso es un campo obligatorio';
 			},
