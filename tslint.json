@@ -24,7 +24,6 @@
 		"no-any": true,
 		"no-magic-numbers": true,
 		"no-reference": true,
-		"no-unnecessary-type-assertion": true,
 		"no-var-requires": true,
 		"only-arrow-functions": [
 			true,
@@ -168,7 +167,6 @@
 		],
 		/* Format */
 		"arrow-parens": true,
-		"eofline": false,
 		"import-spacing": true,
 		"indent": [
 			true,
@@ -177,10 +175,6 @@
 		"jsdoc-format": [
 			true,
 			"check-multiline-start"
-		],
-		"linebreak-style": [
-			true,
-			"LF"
 		],
 		"max-line-length": [
 			true,

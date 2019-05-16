@@ -27,6 +27,8 @@
 					no-resize
 					required
 				></v-textarea>
+				<input type='file' required>
+				<input>
 			</v-form>
 		</v-card-text>
 
