@@ -11,6 +11,9 @@
 				<v-btn flat color="primary" class="text--lighten-1" to="/">
 					Inicio
 				</v-btn>
+				<v-btn flat color="primary" class="text--lighten-1" to="/ingresar">
+					Ingresar
+				</v-btn>
 			</v-toolbar-items>
 		</v-toolbar>
 
