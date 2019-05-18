@@ -26,9 +26,12 @@
 <script lang="ts">
 import { Component, Vue, Emit } from 'vue-property-decorator';
 import { VuetifyFormRef } from '../typings/vuetify-form-ref.d';
+import { server } from '@/utils/helper';
+import axios from 'axios';
 
 @Component
 export default class TablaResidencia extends Vue {
+	public residencias: object[] = [];
 	public data() {
 		return {
 			headers: [
@@ -42,37 +45,26 @@ export default class TablaResidencia extends Vue {
 				{ text: 'Dirección', value: 'direccion' },
 				{ text: 'Descripción', value: 'descripcion' },
 				{ text: 'Imagenes', value: 'imagenes' }
-				],
-			residencias: [
-				{
-					id: 0,
-					nombre: 'Hotel 1',
-					direccion: 'Calle falsa, 123',
-					descripcion: 'Un hotel',
-					imagenes: ['unaImagen', 'unaImagen', 'unaImagen']
-				},
-				{
-					id: 1,
-					nombre: 'Hotel 2',
-					direccion: 'Calle falsa, 124',
-					descripcion: 'Un hotel 2',
-					imagenes: ['unaImagen', 'unaImagen']
-				},
-				{
-					id: 2,
-					nombre: 'Hotel 3',
-					direccion: 'Calle falsa, 126',
-					descripcion: 'Un hotel 3 y su descripcion execivamente larga para testear la tabla, ok?',
-					imagenes: ['unaImagen']
-				},
-		]
+				]
 		};
 	}
+	public created() {
+			this.fetchPosts();
+	}
+	public fetchPosts() {
+	axios
+		.get(`${server.baseURL}/residencias`)
+		.then((data) => (this.residencias = data.data));
+	}
+
+
 	@Emit( 'modificar' )
 	public modificar(name: string): void {
+		// console.log('Modificar: ', name);
 	}
 	@Emit( 'borrar' )
 	public borrar(name: string): void {
+		// console.log('Borre: ', name);
 	}
 }
 </script>

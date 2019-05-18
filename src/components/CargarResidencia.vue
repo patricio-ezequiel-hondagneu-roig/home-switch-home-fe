@@ -27,7 +27,7 @@
 					no-resize
 					required
 				></v-textarea>
-				<input type='file' required>
+				<input type='file'>
 				<input>
 			</v-form>
 		</v-card-text>
@@ -37,7 +37,7 @@
 			<v-btn flat @click.stop="cancelar( )">
 				Cancelar
 			</v-btn>
-			<v-btn class="success" :disabled="!formularioEsValido" @click.stop="cargar( )">
+			<v-btn class="success" :disabled="!formularioEsValido" @click.stop="crearResidencia( )">
 				Cargar
 			</v-btn>
 		</v-card-actions>
@@ -47,15 +47,19 @@
 <script lang="ts">
 import { Component, Vue, Emit } from 'vue-property-decorator';
 import { VuetifyFormRef } from '../typings/vuetify-form-ref.d';
+import axios from 'axios';
+import { server } from '../utils/helper';
+import router from '../router';
 
 @Component
-export default class CargarResidencia extends Vue {
+export default  class CargarResidencia extends Vue{
 	public formulario: VuetifyFormRef | null = null;
 	public formularioEsValido: boolean = false;
 
-	public nombre?: string = '';
-	public direccion?: string = '';
-	public descripcion?: string = '';
+	public nombre = '';
+	public direccion = '';
+	public descripcion = '';
+	public imagenes = [];
 
 	public validadores = {
 		nombre: [
@@ -80,6 +84,23 @@ export default class CargarResidencia extends Vue {
 			},
 		]
 	};
+
+	public crearResidencia() {
+			const residenciaData = {
+				nombre: this.nombre,
+				direccion: this.direccion,
+				descripcion: this.descripcion,
+				imagenes: this.imagenes
+			};
+			// console.log(residenciaData);
+			this.__submitToServer(residenciaData);
+		}
+	public __submitToServer(_data: object) {
+		axios.post(`${server.baseURL}/residencias`, _data).then((data) => {
+			router.push({ name: 'admin' });
+		});
+	}
+
 
 	/** Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM. */
 	public beforeMount( ): void {
@@ -110,9 +131,9 @@ export default class CargarResidencia extends Vue {
 		if ( this.formulario !== null ) {
 			this.formulario.resetValidation( );
 		}
-		this.nombre = undefined;
-		this.direccion = undefined;
-		this.descripcion = undefined;
+		this.nombre = '';
+		this.direccion = '';
+		this.descripcion = '';
 		this.formularioEsValido = false;
 	}
 }
