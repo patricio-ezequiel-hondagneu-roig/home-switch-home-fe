@@ -30,7 +30,6 @@
 			"allow-declarations"
 		],
 		/* Functionality */
-		"await-promise": true,
 		"ban-comma-operator": true,
 		"ban": [
 			true,
