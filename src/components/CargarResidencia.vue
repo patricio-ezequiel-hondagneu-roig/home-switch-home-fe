@@ -49,7 +49,6 @@ import { Component, Vue, Emit } from 'vue-property-decorator';
 import { VuetifyFormRef } from '../typings/vuetify-form-ref.d';
 import axios from 'axios';
 import { server } from '../utils/helper';
-import router from '../router';
 
 @Component
 export default  class CargarResidencia extends Vue{
@@ -86,18 +85,19 @@ export default  class CargarResidencia extends Vue{
 	};
 
 	public crearResidencia() {
-			const residenciaData = {
-				nombre: this.nombre,
-				direccion: this.direccion,
-				descripcion: this.descripcion,
-				imagenes: this.imagenes
-			};
-			// console.log(residenciaData);
-			this.__submitToServer(residenciaData);
-		}
+		const residenciaData = {
+			nombre: this.nombre,
+			direccion: this.direccion,
+			descripcion: this.descripcion,
+			imagenes: this.imagenes
+		};
+		// console.log(residenciaData);
+		this.__submitToServer(residenciaData);
+	}
+
 	public __submitToServer(_data: object) {
 		axios.post(`${server.baseURL}/residencias`, _data).then((data) => {
-			router.push({ name: 'admin' });
+			window.location.reload();
 		});
 	}
 
