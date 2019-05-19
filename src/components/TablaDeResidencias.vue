@@ -212,7 +212,7 @@ export default class TablaDeResidencias extends Vue {
 			this.emitirEventoResidenciaEliminada( residencia );
 		}
 		catch ( error ) {
-			// TODO: Mostrar una alerta de error cuando la eliminación falla
+			this.emitirEventoError( new Error( error.response.data.message ) );
 		}
 	}
 

@@ -31,10 +31,9 @@
 			multi-line
 		>
 			{{ textoDeAlerta }}
-			<v-btn
-				flat
-				@click="ocultarAlerta( )"
-			>Cerrar</v-btn>
+			<v-btn flat @click="ocultarAlerta( )">
+				Cerrar
+			</v-btn>
 		</v-snackbar>
 	</v-container>
 </template>
