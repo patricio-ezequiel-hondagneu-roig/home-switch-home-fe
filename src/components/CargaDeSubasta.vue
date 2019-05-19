@@ -50,7 +50,7 @@
 <script lang="ts">
 import axios from 'axios';
 import { Component, Vue, Emit } from 'vue-property-decorator';
-import { textoRequerido } from '@/helpers/validadores/texto-requerido';
+import { requerido } from '@/helpers/validadores/requerido';
 import router from '@/router';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
@@ -75,10 +75,10 @@ export default class CargaDeSubasta extends Vue {
 	 * Conjunto de reglas de validación para cada campo del formulario de carga.
 	 */
 	public validadores = {
-		idResidencia:      [ textoRequerido( 'ID de residencia' ) ],
-		montoInicial:        [ textoRequerido( 'Monto inicial' ) ],
-		fechaDeInicio:   [ textoRequerido( 'Fecha comienzo de reserva' ) ],
-		fechaDeFin:   [ textoRequerido( 'Fecha de fin de reserva' ) ],
+		idResidencia:      [ requerido( 'ID de residencia' ) ],
+		montoInicial:        [ requerido( 'Monto inicial' ) ],
+		fechaDeInicio:   [ requerido( 'Fecha comienzo de reserva' ) ],
+		fechaDeFin:   [ requerido( 'Fecha de fin de reserva' ) ],
 	};
 
 	/**
