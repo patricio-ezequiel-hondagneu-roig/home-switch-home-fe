@@ -7,6 +7,10 @@
 			</span>
 		</div>
 		<img src="https://i.imgur.com/3ZY7s2y.png" class="center"/>
+		<br>
+		<hr>
+		<br>
+		<p class="text-xs-center display-2">Subastas:</p>
 	</div>
 </template>
 
