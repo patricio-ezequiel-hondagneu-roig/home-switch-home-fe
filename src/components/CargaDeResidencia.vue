@@ -54,8 +54,18 @@
 					@input="modelo.fotos = extraerLineas( $event )"
 					label="Fotos"
 					:rules="validadores.fotos"
+					hint="Introducí una URL de foto por renglón"
 					no-resize
 				></v-textarea>
+
+				<v-text-field
+					v-model="modelo.montoInicialDeSubasta"
+					label="Monto inicial de subasta"
+					:rules="validadores.montoInicialDeSubasta"
+					hint="El monto no puede ser negativo"
+					prefix="$"
+					required
+				></v-text-field>
 			</v-form>
 		</v-card-text>
 
@@ -74,7 +84,9 @@
 <script lang="ts">
 import axios from 'axios';
 import { Component, Vue, Emit } from 'vue-property-decorator';
-import { textoRequerido } from '@/helpers/validadores/texto-requerido';
+import { requerido } from '@/helpers/validadores/requerido';
+import { textoNoVacio } from '@/helpers/validadores/texto-no-vacio';
+import { numeroNoNegativo } from '@/helpers/validadores/numero-no-negativo';
 import router from '@/router';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
@@ -95,20 +107,43 @@ export default class CargaDeResidencia extends Vue {
 		localidad: '',
 		domicilio: '',
 		descripcion: '',
-		fotos: [ ]
+		fotos: [ ],
+		montoInicialDeSubasta: 0,
 	};
 
 	/**
 	 * Conjunto de reglas de validación para cada campo del formulario de carga.
 	 */
 	public validadores = {
-		titulo:      [ textoRequerido( 'Título' ) ],
-		pais:        [ textoRequerido( 'País' ) ],
-		provincia:   [ textoRequerido( 'Provincia' ) ],
-		localidad:   [ textoRequerido( 'Localidad' ) ],
-		domicilio:   [ textoRequerido( 'Domicilio' ) ],
-		descripcion: [ textoRequerido( 'Descripcion' ) ],
-		fotos:       [ ],
+		titulo: [
+			requerido( 'Título' ),
+			textoNoVacio( 'Título' )
+		],
+		pais: [
+			requerido( 'País' ),
+			textoNoVacio( 'País' )
+		],
+		provincia: [
+			requerido( 'Provincia' ),
+			textoNoVacio( 'Provincia' )
+		],
+		localidad: [
+			requerido( 'Localidad' ),
+			textoNoVacio( 'Localidad' )
+		],
+		domicilio: [
+			requerido( 'Domicilio' ),
+			textoNoVacio( 'Domicilio' )
+		],
+		descripcion: [
+			requerido( 'Descripción' ),
+			textoNoVacio( 'Descripción' )
+		],
+		fotos: [ ],
+		montoInicialDeSubasta: [
+			requerido( 'Monto inicial de subasta' ),
+			numeroNoNegativo( 'Monto inicial de subasta' )
+		]
 	};
 
 	/**
@@ -181,6 +216,7 @@ export default class CargaDeResidencia extends Vue {
 		this.modelo.domicilio = '';
 		this.modelo.descripcion = '';
 		this.modelo.fotos = [ ];
+		this.modelo.montoInicialDeSubasta = 0;
 
 		this.formularioEsValido = false;
 	}

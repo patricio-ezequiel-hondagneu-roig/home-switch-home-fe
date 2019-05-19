@@ -55,8 +55,18 @@
 					@input="modelo.fotos = extraerLineas( $event )"
 					label="Fotos"
 					:rules="validadores.fotos"
+					hint="Introducí una URL de foto por renglón"
 					no-resize
 				></v-textarea>
+
+				<v-text-field
+					v-model="modelo.montoInicialDeSubasta"
+					label="Monto inicial de subasta"
+					:rules="validadores.montoInicialDeSubasta"
+					hint="El monto no puede ser negativo"
+					prefix="$"
+					required
+				></v-text-field>
 			</v-form>
 		</v-card-text>
 
@@ -75,7 +85,9 @@
 <script lang="ts">
 import axios from 'axios';
 import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
-import { textoRequerido } from '@/helpers/validadores/texto-requerido';
+import { requerido } from '@/helpers/validadores/requerido';
+import { textoNoVacio } from '@/helpers/validadores/texto-no-vacio';
+import { numeroNoNegativo } from '@/helpers/validadores/numero-no-negativo';
 import router from '@/router';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
@@ -102,20 +114,43 @@ export default class ModificacionDeResidencia extends Vue {
 		localidad: this.residencia.localidad,
 		domicilio: this.residencia.domicilio,
 		descripcion: this.residencia.descripcion,
-		fotos: this.residencia.fotos
+		fotos: this.residencia.fotos,
+		montoInicialDeSubasta: this.residencia.montoInicialDeSubasta,
 	};
 
 	/**
 	 * Conjunto de reglas de validación para cada campo del formulario de carga.
 	 */
 	public validadores = {
-		titulo:      [ textoRequerido( 'Título' ) ],
-		pais:        [ textoRequerido( 'País' ) ],
-		provincia:   [ textoRequerido( 'Provincia' ) ],
-		localidad:   [ textoRequerido( 'Localidad' ) ],
-		domicilio:   [ textoRequerido( 'Domicilio' ) ],
-		descripcion: [ textoRequerido( 'Descripcion' ) ],
-		fotos:       [ ],
+		titulo: [
+			requerido( 'Título' ),
+			textoNoVacio( 'Título' )
+		],
+		pais: [
+			requerido( 'País' ),
+			textoNoVacio( 'País' )
+		],
+		provincia: [
+			requerido( 'Provincia' ),
+			textoNoVacio( 'Provincia' )
+		],
+		localidad: [
+			requerido( 'Localidad' ),
+			textoNoVacio( 'Localidad' )
+		],
+		domicilio: [
+			requerido( 'Domicilio' ),
+			textoNoVacio( 'Domicilio' )
+		],
+		descripcion: [
+			requerido( 'Descripción' ),
+			textoNoVacio( 'Descripción' )
+		],
+		fotos: [ ],
+		montoInicialDeSubasta: [
+			requerido( 'Monto inicial de subasta' ),
+			numeroNoNegativo( 'Monto inicial de subasta' )
+		]
 	};
 
 	/**
@@ -181,13 +216,14 @@ export default class ModificacionDeResidencia extends Vue {
 			this.formulario.resetValidation( );
 		}
 
-		this.modelo.titulo      = this.residencia.titulo;
-		this.modelo.pais        = this.residencia.pais;
-		this.modelo.provincia   = this.residencia.provincia;
-		this.modelo.localidad   = this.residencia.localidad;
-		this.modelo.domicilio   = this.residencia.domicilio;
-		this.modelo.descripcion = this.residencia.descripcion;
-		this.modelo.fotos       = this.residencia.fotos;
+		this.modelo.titulo                = this.residencia.titulo;
+		this.modelo.pais                  = this.residencia.pais;
+		this.modelo.provincia             = this.residencia.provincia;
+		this.modelo.localidad             = this.residencia.localidad;
+		this.modelo.domicilio             = this.residencia.domicilio;
+		this.modelo.descripcion           = this.residencia.descripcion;
+		this.modelo.fotos                 = this.residencia.fotos;
+		this.modelo.montoInicialDeSubasta = this.residencia.montoInicialDeSubasta;
 
 		this.formularioEsValido = false;
 	}
