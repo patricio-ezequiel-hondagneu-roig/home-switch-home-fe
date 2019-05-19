@@ -7,6 +7,6 @@
  */
 export const requerido = ( nombreDelCampo: string ) => ( valor: unknown ) => {
 	return ( valor === undefined || valor === null || ( typeof valor === 'string' && valor === '' ) )
-		? `El campo "${ nombreDelCampo }" es un campo obligatorio`
+		? `El campo "${ nombreDelCampo }" es obligatorio`
 		: true;
 };
