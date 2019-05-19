@@ -82,9 +82,15 @@ export default class Ingreso extends Vue {
 		this.mostrarError = false;
 	}
 
-	public ingresar( ): void {
+	// TODO: Reemplazar validación en componente por validación en store
+	/**
+	 * Solicita ingresar al sistema con el código introducido
+	 */
+	public async ingresar( ): Promise<void> {
 		if ( this.codigo === '12345' ) {
-			this.$router.push( '/' );
+			await this.$store.dispatch( 'iniciarSesionComoAdmin' );
+			this.restablecerFormulario( );
+			this.$router.push({ name: 'admin' });
 		} else {
 			this.restablecerFormulario( );
 			this.mostrarError = true;
