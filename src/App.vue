@@ -10,18 +10,41 @@
 			</v-toolbar-title>
 			<v-spacer></v-spacer>
 			<v-toolbar-items>
-				<v-btn flat color="primary" class="text--lighten-1" to="/">
+				<v-btn
+					flat
+					color="primary"
+					class="text--lighten-1"
+					:to="{ name: 'inicio' }"
+					exact
+				>
 					Inicio
 				</v-btn>
-				<v-btn flat v-if="!esAdmin" color="primary" class="text--lighten-1" to="/ingresar">
+				<v-btn
+					flat
+					v-if="!esAdmin"
+					color="primary"
+					class="text--lighten-1"
+					:to="{ name: 'ingresar' }"
+				>
 					Ingresar
 				</v-btn>
-				<v-btn flat v-if="esAdmin" color="primary" class="text--lighten-1" to="/admin">
+				<v-btn
+					flat
+					v-if="esAdmin"
+					color="primary"
+					class="text--lighten-1"
+					:to="{ name: 'administracion' }"
+				>
 					Administración
 				</v-btn>
-				<v-btn flat v-if="esAdmin" color="accent" class="text--lighten-3 ml-4" @click="salir( )">
-					Salir
-					<v-icon class="ml-1">exit_to_app</v-icon>
+				<v-btn
+					flat
+					v-if="esAdmin"
+					color="accent"
+					class="text--lighten-3 ml-4"
+					@click="salir( )"
+				>
+					Salir <v-icon class="ml-1">exit_to_app</v-icon>
 				</v-btn>
 			</v-toolbar-items>
 		</v-toolbar>

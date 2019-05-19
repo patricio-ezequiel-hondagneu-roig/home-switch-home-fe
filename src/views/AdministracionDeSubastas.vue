@@ -35,7 +35,7 @@ import { Subasta } from '@/interfaces/subasta.interface';
 		CargaDeSubasta,
 	},
 })
-export default class AdministracionSubastas extends Vue {
+export default class AdministracionDeSubastas extends Vue {
 	/**
 	 * Flag que indica si se debe o no mostrar el formulario de carga.
 	 */

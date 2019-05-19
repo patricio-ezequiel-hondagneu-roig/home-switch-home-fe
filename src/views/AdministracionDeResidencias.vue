@@ -54,7 +54,7 @@
 			TablaDeResidencias,
 		},
 	})
-	export default class AdministracionResidencias extends Vue {
+	export default class AdministracionDeResidencias extends Vue {
 		/**
 		 * Flag que indica si se debe o no mostrar el formulario de carga.
 		 */

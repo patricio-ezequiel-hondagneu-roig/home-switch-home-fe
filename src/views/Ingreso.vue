@@ -90,7 +90,7 @@ export default class Ingreso extends Vue {
 		if ( this.codigo === '12345' ) {
 			await this.$store.dispatch( 'iniciarSesionComoAdmin' );
 			this.restablecerFormulario( );
-			this.$router.push({ name: 'admin' });
+			this.$router.push({ name: 'administracion' });
 		} else {
 			this.restablecerFormulario( );
 			this.mostrarError = true;
