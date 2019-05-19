@@ -209,12 +209,11 @@ export default class TablaDeResidencias extends Vue {
 		try {
 			const url: string = `${ server.baseURL }/residencias/${ residencia.idResidencia }`;
 			await axios.delete( url );
+			this.emitirEventoResidenciaEliminada( residencia );
 		}
 		catch ( error ) {
 			// TODO: Mostrar una alerta de error cuando la eliminación falla
 		}
-
-		this.emitirEventoResidenciaEliminada( residencia );
 	}
 
 	/**
