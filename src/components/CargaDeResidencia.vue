@@ -177,6 +177,14 @@ export default class CargaDeResidencia extends Vue {
 	}
 
 	/**
+	 * Emite el evento _error_ con el error recibido.
+	 */
+	@Emit( 'error' )
+	public emitirEventoError( error: Error ): Error {
+		return error;
+	}
+
+	/**
 	 * Restablece el formulario y emite el evento _cancelar_.
 	 */
 	public cancelarCarga( ): void {
@@ -191,14 +199,17 @@ export default class CargaDeResidencia extends Vue {
 	 * residencia creada como dato.
 	 */
 	public async crearResidencia( ): Promise<void> {
-		// TODO: Agregar un bloque try para el caso en el que la solicitud falle.
+		try {
+			const url: string = `${ server.baseURL }/residencias`;
+			const respuesta = await axios.post<Residencia>( url, this.modelo );
+			const residenciaCreada = respuesta.data;
 
-		const url: string = `${ server.baseURL }/residencias`;
-		const respuesta = await axios.post<Residencia>( url, this.modelo );
-		const residenciaCreada = respuesta.data;
-
-		this.restablecerFormulario( );
-		this.emitirEventoResidenciaCreada( residenciaCreada );
+			this.restablecerFormulario( );
+			this.emitirEventoResidenciaCreada( residenciaCreada );
+		}
+		catch ( error ) {
+			this.emitirEventoError( new Error( error.response.data.message ) );
+		}
 	}
 
 	/**

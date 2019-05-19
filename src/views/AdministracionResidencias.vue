@@ -8,6 +8,7 @@
 				<v-dialog persistent v-model="formularioDeCargaEsVisible" max-width="40rem">
 					<CargaDeResidencia
 						@residenciaCreada="agregarResidencia( $event )"
+						@error="mostrarError( $event )"
 						@cancelacion="ocultarFormularioDeCarga( )"
 					/>
 				</v-dialog>
@@ -16,10 +17,25 @@
 				<TablaDeResidencias
 					:residencias="residencias"
 					@residenciaModificada="modificarResidencia( $event )"
+					@error="mostrarError( $event )"
 					@residenciaEliminada="eliminarResidencia( $event )"
 				></TablaDeResidencias>
 			</v-flex>
 		</v-layout>
+
+		<v-snackbar
+			v-model="alertaEsVisible"
+			:color="tipoDeAlerta"
+			bottom
+			left
+			multi-line
+		>
+			{{ textoDeAlerta }}
+			<v-btn
+				flat
+				@click="ocultarAlerta( )"
+			>Cerrar</v-btn>
+		</v-snackbar>
 	</v-container>
 </template>
 
@@ -30,6 +46,7 @@
 	import TablaDeResidencias from '@/components/TablaDeResidencias.vue';
 	import { server } from '@/utils/helper';
 	import { Residencia } from '@/interfaces/residencia.interface';
+	import { VuetifyThemeOptionName } from '@/typings/vuetify-theme-option-name.d';
 
 	@Component({
 		components: {
@@ -42,6 +59,21 @@
 		 * Flag que indica si se debe o no mostrar el formulario de carga.
 		 */
 		public formularioDeCargaEsVisible: boolean = false;
+
+		/**
+		 * Flag que indica si se debe o no mostrar la alerta.
+		 */
+		public alertaEsVisible: boolean = false;
+
+		/**
+		 * Valor que indica el color con el que se muestra la alerta.
+		 */
+		public tipoDeAlerta: VuetifyThemeOptionName = 'info';
+
+		/**
+		 * Texto a mostrar en la alerta.
+		 */
+		public textoDeAlerta: string = '';
 
 		/**
 		 * Lista de todas las residencias actualmente en el sistema.
@@ -100,6 +132,13 @@
 		}
 
 		/**
+		 * Muestra un error en la alerta.
+		 */
+		public mostrarError( error: Error ): void {
+			this.mostrarAlerta( error.message, 'error' );
+		}
+
+		/**
 		 * Muestra el formulario de carga de residencias.
 		 */
 		public mostrarFormularioDeCarga( ): void {
@@ -111,6 +150,24 @@
 		 */
 		public ocultarFormularioDeCarga( ): void {
 			this.formularioDeCargaEsVisible = false;
+		}
+
+		/**
+		 * Muestra la alerta con el texto y tipo indicados.
+		 */
+		public mostrarAlerta( texto: string, tipo: VuetifyThemeOptionName ): void {
+			this.textoDeAlerta = texto;
+			this.tipoDeAlerta = tipo;
+			this.alertaEsVisible = true;
+		}
+
+		/**
+		 * Oculta la alerta.
+		 */
+		public ocultarAlerta( ): void {
+			this.textoDeAlerta = '';
+			this.tipoDeAlerta = 'info';
+			this.alertaEsVisible = false;
 		}
 	}
 </script>

@@ -184,6 +184,14 @@ export default class ModificacionDeResidencia extends Vue {
 	}
 
 	/**
+	 * Emite el evento _error_ con el error recibido.
+	 */
+	@Emit( 'error' )
+	public emitirEventoError( error: Error ): Error {
+		return error;
+	}
+
+	/**
 	 * Restablece el formulario y emite el evento _cancelacion_.
 	 */
 	public cancelarModificacion( ): void {
@@ -198,14 +206,17 @@ export default class ModificacionDeResidencia extends Vue {
 	 * residencia modificada como dato.
 	 */
 	public async modificarResidencia( ): Promise<void> {
-		// TODO: Agregar un bloque try para el caso en el que la solicitud falle.
+		try {
+			const url: string = `${ server.baseURL }/residencias/${ this.residencia.idResidencia }`;
+			const respuesta = await axios.put<Residencia>( url, this.modelo );
+			const residenciaModificada = respuesta.data;
 
-		const url: string = `${ server.baseURL }/residencias/${ this.residencia.idResidencia }`;
-		const respuesta = await axios.put<Residencia>( url, this.modelo );
-		const residenciaModificada = respuesta.data;
-
-		this.restablecerFormulario( );
-		this.emitirEventoResidenciaModificada( residenciaModificada );
+			this.restablecerFormulario( );
+			this.emitirEventoResidenciaModificada( residenciaModificada );
+		}
+		catch ( error ) {
+			this.emitirEventoError( new Error( error.response.data.message ) );
+		}
 	}
 
 	/**
