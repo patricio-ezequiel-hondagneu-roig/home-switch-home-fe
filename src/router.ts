@@ -3,6 +3,8 @@ import Router from 'vue-router';
 import Inicio from './views/Inicio.vue';
 import Ingreso from './views/Ingreso.vue';
 import VistaAdministrador from './views/VistaAdministrador.vue';
+import AdministracionResidencias from './views/AdministracionResidencias.vue';
+import AdministracionSubastas from './views/AdministracionSubastas.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 
 Vue.use( Router );
@@ -20,6 +22,16 @@ export default new Router({
 			path: '/admin',
 			name: 'admin',
 			component: VistaAdministrador
+		},
+		{
+			path: '/admin/residencias',
+			name: 'adminResidencias',
+			component: AdministracionResidencias
+		},
+		{
+			path: '/admin/subastas',
+			name: 'adminSubastas',
+			component: AdministracionSubastas
 		},
 		{
 			path: '/ingresar',
