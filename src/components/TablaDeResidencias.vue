@@ -60,6 +60,7 @@
 				v-if="residenciaParaModificar !== null"
 				:residencia="residenciaParaModificar"
 				@residenciaModificada="modificarResidencia( $event )"
+				@error="emitirEventoError( $event )"
 				@cancelacion="ocultarFormularioDeModificacion( )"
 			/>
 		</v-dialog>
@@ -170,6 +171,14 @@ export default class TablaDeResidencias extends Vue {
 	@Emit( 'residenciaEliminada' )
 	public emitirEventoResidenciaEliminada( residenciaEliminada: Residencia ): Residencia {
 		return residenciaEliminada;
+	}
+
+	/**
+	 * Emite el evento _error_ con el error recibido.
+	 */
+	@Emit( 'error' )
+	public emitirEventoError( error: Error ): Error {
+		return error;
 	}
 
 	/**
