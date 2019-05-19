@@ -206,12 +206,14 @@ export default class TablaDeResidencias extends Vue {
 			throw new Error( `No existe ninguna residencia con ID "${ idResidencia }"` );
 		}
 
-		// TODO: Agregar un bloque try para el caso en el que la solicitud falle.
-
-		const url: string = `${ server.baseURL }/residencias/${ residencia.idResidencia }`;
-		await axios.delete( url );
-
-		this.emitirEventoResidenciaEliminada( residencia );
+		try {
+			const url: string = `${ server.baseURL }/residencias/${ residencia.idResidencia }`;
+			await axios.delete( url );
+			this.emitirEventoResidenciaEliminada( residencia );
+		}
+		catch ( error ) {
+			this.emitirEventoError( new Error( error.response.data.message ) );
+		}
 	}
 
 	/**

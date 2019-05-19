@@ -39,7 +39,7 @@
 									@click.stop="mostrarFormularioDeModificacion( props.item.idSubasta )"
 									v-on="on"
 								>
-									<v-icon color="green darken-2">$</v-icon>
+									<v-icon color="green darken-2">attach_money</v-icon>
 								</v-btn>
 							</template>
 							<span>Ofertar</span>
