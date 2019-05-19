@@ -6,6 +6,7 @@
 				Home<span class="font-weight-bold">Switch</span> Home
 			</span>
 		</div>
+		<img src="https://i.imgur.com/3ZY7s2y.png" class="center"/>
 	</div>
 </template>
 
@@ -17,3 +18,12 @@
 
 	}
 </script>
+
+<style>
+	.center {
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+		width: 20%;
+	}
+</style>
