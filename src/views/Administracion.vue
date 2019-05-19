@@ -1,13 +1,19 @@
 <template>
 	<v-container fluid fill-height>
-		<v-layout align-center justify-center row wrap>
-			<h1>Acciones</h1>
-				<v-btn flat class="success" :to="{ name: 'administracion de residencias' }">
-					Admin. Residencias
+		<v-layout justify-center row wrap>
+			<table>
+			<h1 class="display-2">Acciones</h1>
+				<tr>
+				<v-btn flat class="success display-1" :to="{ name: 'administracion de residencias' }">
+					> Administrar Residencias
 				</v-btn>
-				<v-btn flat class="success" :to="{ name: 'administracion de subastas' }">
-					Admin. Subastas
+				</tr>
+				<tr>
+				<v-btn flat class="success display-1" :to="{ name: 'administracion de subastas' }">
+					> Administrar Subastas
 				</v-btn>
+				</tr>
+			</table>
 		</v-layout>
 	</v-container>
 </template>
