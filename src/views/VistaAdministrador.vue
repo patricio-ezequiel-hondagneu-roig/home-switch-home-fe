@@ -13,7 +13,11 @@
 				</v-dialog>
 			</v-flex>
 			<v-flex xs12>
-				<TablaDeResidencias :residencias="residencias"></TablaDeResidencias>
+				<TablaDeResidencias
+					:residencias="residencias"
+					@residenciaModificada="modificarResidencia( $event )"
+					@residenciaEliminada="eliminarResidencia( $event )"
+				></TablaDeResidencias>
 			</v-flex>
 		</v-layout>
 	</v-container>
@@ -71,6 +75,28 @@
 		public agregarResidencia( residenciaCreada: Residencia ): void {
 			this.residencias.push( residenciaCreada );
 			this.ocultarFormularioDeCarga( );
+		}
+
+		/**
+		 * Modifica una residencia de la lista de residencias.
+		 */
+		public modificarResidencia( residenciaModificada: Residencia ): void {
+			this.residencias = this.residencias.map( ( _residenciaActual ) => {
+				return ( _residenciaActual.idResidencia === residenciaModificada.idResidencia )
+					? residenciaModificada
+					: _residenciaActual;
+			});
+		}
+
+		/**
+		 * Elimina un residencia de la lista de residencias.
+		 */
+		public eliminarResidencia( residenciaEliminada: Residencia ): void {
+			const indiceDeResidencia: number = this.residencias.findIndex( ( residencia ) => {
+				return residencia.idResidencia === residenciaEliminada.idResidencia;
+			});
+
+			this.residencias.splice( indiceDeResidencia, 1 );
 		}
 
 		/**
