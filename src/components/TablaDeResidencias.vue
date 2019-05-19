@@ -7,15 +7,18 @@
 			:items="residencias"
 		>
 			<template #items="props">
-				<td>{{ props.item.idResidencia }}</td>
-				<td>{{ props.item.titulo }}</td>
-				<td>{{ props.item.pais }}</td>
-				<td>{{ props.item.provincia }}</td>
-				<td>{{ props.item.localidad }}</td>
-				<td>{{ props.item.domicilio }}</td>
-				<td>{{ props.item.descripcion }}</td>
-				<td>
+				<td class="text-xs-right">{{ props.item.idResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.titulo }}</td>
+				<td class="text-xs-right">{{ props.item.pais }}</td>
+				<td class="text-xs-right">{{ props.item.provincia }}</td>
+				<td class="text-xs-right">{{ props.item.localidad }}</td>
+				<td class="text-xs-right">{{ props.item.domicilio }}</td>
+				<td class="text-xs-right">{{ props.item.descripcion }}</td>
+				<td class="text-xs-right">
 					{{ props.item.fotos.length }} {{ props.item.fotos.length === 1 ? 'foto' : 'fotos' }}
+				</td>
+				<td class="text-xs-right">
+					$ {{ props.item.montoInicialDeSubasta }}
 				</td>
 				<td>
 					<v-layout row>
@@ -97,39 +100,53 @@ export default class TablaDeResidencias extends Vue {
 	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 		{
 			text: 'Id',
-			value: 'idResidencia'
+			value: 'idResidencia',
+			align: 'right'
 		},
 		{
 			text: 'Título',
-			value: 'titulo'
+			value: 'titulo',
+			align: 'right'
 		},
 		{
 			text: 'País',
-			value: 'pais'
+			value: 'pais',
+			align: 'right'
 		},
 		{
 			text: 'Provincia',
-			value: 'provincia'
+			value: 'provincia',
+			align: 'right'
 		},
 		{
 			text: 'Localidad',
-			value: 'localidad'
+			value: 'localidad',
+			align: 'right'
 		},
 		{
 			text: 'Domicilio',
-			value: 'domicilio'
+			value: 'domicilio',
+			align: 'right'
 		},
 		{
 			text: 'Descripción',
-			value: 'descripcion'
+			value: 'descripcion',
+			align: 'right'
 		},
 		{
 			text: 'Fotos',
-			value: 'fotos'
+			value: 'fotos',
+			align: 'right'
+		},
+		{
+			text: 'Monto inicial de subasta',
+			value: 'montoInicialDeSubasta',
+			align: 'right'
 		},
 		{
 			text: '',
 			value: '',
+			align: 'right',
 			sortable: false
 		},
 	];
