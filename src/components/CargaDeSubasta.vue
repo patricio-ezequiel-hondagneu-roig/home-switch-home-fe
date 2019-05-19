@@ -6,13 +6,13 @@
 
 		<v-card-text>
 			<v-form v-model="formularioEsValido" ref="formulario">
-				<v-text-field
+				<v-select
 					v-model="modelo.idResidencia"
+					:items="ids"
 					label="ID de residencia"
 					:rules="validadores.idResidencia"
 					required
-				></v-text-field>
-
+				></v-select>
 				<v-text-field
 					v-model="modelo.montoInicial"
 					label="Monto inicial"
@@ -55,11 +55,13 @@ import router from '@/router';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
 import { Subasta } from '../interfaces/subasta.interface';
+import { Residencia } from '../interfaces/residencia.interface';
 
 @Component
 export default class CargaDeSubasta extends Vue {
 	public formulario: VuetifyFormRef | null = null;
 	public formularioEsValido: boolean = false;
+	public ids: string[] = [];
 
 	/**
 	 * Objeto que almacena el estado de la subasta para crear de acuerdo al estado del formulario.
@@ -80,6 +82,16 @@ export default class CargaDeSubasta extends Vue {
 		fechaDeInicio:   [ requerido( 'Fecha comienzo de reserva' ) ],
 		fechaDeFin:   [ requerido( 'Fecha de fin de reserva' ) ],
 	};
+
+	public created( ): void {
+		this.conseguirIdsResidencias( );
+	}
+	public async conseguirIdsResidencias( ): Promise<void> {
+			// TODO: Agregar bloque try para el caso donde la solicitud falle
+			const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
+			const residencias = respuestaResidencias.data;
+			this.ids = residencias.map( ( residencia ) =>  residencia.idResidencia ) ;
+		}
 
 	/**
 	 * Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM.
