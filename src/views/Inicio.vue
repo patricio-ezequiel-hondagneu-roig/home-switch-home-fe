@@ -1,6 +1,11 @@
 <template>
 	<div class="pa-5">
-		Inicio
+		<div class="text-md-center display-3">
+			Bienvenid@ a
+			<span class="font-weight-light darken-2 primary--text text--lighten-1">
+				Home<span class="font-weight-bold">Switch</span> Home
+			</span>
+		</div>
 	</div>
 </template>
 
