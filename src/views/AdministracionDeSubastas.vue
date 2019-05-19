@@ -8,18 +8,34 @@
 				<v-dialog persistent v-model="formularioDeCargaEsVisible" max-width="40rem">
 					<CargaDeSubasta
 						@subastaCreada="agregarSubasta( $event )"
+						@error="mostrarError( $event )"
 						@cancelacion="ocultarFormularioDeCarga( )"
 					/>
 				</v-dialog>
 			</v-flex>
 			<v-flex xs12>
-				<TablaDeResidencias
+				<TablaDeSubastas
 					:subastas="subastas"
 					@subastaModificada="modificarSubasta( $event )"
 					@subastaEliminada="eliminarSubasta( $event )"
-				></TablaDeResidencias>
+					@error="mostrarError( $event )"
+				></TablaDeSubastas>
 			</v-flex>
 		</v-layout>
+
+		<v-snackbar
+			v-model="alertaEsVisible"
+			:color="tipoDeAlerta"
+			bottom
+			left
+			multi-line
+		>
+			{{ textoDeAlerta }}
+			<v-btn
+				flat
+				@click="ocultarAlerta( )"
+			>Cerrar</v-btn>
+		</v-snackbar>
 	</v-container>
 </template>
 
@@ -27,12 +43,15 @@
 import axios from 'axios';
 import { Component, Vue } from 'vue-property-decorator';
 import CargaDeSubasta from '@/components/CargaDeSubasta.vue';
+import TablaDeSubastas from '@/components/TablaDeSubastas.vue';
 import { server } from '@/utils/helper';
 import { Subasta } from '@/interfaces/subasta.interface';
+import { VuetifyThemeOptionName } from '@/typings/vuetify-theme-option-name.d';
 
 @Component({
 	components: {
 		CargaDeSubasta,
+		TablaDeSubastas
 	},
 })
 export default class AdministracionDeSubastas extends Vue {
@@ -40,6 +59,21 @@ export default class AdministracionDeSubastas extends Vue {
 	 * Flag que indica si se debe o no mostrar el formulario de carga.
 	 */
 	public formularioDeCargaEsVisible: boolean = false;
+
+	/**
+	 * Flag que indica si se debe o no mostrar la alerta.
+	 */
+	public alertaEsVisible: boolean = false;
+
+	/**
+	 * Valor que indica el color con el que se muestra la alerta.
+	 */
+	public tipoDeAlerta: VuetifyThemeOptionName = 'info';
+
+	/**
+	 * Texto a mostrar en la alerta.
+	 */
+	public textoDeAlerta: string = '';
 
 	/**
 	 * Lista de todas las subastas actualmente en el sistema.
@@ -91,10 +125,17 @@ export default class AdministracionDeSubastas extends Vue {
 	 */
 	public eliminarSubasta( subastaEliminada: Subasta ): void {
 		const indiceDeSubasta: number = this.subastas.findIndex( ( subasta ) => {
-			return subasta.idResidencia === subastaEliminada.idResidencia;
+			return subasta.idSubasta === subastaEliminada.idSubasta;
 		});
 
 		this.subastas.splice( indiceDeSubasta, 1 );
+	}
+
+	/**
+	 * Muestra un error en la alerta.
+	 */
+	public mostrarError( error: Error ): void {
+		this.mostrarAlerta( error.message, 'error' );
 	}
 
 	/**
@@ -109,6 +150,24 @@ export default class AdministracionDeSubastas extends Vue {
 	 */
 	public ocultarFormularioDeCarga( ): void {
 		this.formularioDeCargaEsVisible = false;
+	}
+
+	/**
+	 * Muestra la alerta con el texto y tipo indicados.
+	 */
+	public mostrarAlerta( texto: string, tipo: VuetifyThemeOptionName ): void {
+		this.textoDeAlerta = texto;
+		this.tipoDeAlerta = tipo;
+		this.alertaEsVisible = true;
+	}
+
+	/**
+	 * Oculta la alerta.
+	 */
+	public ocultarAlerta( ): void {
+		this.textoDeAlerta = '';
+		this.tipoDeAlerta = 'info';
+		this.alertaEsVisible = false;
 	}
 }
 </script>

@@ -22,7 +22,7 @@
 
 				<v-text-field
 					v-model="modelo.fechaDeInicio"
-					label="Fecha comienzo de reserva"
+					label="Fecha de comienzo de reserva"
 					:rules="validadores.fechaDeInicio"
 					required
 				></v-text-field>
@@ -54,7 +54,8 @@ import { requerido } from '@/helpers/validadores/requerido';
 import router from '@/router';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
-import { Subasta } from '../interfaces/subasta.interface';
+import { Subasta, SubastaParaCrear } from '../interfaces/subasta.interface';
+import { numeroNoNegativo } from '../helpers/validadores/numero-no-negativo';
 
 @Component
 export default class CargaDeSubasta extends Vue {
@@ -64,11 +65,12 @@ export default class CargaDeSubasta extends Vue {
 	/**
 	 * Objeto que almacena el estado de la subasta para crear de acuerdo al estado del formulario.
 	 */
-	public modelo: Subasta = {
+	public modelo: SubastaParaCrear = {
 		idResidencia: '',
 		montoInicial: '',
 		fechaDeInicio: '',
-		fechaDeFin: ''
+		fechaDeFin: '',
+		ofertas: [ ]
 	};
 
 	/**
@@ -76,7 +78,7 @@ export default class CargaDeSubasta extends Vue {
 	 */
 	public validadores = {
 		idResidencia:      [ requerido( 'ID de residencia' ) ],
-		montoInicial:        [ requerido( 'Monto inicial' ) ],
+		montoInicial:        [ requerido( 'Monto inicial' ), numeroNoNegativo( 'Monto inicial' ) ],
 		fechaDeInicio:   [ requerido( 'Fecha comienzo de reserva' ) ],
 		fechaDeFin:   [ requerido( 'Fecha de fin de reserva' ) ],
 	};
@@ -109,6 +111,14 @@ export default class CargaDeSubasta extends Vue {
 	@Emit( 'subastaCreada' )
 	public emitirEventoSubastaCreada( subastaCreada: Subasta ): Subasta {
 		return subastaCreada;
+	}
+
+	/**
+	 * Emite el evento _error_ con el error recibido.
+	 */
+	@Emit( 'error' )
+	public emitirEventoError( error: Error ): Error {
+		return error;
 	}
 
 	/**
@@ -148,6 +158,7 @@ export default class CargaDeSubasta extends Vue {
 		this.modelo.montoInicial = '';
 		this.modelo.fechaDeInicio = '';
 		this.modelo.fechaDeFin = '';
+		this.modelo.ofertas = [];
 
 		this.formularioEsValido = false;
 	}
