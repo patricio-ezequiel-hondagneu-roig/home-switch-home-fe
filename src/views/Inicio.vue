@@ -17,8 +17,7 @@
 			:items="subastas"
 		>
 			<template #items="props">
-				<td class="text-xs-right">{{ props.item.idSubasta }}</td>
-				<td class="text-xs-right">{{ props.item.idResidencia }}</td>
+				<td class="text-xs-left" v-if="obtenerResdenciaPorId(props.item.idResidencia) !== null">{{ obtenerResdenciaPorId(props.item.idResidencia).pais + ', ' + obtenerResdenciaPorId(props.item.idResidencia).provincia + ', ' + obtenerResdenciaPorId(props.item.idResidencia).localidad + ', ' + obtenerResdenciaPorId(props.item.idResidencia).domicilio }}</td>
 				<td class="text-xs-right">{{ props.item.fechaDeInicio }}</td>
 				<td class="text-xs-right">{{ props.item.fechaDeFin }}</td>
 				<td class="text-xs-right">{{ props.item.montoInicial }}</td>
@@ -89,6 +88,7 @@
 	import axios from 'axios';
 	import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
 	import OfertarSubasta from '@/components/OfertarSubasta.vue';
+	import { Residencia } from '@/interfaces/residencia.interface';
 
 	@Component({
 		components: {
@@ -104,28 +104,25 @@
 		public detalleDeSubastaEsVisible: boolean = false;
 		public ofertarDeSubastaEsVisible: boolean = false;
 
+		public residencias: Residencia[ ] = [ ];
+
 		/**
 		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
 		 */
 		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 			{
-				text: 'ID',
-				value: 'idSubasta',
-				align: 'right'
+				text: 'Direccion completa',
+				value: '', // Aca no sé que iria
+				align: 'center'
 			},
 			{
-				text: 'ID de residencia',
-				value: 'idResidencia',
+				text: 'Fecha de inicio',
+				value: 'fechaDeInicio',
 				align: 'right'
 			},
 			{
 				text: 'Fecha de fin',
 				value: 'fechaDeFin',
-				align: 'right'
-			},
-			{
-				text: 'Fecha de inicio',
-				value: 'fechaDeInicio',
 				align: 'right'
 			},
 			{
@@ -153,6 +150,7 @@
 		 */
 		public created( ): void {
 			this.obtenerSubastas( );
+			this.obtenerResidencias( );
 		}
 
 		/**
@@ -177,6 +175,18 @@
 		}
 		public ocultarOfertarSubasta( ): void {
 			this.ofertarDeSubastaEsVisible = false;
+		}
+
+
+		// Aca se arruina todo
+		public async obtenerResidencias( ): Promise<void> {
+			const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
+			this.residencias = respuestaResidencias.data;
+		}
+
+		public obtenerResdenciaPorId( idResidencia: String ): Residencia | null {
+			const resdenciaRespuesta = this.residencias.find((residencia) => residencia.idResidencia === idResidencia);
+			return (resdenciaRespuesta === undefined) ? null : resdenciaRespuesta;
 		}
 	}
 </script>
