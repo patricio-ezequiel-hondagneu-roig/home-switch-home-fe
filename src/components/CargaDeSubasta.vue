@@ -8,15 +8,18 @@
 			<v-form v-model="formularioEsValido" ref="formulario">
 				<v-select
 					v-model="modelo.idResidencia"
-					:items="ids"
+					:items="idsDeResidencias"
 					label="ID de residencia"
 					:rules="validadores.idResidencia"
 					required
 				></v-select>
+
 				<v-text-field
 					v-model="modelo.montoInicial"
 					label="Monto inicial"
 					:rules="validadores.montoInicial"
+					hint="El monto no puede ser negativo"
+					prefix="$"
 					required
 				></v-text-field>
 
@@ -24,12 +27,15 @@
 					v-model="modelo.fechaDeInicio"
 					label="Fecha de comienzo de reserva"
 					:rules="validadores.fechaDeInicio"
+					type="date"
 					required
 				></v-text-field>
+
 				<v-text-field
 					v-model="modelo.fechaDeFin"
 					label="Fecha de fin de reserva"
 					:rules="validadores.fechaDeFin"
+					type="date"
 					required
 				></v-text-field>
 			</v-form>
@@ -40,7 +46,12 @@
 			<v-btn flat @click.stop="cancelarCarga( )">
 				Cancelar
 			</v-btn>
-			<v-btn class="success" :disabled="!formularioEsValido" @click.stop="crearSubasta( )">
+			<v-btn
+				color="success"
+				:loading="esperandoCreacionDeSubasta"
+				:disabled="!formularioEsValido"
+				@click.stop="crearSubasta( )"
+			>
 				Cargar
 			</v-btn>
 		</v-card-actions>
@@ -62,38 +73,73 @@ import { Residencia } from '../interfaces/residencia.interface';
 export default class CargaDeSubasta extends Vue {
 	public formulario: VuetifyFormRef | null = null;
 	public formularioEsValido: boolean = false;
-	public ids: string[] = [];
+
+	/**
+	 * Flag que se activa mientras se espera la respuesta a una solicitud de creación de subasta
+	 */
+	public esperandoCreacionDeSubasta: boolean = false;
+
+	/**
+	 * Contiene los IDs de las residencias existentes
+	 */
+	public idsDeResidencias: string[ ] = [ ];
 
 	/**
 	 * Objeto que almacena el estado de la subasta para crear de acuerdo al estado del formulario.
 	 */
 	public modelo: SubastaParaCrear = {
 		idResidencia: '',
-		montoInicial: '',
+		montoInicial: 0,
 		fechaDeInicio: '',
-		fechaDeFin: '',
-		ofertas: [ ]
+		fechaDeFin: ''
 	};
 
 	/**
 	 * Conjunto de reglas de validación para cada campo del formulario de carga.
 	 */
 	public validadores = {
-		idResidencia:      [ requerido( 'ID de residencia' ) ],
-		montoInicial:        [ requerido( 'Monto inicial' ), numeroNoNegativo( 'Monto inicial' ) ],
-		fechaDeInicio:   [ requerido( 'Fecha comienzo de reserva' ) ],
-		fechaDeFin:   [ requerido( 'Fecha de fin de reserva' ) ],
+		idResidencia: [
+			requerido( 'ID de residencia' )
+		],
+		montoInicial: [
+			requerido( 'Monto inicial' ),
+			numeroNoNegativo( 'Monto inicial' )
+		],
+		fechaDeInicio: [
+			requerido( 'Fecha comienzo de reserva' )
+		],
+		fechaDeFin: [
+			requerido( 'Fecha de fin de reserva' )
+		],
 	};
 
+	/**
+	 * Hook de ciclo de vida.
+	 *
+	 * Solicita las residencias para obtener sus IDs y disponibilizarlos para la creación de subastas.
+	 */
 	public created( ): void {
-		this.conseguirIdsResidencias( );
+		this.obtenerIdsDeResidencias( );
 	}
-	public async conseguirIdsResidencias( ): Promise<void> {
-			// TODO: Agregar bloque try para el caso donde la solicitud falle
+
+	/**
+	 * Solicita las residencias existentes y almacena sus IDs para que sean seleccionables al crear una subasta.
+	 */
+	public async obtenerIdsDeResidencias( ): Promise<void> {
+		try {
 			const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
 			const residencias = respuestaResidencias.data;
-			this.ids = residencias.map( ( residencia ) =>  residencia.idResidencia ) ;
+			this.idsDeResidencias = residencias.map( ( residencia ) => residencia.idResidencia );
 		}
+		catch ( error ) {
+			this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: ( error.response !== undefined )
+					? error.response.data.message
+					: 'Ocurrió un error al conectarse al servidor'
+			});
+		}
+	}
 
 	/**
 	 * Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM.
@@ -148,14 +194,25 @@ export default class CargaDeSubasta extends Vue {
 	 * subasta creada como dato.
 	 */
 	public async crearSubasta( ): Promise<void> {
-		// TODO: Agregar un bloque try para el caso en el que la solicitud falle.
+		try {
+			const url: string = `${ server.baseURL }/subastas`;
+			this.esperandoCreacionDeSubasta = true;
+			const respuesta = await axios.post<Subasta>( url, this.modelo );
+			this.esperandoCreacionDeSubasta = false;
+			const subastaCreada = respuesta.data;
 
-		const url: string = `${ server.baseURL }/subastas`;
-		const respuesta = await axios.post<Subasta>( url, this.modelo );
-		const subastaCreada = respuesta.data;
-
-		this.restablecerFormulario( );
-		this.emitirEventoSubastaCreada( subastaCreada );
+			this.restablecerFormulario( );
+			this.emitirEventoSubastaCreada( subastaCreada );
+		}
+		catch ( error ) {
+			this.esperandoCreacionDeSubasta = false;
+			this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: ( error.response !== undefined )
+					? error.response.data.message
+					: 'Ocurrió un error al conectarse al servidor'
+			});
+		}
 	}
 
 	/**
@@ -166,11 +223,10 @@ export default class CargaDeSubasta extends Vue {
 			this.formulario.resetValidation( );
 		}
 
-		this.modelo.idResidencia = '';
-		this.modelo.montoInicial = '';
+		this.modelo.idResidencia  = '';
+		this.modelo.montoInicial  = 0;
 		this.modelo.fechaDeInicio = '';
-		this.modelo.fechaDeFin = '';
-		this.modelo.ofertas = [];
+		this.modelo.fechaDeFin    = '';
 
 		this.formularioEsValido = false;
 	}
