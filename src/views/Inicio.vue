@@ -34,7 +34,7 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarFormularioDeModificacion( props.item.idSubasta )"
+									@click.stop="mostrarFormularioDeOfertar( props.item.idSubasta )"
 									v-on="on"
 								>
 									<v-icon color="green darken-2">attach_money</v-icon>
@@ -49,11 +49,17 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarFormularioDeModificacion( props.item.idSubasta )"
+									@click.stop="mostrarDetalleDeSubasta( props.item.idSubasta )"
 									v-on="on"
 								>
 									<v-icon>info</v-icon>
 								</v-btn>
+								<v-dialog persistent v-model="detalleDeSubastaEsVisible" max-width="40rem">
+									<DetalleDeSubasta
+										:idSubasta="props.item.idSubasta"
+										@ok="ocultarDetalleDeSubasta( )"
+									/>
+								</v-dialog>
 							</template>
 							<span>Mostrar detalles</span>
 						</v-tooltip>
@@ -73,14 +79,19 @@
 	import { Subasta } from '@/interfaces/subasta.interface';
 	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 	import axios from 'axios';
+	import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
 
-	@Component
+	@Component({
+		components: {
+			DetalleDeSubasta,
+		},
+	})
 	export default class Inicio extends Vue {
 		/**
 		 * Lista de todas las subastas actualmente en el sistema.
 		 */
 		public subastas: Subasta[ ] = [ ];
-
+		public detalleDeSubastaEsVisible: boolean = false;
 		/**
 		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
 		 */
@@ -142,6 +153,12 @@
 
 			const respuestaSubastas = await axios.get<Subasta[ ]>( `${ server.baseURL }/subastas` );
 			this.subastas = respuestaSubastas.data;
+		}
+		public mostrarDetalleDeSubasta( ): void {
+			this.detalleDeSubastaEsVisible = true;
+		}
+		public ocultarDetalleDeSubasta( ): void {
+			this.detalleDeSubastaEsVisible = false;
 		}
 	}
 </script>
