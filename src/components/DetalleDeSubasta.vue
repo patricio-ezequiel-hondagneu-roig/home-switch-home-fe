@@ -43,7 +43,7 @@ export default class DetalleDeResidencia extends Vue{
 	public subasta: Subasta = {
 		idSubasta: '',
 		idResidencia: '',
-		montoInicial: '',
+		montoInicial: 0,
 		fechaDeInicio: '',
 		fechaDeFin: '',
 		ofertas: [ ]

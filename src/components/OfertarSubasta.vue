@@ -71,7 +71,7 @@ export default class OfertarSubasta extends Vue{
 	public validadores = {
 		email:      [ requerido( 'Email' ) ],
 		tarjeta:        [ requerido( 'Tarjeta' ) ],
-		monto:   [ requerido( 'Monto' ) , noMenorQue('Monto', parseInt(this.subasta.montoInicial, 10)) ]
+		monto:   [ requerido( 'Monto' ) , noMenorQue('Monto', this.subasta.montoInicial) ]
 	};
 
 	public beforeMount( ): void {
