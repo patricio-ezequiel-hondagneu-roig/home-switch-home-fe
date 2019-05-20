@@ -3,7 +3,7 @@
 		<v-layout align-center justify-center row wrap>
 			<v-card class="pa-3" width="40rem">
 				<v-card-title>
-					<h5 color="blue" class="headline">Ofertar por subasta</h5>
+					<h5 class="headline">Ofertar por subasta</h5>
 				</v-card-title>
 				<v-card-text>
 					<v-form v-model="formularioEsValido" ref="formulario">
