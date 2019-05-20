@@ -2,18 +2,21 @@
 		<v-container fluid fill-height>
 		<v-layout align-center justify-center row wrap>
 			<v-card v-if='subasta!==null' class="pa-3" width="40rem">
+				<v-card-title>
+					<h5 class="headline">Detalles de subasta</h5>
+				</v-card-title>
 				<v-card-text>
-					Fechas: Del {{subasta.fechaDeInicio}} al {{subasta.fechaDeFin}}
+					Fecha de reservacion: Del <strong>{{subasta.fechaDeInicio}}</strong> al <strong>{{subasta.fechaDeFin}}</strong>
 				</v-card-text>
 				<v-card-text>
-					Monto min. de oferta:
-					{{subasta.montoInicial}}
+					Monto min. para poder ofertar:
+					<strong>$ {{subasta.montoInicial}}</strong>
 				</v-card-text>
 				<v-card-actions>
-				<v-spacer></v-spacer>
-				<v-btn flat @click.stop="emitirEventoOk( )">
-					Ok
-				</v-btn>
+					<v-spacer></v-spacer>
+					<v-btn class="success" flat @click.stop="emitirEventoOk( )">
+						Ok
+					</v-btn>
 				</v-card-actions>
 			</v-card>
 			<v-card v-if='subasta===null'>

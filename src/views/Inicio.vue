@@ -28,17 +28,25 @@
 
 				<td>
 					<v-layout row>
+
 						<v-tooltip left open-delay="100" close-delay="0">
 							<template v-slot:activator="{ on }">
 								<v-btn
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarFormularioDeOfertar( props.item.idSubasta )"
+									@click.stop="mostrarOfertarSubasta()"
 									v-on="on"
 								>
 									<v-icon color="green darken-2">attach_money</v-icon>
 								</v-btn>
+								<v-dialog persistent v-model="ofertarDeSubastaEsVisible" max-width="40rem">
+									<OfertarSubasta
+										:subasta="props.item"
+										@ofertaCreada="ocultarOfertarSubasta()"
+										@cancelacion="ocultarOfertarSubasta()"
+									/>
+								</v-dialog>
 							</template>
 							<span>Ofertar</span>
 						</v-tooltip>
@@ -49,7 +57,7 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarDetalleDeSubasta( props.item.idSubasta )"
+									@click.stop="mostrarDetalleDeSubasta( )"
 									v-on="on"
 								>
 									<v-icon>info</v-icon>
@@ -80,10 +88,12 @@
 	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 	import axios from 'axios';
 	import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
+	import OfertarSubasta from '@/components/OfertarSubasta.vue';
 
 	@Component({
 		components: {
 			DetalleDeSubasta,
+			OfertarSubasta
 		},
 	})
 	export default class Inicio extends Vue {
@@ -92,6 +102,8 @@
 		 */
 		public subastas: Subasta[ ] = [ ];
 		public detalleDeSubastaEsVisible: boolean = false;
+		public ofertarDeSubastaEsVisible: boolean = false;
+
 		/**
 		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
 		 */
@@ -159,6 +171,12 @@
 		}
 		public ocultarDetalleDeSubasta( ): void {
 			this.detalleDeSubastaEsVisible = false;
+		}
+		public mostrarOfertarSubasta( ): void {
+			this.ofertarDeSubastaEsVisible = true;
+		}
+		public ocultarOfertarSubasta( ): void {
+			this.ofertarDeSubastaEsVisible = false;
 		}
 	}
 </script>
