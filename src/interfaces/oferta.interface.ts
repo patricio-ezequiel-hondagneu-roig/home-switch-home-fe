@@ -4,7 +4,7 @@ export interface Oferta {
 	idOferta: string;
 	email: string;
 	tarjeta: string;
-	monto: string;
+	monto: number;
 }
 
 export type SubastaParaCrear = RemoverPropiedades<Oferta, 'idOferta'>;

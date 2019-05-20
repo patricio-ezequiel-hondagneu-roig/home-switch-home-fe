@@ -47,7 +47,7 @@ import { Subasta } from '@/interfaces/subasta.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
 import { Oferta } from '@/interfaces/oferta.interface';
 import { requerido } from '@/helpers/validadores/requerido';
-import { noMenorQue } from '@/helpers/validadores/noMenorQue';
+import { numeroNoMenorque } from '@/helpers/validadores/numero-no-menor-que';
 import { server } from '@/utils/helper';
 import router from '@/router';
 import { Route } from 'vue-router';
@@ -65,13 +65,20 @@ export default class OfertarSubasta extends Vue{
 		idOferta: '',
 		email: '',
 		tarjeta: '',
-		monto: ''
+		monto: 0
 	};
 
 	public validadores = {
-		email:      [ requerido( 'Email' ) ],
-		tarjeta:        [ requerido( 'Tarjeta' ) ],
-		monto:   [ requerido( 'Monto' ) , noMenorQue('Monto', this.subasta.montoInicial ) ]
+		email: [
+			requerido( 'Email' )
+		],
+		tarjeta: [
+			requerido( 'Tarjeta' )
+		],
+		monto: [
+			requerido( 'Monto' ),
+			numeroNoMenorque( 'Monto', this.subasta.montoInicial )
+		]
 	};
 
 	public beforeMount( ): void {
@@ -114,7 +121,7 @@ export default class OfertarSubasta extends Vue{
 		this.modelo.idOferta = '';
 		this.modelo.email = '';
 		this.modelo.tarjeta = '';
-		this.modelo.monto = '';
+		this.modelo.monto = 0;
 		this.formularioEsValido = false;
 	}
 }
