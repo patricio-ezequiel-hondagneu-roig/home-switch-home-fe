@@ -2,7 +2,8 @@
 	<v-app>
 		<v-toolbar app dark color="secondary" class="darken-2 primary--text text--lighten-1">
 			<v-toolbar-title class="headline text-uppercase">
-				<v-layout row align-content-space-between>
+				<v-layout row>
+					<img src="@/assets/images/logo-imagen.svg" class="mr-3 toolbar-logo-image">
 					<span class="font-weight-light">Home</span>
 					<span class="font-weight-bold">Switch</span>
 					<span class="font-weight-light">Home</span>
@@ -71,3 +72,8 @@
 		}
 	}
 </script>
+
+<style lang="stylus" scoped>
+	.toolbar-logo-image
+		max-height: 2rem
+</style>
