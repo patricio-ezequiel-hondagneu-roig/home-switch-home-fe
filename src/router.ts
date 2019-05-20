@@ -56,7 +56,10 @@ const router = new Router({
 		{
 			path: '/ingresar',
 			name: 'ingresar',
-			component: Ingreso
+			component: Ingreso,
+			meta: {
+				requiereNoHaberIngresado: true,
+			}
 		},
 		{
 			path: '/404',

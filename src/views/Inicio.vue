@@ -6,11 +6,9 @@
 				Home<span class="font-weight-bold">Switch</span> Home
 			</span>
 		</div>
-		<img src="https://i.imgur.com/3ZY7s2y.png" class="center"/>
-		<br>
-		<hr>
-		<br>
-		<p class="text-xs-center display-2">Subastas:</p>
+		<img src="@/assets/images/logo-imagen.svg" class="center"/>
+		<hr class="my-4">
+		<p class="display-1">Subastas</p>
 
 		<!-- Tabla de subastas para que los visitantes puedan visualizarla y ofertar -->
 		<v-data-table
@@ -78,7 +76,52 @@
 
 	@Component
 	export default class Inicio extends Vue {
-		public subastas: Subasta[ ] = [ ]; // duda
+		/**
+		 * Lista de todas las subastas actualmente en el sistema.
+		 */
+		public subastas: Subasta[ ] = [ ];
+
+		/**
+		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
+		 */
+		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+			{
+				text: 'ID',
+				value: 'idSubasta',
+				align: 'right'
+			},
+			{
+				text: 'ID de residencia',
+				value: 'idResidencia',
+				align: 'right'
+			},
+			{
+				text: 'Fecha de fin',
+				value: 'fechaDeFin',
+				align: 'right'
+			},
+			{
+				text: 'Fecha de inicio',
+				value: 'fechaDeInicio',
+				align: 'right'
+			},
+			{
+				text: 'Monto inicial',
+				value: 'montoInicial',
+				align: 'right'
+			},
+			{
+				text: 'Ofertas',
+				value: 'ofertas',
+				align: 'right'
+			},
+			{
+				text: '',
+				value: '',
+				align: 'right',
+				sortable: false
+			},
+		];
 
 		/**
 		 * Hook de ciclo de vida.
@@ -100,45 +143,6 @@
 			const respuestaSubastas = await axios.get<Subasta[ ]>( `${ server.baseURL }/subastas` );
 			this.subastas = respuestaSubastas.data;
 		}
-
-		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
-			{
-				text: 'Id',
-				value: 'idSubasta',
-				align: 'right'
-			},
-			{
-				text: 'idResidencia',
-				value: 'idResidencia',
-				align: 'right'
-			},
-			{
-				text: 'Fecha de fin',
-				value: 'fechaDeFin',
-				align: 'right'
-			},
-			{
-				text: 'Fecha de inicio',
-				value: 'fechaDeInicio',
-				align: 'right'
-			},
-			{
-				text: 'Monto Inicial',
-				value: 'montoInicial',
-				align: 'right'
-			},
-			{
-				text: 'Ofertas',
-				value: 'ofertas',
-				align: 'right'
-			},
-			{
-				text: '',
-				value: '',
-				align: 'right',
-				sortable: false
-			},
-		];
 	}
 </script>
 
