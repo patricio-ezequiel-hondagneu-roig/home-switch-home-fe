@@ -34,18 +34,11 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarOfertarSubasta()"
+									@click.stop="mostrarOfertar(props.item)"
 									v-on="on"
 								>
 									<v-icon color="green darken-2">attach_money</v-icon>
 								</v-btn>
-								<v-dialog persistent v-model="ofertarDeSubastaEsVisible" max-width="40rem">
-									<OfertarSubasta
-										:subasta="props.item"
-										@ofertaCreada="ocultarOfertarSubasta()"
-										@cancelacion="ocultarOfertarSubasta()"
-									/>
-								</v-dialog>
 							</template>
 							<span>Ofertar</span>
 						</v-tooltip>
@@ -56,17 +49,12 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarDetalleDeSubasta( )"
+									@click.stop="mostrarDetalles( props.item )"
 									v-on="on"
 								>
 									<v-icon>info</v-icon>
 								</v-btn>
-								<v-dialog persistent v-model="detalleDeSubastaEsVisible" max-width="40rem">
-									<DetalleDeSubasta
-										:idSubasta="props.item.idSubasta"
-										@ok="ocultarDetalleDeSubasta( )"
-									/>
-								</v-dialog>
+
 							</template>
 							<span>Mostrar detalles</span>
 						</v-tooltip>
@@ -74,121 +62,148 @@
 				</td>
 			</template>
 		</v-data-table>
-
-
+	<v-dialog persistent v-model="detalleDeSubastaEsVisible" max-width="40rem">
+		<DetalleDeSubasta
+			:subasta="subasta"
+			@ok="ocultarDetalleDeSubasta( )"
+		/>
+	</v-dialog>
+	<v-dialog persistent v-model="ofertarDeSubastaEsVisible" max-width="40rem">
+		<OfertarSubasta
+			:subasta="subasta"
+			@ofertaCreada="ocultarOfertarSubasta()"
+			@cancelacion="ocultarOfertarSubasta()"
+		/>
+	</v-dialog>
 	</div>
 </template>
 
 <script lang="ts">
-	import { Component, Vue } from 'vue-property-decorator';
-	import TablaDeSubastas from '@/components/TablaDeSubastas.vue';
-	import { server } from '@/utils/helper';
-	import { Subasta } from '@/interfaces/subasta.interface';
-	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
-	import axios from 'axios';
-	import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
-	import OfertarSubasta from '@/components/OfertarSubasta.vue';
-	import { Residencia } from '@/interfaces/residencia.interface';
+import { Component, Vue } from 'vue-property-decorator';
+import TablaDeSubastas from '@/components/TablaDeSubastas.vue';
+import { server } from '@/utils/helper';
+import { Subasta } from '@/interfaces/subasta.interface';
+import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+import axios from 'axios';
+import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
+import OfertarSubasta from '@/components/OfertarSubasta.vue';
+import { Residencia } from '@/interfaces/residencia.interface';
 
-	@Component({
-		components: {
-			DetalleDeSubasta,
-			OfertarSubasta
+@Component({
+	components: {
+		DetalleDeSubasta,
+		OfertarSubasta
+	},
+})
+export default class Inicio extends Vue {
+	/**
+	 * Lista de todas las subastas actualmente en el sistema.
+	 */
+	public subastas: Subasta[ ] = [ ];
+	public subasta: Subasta = {
+		idSubasta: '',
+		idResidencia: '',
+		montoInicial: 0,
+		fechaDeInicio: '',
+		fechaDeFin: '',
+		ofertas: [ ],
+	};
+	public detalleDeSubastaEsVisible: boolean = false;
+	public ofertarDeSubastaEsVisible: boolean = false;
+	public residencias: Residencia[ ] = [ ];
+
+	/**
+	 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
+	 */
+	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+		{
+			text: 'Direccion completa',
+			value: '', // Aca no sé que iria
+			align: 'center'
 		},
-	})
-	export default class Inicio extends Vue {
-		/**
-		 * Lista de todas las subastas actualmente en el sistema.
-		 */
-		public subastas: Subasta[ ] = [ ];
-		public detalleDeSubastaEsVisible: boolean = false;
-		public ofertarDeSubastaEsVisible: boolean = false;
+		{
+			text: 'Fecha de inicio',
+			value: 'fechaDeInicio',
+			align: 'right'
+		},
+		{
+			text: 'Fecha de fin',
+			value: 'fechaDeFin',
+			align: 'right'
+		},
+		{
+			text: 'Monto inicial',
+			value: 'montoInicial',
+			align: 'right'
+		},
+		{
+			text: 'Ofertas',
+			value: 'ofertas',
+			align: 'right'
+		},
+		{
+			text: '',
+			value: '',
+			align: 'right',
+			sortable: false
+		},
+	];
 
-		public residencias: Residencia[ ] = [ ];
-
-		/**
-		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
-		 */
-		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
-			{
-				text: 'Direccion completa',
-				value: '', // Aca no sé que iria
-				align: 'center'
-			},
-			{
-				text: 'Fecha de inicio',
-				value: 'fechaDeInicio',
-				align: 'right'
-			},
-			{
-				text: 'Fecha de fin',
-				value: 'fechaDeFin',
-				align: 'right'
-			},
-			{
-				text: 'Monto inicial',
-				value: 'montoInicial',
-				align: 'right'
-			},
-			{
-				text: 'Ofertas',
-				value: 'ofertas',
-				align: 'right'
-			},
-			{
-				text: '',
-				value: '',
-				align: 'right',
-				sortable: false
-			},
-		];
-
-		/**
-		 * Hook de ciclo de vida.
-		 *
-		 * Carga las subastas actualmente en el sistema al instanciar el componente.
-		 */
-		public created( ): void {
-			this.obtenerSubastas( );
-			this.obtenerResidencias( );
-		}
-
-		/**
-		 * Solicita la lista de todas las subastas actualmente en el sistema.
-		 *
-		 * Al recibir una respuesta de éxito, actualiza la lista de subastas del componente con las recibidas.
-		 */
-		public async obtenerSubastas( ): Promise<void> {
-			// TODO: Agregar bloque try para el caso donde la solicitud falle
-
-			const respuestaSubastas = await axios.get<Subasta[ ]>( `${ server.baseURL }/subastas` );
-			this.subastas = respuestaSubastas.data;
-		}
-		public mostrarDetalleDeSubasta( ): void {
-			this.detalleDeSubastaEsVisible = true;
-		}
-		public ocultarDetalleDeSubasta( ): void {
-			this.detalleDeSubastaEsVisible = false;
-		}
-		public mostrarOfertarSubasta( ): void {
-			this.ofertarDeSubastaEsVisible = true;
-		}
-		public ocultarOfertarSubasta( ): void {
-			this.ofertarDeSubastaEsVisible = false;
-		}
-
-
-		// Aca se arruina todo
-		public async obtenerResidencias( ): Promise<void> {
-			const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
-			this.residencias = respuestaResidencias.data;
-		}
-
-		public obtenerResdenciaPorId( idResidencia: String ): Residencia | null {
-			const resdenciaRespuesta = this.residencias.find((residencia) => residencia.idResidencia === idResidencia);
-			return (resdenciaRespuesta === undefined) ? null : resdenciaRespuesta;
-		}
+	/**
+	 * Hook de ciclo de vida.
+	 *
+	 * Carga las subastas actualmente en el sistema al instanciar el componente.
+	 */
+	public created( ): void {
+		this.obtenerSubastas( );
+		this.obtenerResidencias( );
 	}
+
+	/**
+	 * Solicita la lista de todas las subastas actualmente en el sistema.
+	 *
+	 * Al recibir una respuesta de éxito, actualiza la lista de subastas del componente con las recibidas.
+	 */
+	public async obtenerSubastas( ): Promise<void> {
+		// TODO: Agregar bloque try para el caso donde la solicitud falle
+		const respuestaSubastas = await axios.get<Subasta[ ]>( `${ server.baseURL }/subastas` );
+		this.subastas = respuestaSubastas.data;
+	}
+
+// -----------------------------------------------------Comportamiento de ventana emergente
+	public mostrarDetalles( subastaParaDetallar: Subasta ): void {
+		this.subasta = subastaParaDetallar;
+		this.mostrarDetalleDeSubasta();
+	}
+	public mostrarOfertar( subastaParaOfertar: Subasta ): void {
+		this.subasta = subastaParaOfertar;
+		this.mostrarOfertarSubasta();
+	}
+	public mostrarDetalleDeSubasta( ): void {
+		this.detalleDeSubastaEsVisible = true;
+	}
+	public ocultarDetalleDeSubasta( ): void {
+		this.detalleDeSubastaEsVisible = false;
+	}
+	public mostrarOfertarSubasta( ): void {
+		this.ofertarDeSubastaEsVisible = true;
+	}
+	public ocultarOfertarSubasta( ): void {
+		this.ofertarDeSubastaEsVisible = false;
+	}
+// ----------------------------------------------------------------------------------------------
+
+	// Aca se arruina todo
+	public async obtenerResidencias( ): Promise<void> {
+		const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
+		this.residencias = respuestaResidencias.data;
+	}
+
+	public obtenerResdenciaPorId( idResidencia: String ): Residencia | null {
+		const resdenciaRespuesta = this.residencias.find((residencia) => residencia.idResidencia === idResidencia);
+		return (resdenciaRespuesta === undefined) ? null : resdenciaRespuesta;
+	}
+}
 </script>
 
 <style>

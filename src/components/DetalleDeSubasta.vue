@@ -3,7 +3,7 @@
 		<v-layout align-center justify-center row wrap>
 			<v-card v-if='subasta!==null' class="pa-3" width="40rem">
 				<v-card-title>
-					<h5 class="headline">Detalles de subasta</h5>
+					<h5 class="headline">Detalles de subasta </h5>
 				</v-card-title>
 				<v-card-text>
 					Fecha de reservacion: Del <strong>{{subasta.fechaDeInicio}}</strong> al <strong>{{subasta.fechaDeFin}}</strong>
@@ -22,7 +22,7 @@
 			<v-card v-if='subasta===null'>
 				No hay residencia para mostrar.
 			</v-card>
-		</v-layout>
+		</v-layout>R
 
 	</v-container>
 </template>
@@ -38,31 +38,32 @@ import { VuetifyThemeOptionName } from '@/typings/vuetify-theme-option-name';
 @Component
 export default class DetalleDeResidencia extends Vue{
 	@Prop()
-	public readonly idSubasta!: string;
+	public readonly subasta!: Subasta;
 
-	public subasta: Subasta = {
-		idSubasta: '',
-		idResidencia: '',
-		montoInicial: 0,
-		fechaDeInicio: '',
-		fechaDeFin: '',
-		ofertas: [ ]
-	};
+	// public subasta: Subasta = {
+	// 	idSubasta: '',
+	// 	idResidencia: '',
+	// 	montoInicial: 0,
+	// 	fechaDeInicio: '',
+	// 	fechaDeFin: '',
+	// 	ofertas: [ ]
+	// };
 
 	@Emit( 'ok' )
 	public emitirEventoOk( ): void { }
 
-	public created() {
-		this.traerSubasta();
-	}
-	public async traerSubasta(): Promise<void> {
-		try {
-			const respuestaSubasta = await axios.get<Subasta>( `${ server.baseURL }/subastas/${this.idSubasta}` );
-			this.subasta = respuestaSubasta.data;
-		}catch (error) {
-			router.push({ name: '404' });
-		}
-	}
+	// public created() {
+	// 	console.log(this.subasta.idSubasta);
+	// 	this.traerSubasta();
+	// }
+	// public async traerSubasta(): Promise<void> {
+	// 	try {
+	// 		const respuestaSubasta = await axios.get<Subasta>( `${ server.baseURL }/subastas/${this.idSubasta}` );
+	// 		this.subasta = respuestaSubasta.data;
+	// 	}catch (error) {
+	// 		router.push({ name: '404' });
+	// 	}
+	// }
 
 }
 </script>

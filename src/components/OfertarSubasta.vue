@@ -71,7 +71,7 @@ export default class OfertarSubasta extends Vue{
 	public validadores = {
 		email:      [ requerido( 'Email' ) ],
 		tarjeta:        [ requerido( 'Tarjeta' ) ],
-		monto:   [ requerido( 'Monto' ) , noMenorQue('Monto', this.subasta.montoInicial) ]
+		monto:   [ requerido( 'Monto' ) , noMenorQue('Monto', this.subasta.montoInicial ) ]
 	};
 
 	public beforeMount( ): void {
@@ -97,7 +97,7 @@ export default class OfertarSubasta extends Vue{
 	public async crearOferta( ): Promise<void> {
 		// TODO: Agregar un bloque try para el caso en el que la solicitud falle.
 
-		const url: string = `${ server.baseURL }/subastas/ofertas`;
+		const url: string = `${ server.baseURL }/subastas/ofertas/${this.subasta.idSubasta}`;
 		const respuesta = await axios.post<Oferta>( url, this.modelo );
 		const ofertaCreada = respuesta.data;
 
