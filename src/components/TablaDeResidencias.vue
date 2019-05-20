@@ -168,8 +168,6 @@ export default class TablaDeResidencias extends Vue {
 	 * Variable que almacena una residencia mientras está siendo modificada, es _null_ en cualquier otro caso.
 	 */
 	public residenciaParaModificar: Residencia | null = null;
-
-
 	/**
 	 * Emite el evento _residenciaModificada_ con la residencia recibida.
 	 */
