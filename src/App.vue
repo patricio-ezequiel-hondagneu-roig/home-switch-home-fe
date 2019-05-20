@@ -52,25 +52,38 @@
 
 		<v-content>
 			<router-view></router-view>
+			<Alerta></Alerta>
 		</v-content>
 	</v-app>
 </template>
 
 <script lang="ts">
-	import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
+import { InformacionDeAlerta } from '@/interfaces/informacion-de-alerta.interface';
+import Alerta from '@/components/Alerta.vue';
 
-	@Component
-	export default class App extends Vue {
-
-		public get esAdmin( ): boolean {
-			return this.$store.getters.esAdmin;
-		}
-
-		public async salir( ): Promise<void> {
-			await this.$store.dispatch( 'cerrarSesionComoAdmin' );
-			this.$router.push({ name: 'ingresar' });
-		}
+@Component({
+	components: {
+		Alerta
 	}
+})
+export default class App extends Vue {
+	/**
+	 * Retorna si el usuario tiene permisos de administrador.
+	 */
+	public get esAdmin( ): boolean {
+		return this.$store.getters.esAdmin;
+	}
+
+	/**
+	 * Cierra la sesión del usuario actual
+	 */
+	public async salir( ): Promise<void> {
+		await this.$store.dispatch( 'cerrarSesionComoAdmin' );
+		await this.$store.dispatch( 'mostrarAlerta', { texto: 'Saliste de Home Switch Home', tipo: 'success' } );
+		this.$router.push({ name: 'ingresar' });
+	}
+}
 </script>
 
 <style lang="stylus" scoped>

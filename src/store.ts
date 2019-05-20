@@ -1,11 +1,20 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { InformacionDeAlerta } from '@/interfaces/informacion-de-alerta.interface';
+import { RemoverPropiedades } from './typings/remover-propiedades';
 
 Vue.use( Vuex );
+
+const alerta: InformacionDeAlerta = {
+	esVisible: false,
+	texto: '',
+	tipo: 'info',
+};
 
 export default new Vuex.Store({
 	state: {
 		esAdmin: <boolean | null> null,
+		alerta: alerta,
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -15,6 +24,9 @@ export default new Vuex.Store({
 
 			return state.esAdmin;
 		},
+		alerta: ( state ) => {
+			return state.alerta;
+		}
 	},
 	mutations: {
 		iniciarSesionComoAdmin( state ) {
@@ -24,14 +36,30 @@ export default new Vuex.Store({
 		cerrarSesionComoAdmin( state ) {
 			state.esAdmin = false;
 			localStorage.removeItem( 'esAdmin' );
+		},
+		mostrarAlerta( state, argumentos: RemoverPropiedades<InformacionDeAlerta, 'esVisible'> ) {
+			state.alerta.texto = argumentos.texto;
+			state.alerta.tipo = argumentos.tipo;
+			state.alerta.esVisible = true;
+		},
+		ocultarAlerta( state ) {
+			state.alerta.texto = '';
+			state.alerta.tipo = 'info';
+			state.alerta.esVisible = false;
 		}
 	},
 	actions: {
-		iniciarSesionComoAdmin( context ) {
-			context.commit( 'iniciarSesionComoAdmin' );
+		iniciarSesionComoAdmin( { commit } ) {
+			commit( 'iniciarSesionComoAdmin' );
 		},
-		cerrarSesionComoAdmin( context ) {
-			context.commit( 'cerrarSesionComoAdmin' );
+		cerrarSesionComoAdmin( { commit } ) {
+			commit( 'cerrarSesionComoAdmin' );
+		},
+		mostrarAlerta( { commit }, argumentos: RemoverPropiedades<InformacionDeAlerta, 'esVisible'> ) {
+			commit( 'mostrarAlerta', argumentos );
+		},
+		ocultarAlerta( { commit } ) {
+			commit( 'ocultarAlerta' );
 		}
 	},
 });
