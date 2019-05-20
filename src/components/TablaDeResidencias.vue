@@ -50,6 +50,19 @@
 							</template>
 							<span>Eliminar residencia</span>
 						</v-tooltip>
+						<v-tooltip left open-delay="100" close-delay="0">
+							<template v-slot:activator="{ on }">
+								<v-btn
+									flat
+									icon
+									class="secondary--text"
+									:to="{ name: 'detalle de residencia', params: { idResidencia: props.item.idResidencia } }"
+								>
+								<v-icon>info</v-icon>
+								</v-btn>
+							</template>
+							<span>Detalles de Residencia</span>
+						</v-tooltip>
 					</v-layout>
 				</td>
 			</template>
@@ -77,7 +90,7 @@ import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 import { server } from '@/utils/helper';
 import ModificacionDeResidencia from './ModificacionDeResidencia.vue';
-
+import router from '@/router';
 @Component({
 	components: {
 		ModificacionDeResidencia
@@ -151,11 +164,11 @@ export default class TablaDeResidencias extends Vue {
 			sortable: false
 		},
 	];
-
 	/**
 	 * Variable que almacena una residencia mientras está siendo modificada, es _null_ en cualquier otro caso.
 	 */
 	public residenciaParaModificar: Residencia | null = null;
+
 
 	/**
 	 * Emite el evento _residenciaModificada_ con la residencia recibida.
