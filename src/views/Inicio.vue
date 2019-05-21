@@ -15,6 +15,7 @@
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
 			:items="subastas"
+			no-data-text="No hay subastas activas por el momento ¡Intentalo más tarde!"
 		>
 			<template #items="props">
 				<td class="text-xs-left" v-if="obtenerResdenciaPorId(props.item.idResidencia) !== null">{{ obtenerResdenciaPorId(props.item.idResidencia).pais + ', ' + obtenerResdenciaPorId(props.item.idResidencia).provincia + ', ' + obtenerResdenciaPorId(props.item.idResidencia).localidad + ', ' + obtenerResdenciaPorId(props.item.idResidencia).domicilio }}</td>
@@ -61,14 +62,7 @@
 					</v-layout>
 				</td>
 			</template>
-
-			<!-- Muestra un mensaje en caso de que no haya ninguna subasta activa -->
-			<template v-slot:no-data>
-				<v-alert :value="true" color="info" icon="info">
-					No hay subastas activas por el momento. ¡Intentalo más tarde!
-				</v-alert>
-			</template>
-		</v-data-table>
+	</v-data-table>
 	<v-dialog persistent v-model="detalleDeSubastaEsVisible" max-width="40rem">
 		<DetalleDeSubasta
 			:subasta="subasta"
