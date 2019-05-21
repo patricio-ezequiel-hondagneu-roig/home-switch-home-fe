@@ -185,7 +185,7 @@ export default class CargaDeResidencia extends Vue {
 	}
 
 	/**
-	 * Restablece el formulario y emite el evento _cancelar_.
+	 * Restablece el formulario y emite el evento _cancelacion_.
 	 */
 	public cancelarCarga( ): void {
 		this.restablecerFormulario( );

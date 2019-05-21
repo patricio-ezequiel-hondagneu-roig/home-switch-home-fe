@@ -69,7 +69,8 @@
 		/>
 	</v-dialog>
 	<v-dialog persistent v-model="ofertarDeSubastaEsVisible" max-width="40rem">
-		<OfertarSubasta
+		<CargaDeOfertaDeSubasta
+			v-if="ofertarDeSubastaEsVisible"
 			:subasta="subasta"
 			@ofertaCreada="ocultarOfertarSubasta()"
 			@cancelacion="ocultarOfertarSubasta()"
@@ -79,20 +80,20 @@
 </template>
 
 <script lang="ts">
+import axios from 'axios';
 import { Component, Vue } from 'vue-property-decorator';
+import CargaDeOfertaDeSubasta from '@/components/CargaDeOfertaDeSubasta.vue';
+import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
 import TablaDeSubastas from '@/components/TablaDeSubastas.vue';
-import { server } from '@/utils/helper';
+import { Residencia } from '@/interfaces/residencia.interface';
 import { Subasta } from '@/interfaces/subasta.interface';
 import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
-import axios from 'axios';
-import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
-import OfertarSubasta from '@/components/OfertarSubasta.vue';
-import { Residencia } from '@/interfaces/residencia.interface';
+import { server } from '@/utils/helper';
 
 @Component({
 	components: {
-		DetalleDeSubasta,
-		OfertarSubasta
+		CargaDeOfertaDeSubasta,
+		DetalleDeSubasta
 	},
 })
 export default class Inicio extends Vue {
@@ -100,6 +101,7 @@ export default class Inicio extends Vue {
 	 * Lista de todas las subastas actualmente en el sistema.
 	 */
 	public subastas: Subasta[ ] = [ ];
+
 	public subasta: Subasta = {
 		idSubasta: '',
 		idResidencia: '',
@@ -108,8 +110,10 @@ export default class Inicio extends Vue {
 		fechaDeFin: '',
 		ofertas: [ ],
 	};
+
 	public detalleDeSubastaEsVisible: boolean = false;
 	public ofertarDeSubastaEsVisible: boolean = false;
+
 	public residencias: Residencia[ ] = [ ];
 
 	/**

@@ -7,5 +7,5 @@ export interface Oferta {
 	monto: number;
 }
 
-export type SubastaParaCrear = RemoverPropiedades<Oferta, 'idOferta'>;
-export type SubastaParaModificar = RemoverPropiedades<Oferta, 'idOferta' >;
+export type OfertaParaCrear = RemoverPropiedades<Oferta, 'idOferta'>;
+export type OfertaParaModificar = RemoverPropiedades<Oferta, 'idOferta'>;
