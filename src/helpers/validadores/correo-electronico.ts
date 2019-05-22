@@ -1,6 +1,6 @@
 /**
- * Dado un nombre de campo retorna una función que valida si un dato de tipo _string_ tiene formato de tarjeta de
- * dirección de correo electrónico.
+ * Dado un nombre de campo retorna una función que valida si un dato de tipo _string_ tiene formato de dirección de
+ * correo electrónico.
  *
  * Si la validación tiene éxito retorna _true_, en caso contrario retorna un mensaje de error.
  *

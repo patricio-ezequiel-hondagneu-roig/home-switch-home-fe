@@ -1,18 +1,28 @@
 <template>
 	<v-card class="pa-3">
 		<v-card-title>
-			<h5 class="headline">Creación de Subasta</h5>
+			<h5 class="headline">Cargar subasta</h5>
 		</v-card-title>
 
 		<v-card-text>
 			<v-form v-model="formularioEsValido" ref="formulario">
 				<v-select
 					v-model="modelo.idResidencia"
-					:items="idsDeResidencias"
-					label="ID de residencia"
-					:rules="validadores.idResidencia"
+					:items="residencias"
+					item-value="idResidencia"
+					label="Residencia"
+					no-data-text="No hay residencias para mostrar"
+					:rules="validadores.residencia"
 					required
-				></v-select>
+				>
+					<template #selection="{ item }">
+						{{ item.titulo }}
+					</template>
+					<template #item="{ item }">
+						{{ item.titulo }}
+						<span class="ml-1 caption font-italic">&mdash; {{ ubicacionDeResidencia( item ) }}</span>
+					</template>
+				</v-select>
 
 				<v-text-field
 					v-model="modelo.montoInicial"
@@ -80,9 +90,9 @@ export default class CargaDeSubasta extends Vue {
 	public esperandoCreacionDeSubasta: boolean = false;
 
 	/**
-	 * Contiene los IDs de las residencias existentes
+	 * Contiene las residencias existentes
 	 */
-	public idsDeResidencias: string[ ] = [ ];
+	public residencias: Residencia[ ] = [ ];
 
 	/**
 	 * Objeto que almacena el estado de la subasta para crear de acuerdo al estado del formulario.
@@ -98,8 +108,8 @@ export default class CargaDeSubasta extends Vue {
 	 * Conjunto de reglas de validación para cada campo del formulario de carga.
 	 */
 	public validadores = {
-		idResidencia: [
-			requerido( 'ID de residencia' )
+		residencia: [
+			requerido( 'Residencia' )
 		],
 		montoInicial: [
 			requerido( 'Monto inicial' ),
@@ -114,22 +124,29 @@ export default class CargaDeSubasta extends Vue {
 	};
 
 	/**
-	 * Hook de ciclo de vida.
-	 *
-	 * Solicita las residencias para obtener sus IDs y disponibilizarlos para la creación de subastas.
+	 * Retorna un texto con la localidad, provincia y país de una residencia dada.
 	 */
-	public created( ): void {
-		this.obtenerIdsDeResidencias( );
+	public ubicacionDeResidencia = ( residencia: Residencia ): string => {
+		const { domicilio, localidad, provincia, pais } = residencia;
+		return `${ domicilio }, ${ localidad }, ${ provincia }, ${ pais }`;
 	}
 
 	/**
-	 * Solicita las residencias existentes y almacena sus IDs para que sean seleccionables al crear una subasta.
+	 * Hook de ciclo de vida.
+	 *
+	 * Solicita las residencias para seleccionar en el formulario de carga
 	 */
-	public async obtenerIdsDeResidencias( ): Promise<void> {
+	public created( ): void {
+		this.obtenerResidencias( );
+	}
+
+	/**
+	 * Solicita las residencias existentes para que sean seleccionables al crear una subasta.
+	 */
+	public async obtenerResidencias( ): Promise<void> {
 		try {
 			const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
-			const residencias = respuestaResidencias.data;
-			this.idsDeResidencias = residencias.map( ( residencia ) => residencia.idResidencia );
+			this.residencias = respuestaResidencias.data;
 		}
 		catch ( error ) {
 			this.$store.dispatch( 'mostrarAlerta', {
