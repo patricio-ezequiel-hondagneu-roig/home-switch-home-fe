@@ -28,7 +28,12 @@
 
 				<v-card-actions>
 					<v-spacer></v-spacer>
-					<v-btn class="success" :disabled="!formularioEsValido" @click.stop="ingresar( )">
+					<v-btn
+						class="success"
+						:disabled="!formularioEsValido"
+						:loading="esperandoValidacionDeIngreso"
+						@click.stop="ingresar( )"
+					>
 						Ingresar
 					</v-btn>
 				</v-card-actions>
@@ -64,6 +69,12 @@ export default class Ingreso extends Vue {
 			},
 		],
 	};
+
+	/**
+	 * Flag que se activa mientras se espera la respuesta a una solicitud de ingreso
+	 */
+	public esperandoValidacionDeIngreso: boolean = false;
+
 	private mostrarError: boolean = false;
 
 	/** Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM. */
@@ -88,7 +99,17 @@ export default class Ingreso extends Vue {
 	 */
 	public async ingresar( ): Promise<void> {
 		if ( this.codigo === '12345' ) {
+			this.esperandoValidacionDeIngreso = true;
+			// TODO: Cambiar esta espera de 3 segundos por una llamada real al servidor
+			const tresSegundos = 3000;
+			await new Promise( (resolve) => setTimeout( ( ) => resolve( ), tresSegundos ) );
+			this.esperandoValidacionDeIngreso = false;
+
 			await this.$store.dispatch( 'iniciarSesionComoAdmin' );
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'success',
+				texto: 'Ingresaste a Home Switch Home'
+			});
 			this.restablecerFormulario( );
 			this.$router.push({ name: 'administracion' });
 		} else {
