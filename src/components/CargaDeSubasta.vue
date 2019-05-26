@@ -25,7 +25,8 @@
 				</v-select>
 
 				<v-text-field
-					v-model="modelo.montoInicial"
+					:value="modelo.montoInicial"
+					@input="modelo.montoInicial = extraerNumero( $event, modelo.montoInicial )"
 					label="Monto inicial"
 					:rules="validadores.montoInicial"
 					hint="El monto no puede ser negativo"
@@ -69,183 +70,167 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios';
-import { Component, Vue, Emit } from 'vue-property-decorator';
-import { requerido } from '@/helpers/validadores/requerido';
-import router from '@/router';
-import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
-import { server } from '@/utils/helper';
-import { Subasta, SubastaParaCrear } from '../interfaces/subasta.interface';
-import { numeroNoNegativo } from '../helpers/validadores/numero-no-negativo';
-import { Residencia } from '../interfaces/residencia.interface';
+	import axios from 'axios';
+	import { Component, Vue, Emit } from 'vue-property-decorator';
+	import { requerido } from '@/helpers/validadores/requerido';
+	import router from '@/router';
+	import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
+	import { server } from '@/utils/helper';
+	import { Subasta, SubastaParaCrear } from '../interfaces/subasta.interface';
+	import { numeroNoNegativo } from '../helpers/validadores/numero-no-negativo';
+	import { Residencia } from '../interfaces/residencia.interface';
 
-@Component
-export default class CargaDeSubasta extends Vue {
-	public formulario: VuetifyFormRef | null = null;
-	public formularioEsValido: boolean = false;
+	// TODO: Validar que las fechas de inicio y fin estén ordenadas y no sean fechas pasadas
 
-	/**
-	 * Flag que se activa mientras se espera la respuesta a una solicitud de creación de subasta
-	 */
-	public esperandoCreacionDeSubasta: boolean = false;
+	@Component
+	export default class CargaDeSubasta extends Vue {
+		public formulario: VuetifyFormRef | null = null;
+		public formularioEsValido: boolean = false;
 
-	/**
-	 * Contiene las residencias existentes
-	 */
-	public residencias: Residencia[ ] = [ ];
+		/**
+		 * Flag que se activa mientras se espera la respuesta a una solicitud de creación de subasta
+		 */
+		public esperandoCreacionDeSubasta: boolean = false;
 
-	/**
-	 * Objeto que almacena el estado de la subasta para crear de acuerdo al estado del formulario.
-	 */
-	public modelo: SubastaParaCrear = {
-		idResidencia: '',
-		montoInicial: 0,
-		fechaDeInicio: '',
-		fechaDeFin: ''
-	};
+		/**
+		 * Objeto que almacena el estado de la subasta para crear de acuerdo al estado del formulario.
+		 */
+		public modelo: SubastaParaCrear = {
+			idResidencia: '',
+			montoInicial: 0,
+			fechaDeInicio: '',
+			fechaDeFin: ''
+		};
 
-	/**
-	 * Conjunto de reglas de validación para cada campo del formulario de carga.
-	 */
-	public validadores = {
-		residencia: [
-			requerido( 'Residencia' )
-		],
-		montoInicial: [
-			requerido( 'Monto inicial' ),
-			numeroNoNegativo( 'Monto inicial' )
-		],
-		fechaDeInicio: [
-			requerido( 'Fecha comienzo de reserva' )
-		],
-		fechaDeFin: [
-			requerido( 'Fecha de fin de reserva' )
-		],
-	};
+		/**
+		 * Conjunto de reglas de validación para cada campo del formulario de carga.
+		 */
+		public validadores = {
+			residencia: [
+				requerido( 'Residencia' )
+			],
+			montoInicial: [
+				requerido( 'Monto inicial' ),
+				numeroNoNegativo( 'Monto inicial' )
+			],
+			fechaDeInicio: [
+				requerido( 'Fecha comienzo de reserva' )
+			],
+			fechaDeFin: [
+				requerido( 'Fecha de fin de reserva' )
+			],
+		};
 
-	/**
-	 * Retorna un texto con la localidad, provincia y país de una residencia dada.
-	 */
-	public ubicacionDeResidencia = ( residencia: Residencia ): string => {
-		const { domicilio, localidad, provincia, pais } = residencia;
-		return `${ domicilio }, ${ localidad }, ${ provincia }, ${ pais }`;
-	}
-
-	/**
-	 * Hook de ciclo de vida.
-	 *
-	 * Solicita las residencias para seleccionar en el formulario de carga
-	 */
-	public created( ): void {
-		this.obtenerResidencias( );
-	}
-
-	/**
-	 * Solicita las residencias existentes para que sean seleccionables al crear una subasta.
-	 */
-	public async obtenerResidencias( ): Promise<void> {
-		try {
-			const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
-			this.residencias = respuestaResidencias.data;
+		/**
+		 * Retorna un texto con la localidad, provincia y país de una residencia dada.
+		 */
+		public ubicacionDeResidencia = ( residencia: Residencia ): string => {
+			const { domicilio, localidad, provincia, pais } = residencia;
+			return `${ domicilio }, ${ localidad }, ${ provincia }, ${ pais }`;
 		}
-		catch ( error ) {
-			this.$store.dispatch( 'mostrarAlerta', {
-				tipo: 'error',
-				texto: ( error.response !== undefined )
-					? error.response.data.message
-					: 'Ocurrió un error al conectarse al servidor'
-			});
+
+		/**
+		 * Retorna las residencias existentes
+		 */
+		public get residencias( ): Residencia[ ] {
+			return this.$store.getters.residencias;
 		}
-	}
 
-	/**
-	 * Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM.
-	 */
-	public beforeMount( ): void {
-		this.restablecerFormulario( );
-	}
-
-	/**
-	 * Hook de ciclo de vida. Guarda la referencia al formulario de carga.
-	 */
-	public beforeUpdate( ): void {
-		if ( this.formulario === null ) {
-			this.formulario = this.$refs.formulario as unknown as VuetifyFormRef;
+		/**
+		 * Hook de ciclo de vida.
+		 *
+		 * Solicita las residencias para seleccionar en el formulario de carga
+		 */
+		public created( ): void {
+			this.obtenerResidencias( );
 		}
-	}
 
-	/**
-	 * Emite el evento cancelacion.
-	 */
-	@Emit( 'cancelacion' )
-	public emitirEventoCancelacion( ): void { }
+		/**
+		 * Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM.
+		 */
+		public beforeMount( ): void {
+			this.restablecerFormulario( );
+		}
 
-	/**
-	 * Emite el evento _subastaCreada_ con la subasta recibida.
-	 */
-	@Emit( 'subastaCreada' )
-	public emitirEventoSubastaCreada( subastaCreada: Subasta ): Subasta {
-		return subastaCreada;
-	}
+		/**
+		 * Hook de ciclo de vida. Guarda la referencia al formulario de carga.
+		 */
+		public beforeUpdate( ): void {
+			if ( this.formulario === null ) {
+				this.formulario = this.$refs.formulario as unknown as VuetifyFormRef;
+			}
+		}
 
-	/**
-	 * Emite el evento _error_ con el error recibido.
-	 */
-	@Emit( 'error' )
-	public emitirEventoError( error: Error ): Error {
-		return error;
-	}
+		/**
+		 * Solicita las residencias existentes para que sean seleccionables al crear una subasta.
+		 */
+		public async obtenerResidencias( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerResidencias' );
+		}
 
-	/**
-	 * Restablece el formulario y emite el evento _cancelar_.
-	 */
-	public cancelarCarga( ): void {
-		this.restablecerFormulario( );
-		this.emitirEventoCancelacion( );
-	}
+		/**
+		 * Emite el evento _cancelacion_.
+		 */
+		@Emit( 'cancelacion' )
+		public emitirEventoCancelacion( ): void { }
 
-	/**
-	 * Solicita la creación de una subasta de acuerdo al estado actual del modelo.
-	 *
-	 * Al recibir la respuesta de éxito restablece el formulario y emite el evento _subastaCreada_ con la
-	 * subasta creada como dato.
-	 */
-	public async crearSubasta( ): Promise<void> {
-		try {
-			const url: string = `${ server.baseURL }/subastas`;
+		/**
+		 * Emite el evento _subastaCreada_.
+		 */
+		@Emit( 'subastaCreada' )
+		public emitirEventoSubastaCreada( ): void { }
+
+		/**
+		 * Restablece el formulario y emite el evento _cancelacion_.
+		 */
+		public cancelarCarga( ): void {
+			this.restablecerFormulario( );
+			this.emitirEventoCancelacion( );
+		}
+
+		/**
+		 * Solicita la creación de una subasta de acuerdo al estado actual del modelo.
+		 *
+		 * Al recibir la respuesta de éxito restablece el formulario y emite el evento _subastaCreada_.
+		 */
+		public async crearSubasta( ): Promise<void> {
 			this.esperandoCreacionDeSubasta = true;
-			const respuesta = await axios.post<Subasta>( url, this.modelo );
+			await this.$store.dispatch( 'crearSubasta', this.modelo );
 			this.esperandoCreacionDeSubasta = false;
-			const subastaCreada = respuesta.data;
 
 			this.restablecerFormulario( );
-			this.emitirEventoSubastaCreada( subastaCreada );
+			this.emitirEventoSubastaCreada( );
 		}
-		catch ( error ) {
-			this.esperandoCreacionDeSubasta = false;
-			this.$store.dispatch( 'mostrarAlerta', {
-				tipo: 'error',
-				texto: ( error.response !== undefined )
-					? error.response.data.message
-					: 'Ocurrió un error al conectarse al servidor'
-			});
+
+		/**
+		 * Restablece el formulario a su estado inicial.
+		 */
+		public restablecerFormulario( ): void {
+			if ( this.formulario !== null ) {
+				this.formulario.resetValidation( );
+			}
+
+			this.modelo.idResidencia = '';
+			this.modelo.montoInicial = 0;
+			this.modelo.fechaDeInicio = '';
+			this.modelo.fechaDeFin = '';
+
+			this.formularioEsValido = false;
+		}
+
+		/**
+		 * Dada una cadena de texto y un número predeterminado, si la cadena de texto representa un número retorna ese
+		 * número, en caso contrario retorna el número predeterminado.
+		 *
+		 * @param texto cadena de texto de la cual extraer su valor numérico
+		 * @param predeterminado valor numérico a retornar en caso de que la cadena de texto no represente un número
+		 */
+		public extraerNumero( texto: string, predeterminado: number ): number {
+			const valorNumerico: number = Number.parseFloat( texto );
+
+			return ( isNaN( valorNumerico ) )
+				? predeterminado
+				: valorNumerico;
 		}
 	}
-
-	/**
-	 * Restablece el formulario a su estado inicial.
-	 */
-	public restablecerFormulario( ): void {
-		if ( this.formulario !== null ) {
-			this.formulario.resetValidation( );
-		}
-
-		this.modelo.idResidencia  = '';
-		this.modelo.montoInicial  = 0;
-		this.modelo.fechaDeInicio = '';
-		this.modelo.fechaDeFin    = '';
-
-		this.formularioEsValido = false;
-	}
-}
 </script>

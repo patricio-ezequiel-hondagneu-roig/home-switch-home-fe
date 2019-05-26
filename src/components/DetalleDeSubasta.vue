@@ -40,30 +40,8 @@ export default class DetalleDeResidencia extends Vue{
 	@Prop()
 	public readonly subasta!: Subasta;
 
-	// public subasta: Subasta = {
-	// 	idSubasta: '',
-	// 	idResidencia: '',
-	// 	montoInicial: 0,
-	// 	fechaDeInicio: '',
-	// 	fechaDeFin: '',
-	// 	ofertas: [ ]
-	// };
-
 	@Emit( 'ok' )
 	public emitirEventoOk( ): void { }
-
-	// public created() {
-	// 	console.log(this.subasta.idSubasta);
-	// 	this.traerSubasta();
-	// }
-	// public async traerSubasta(): Promise<void> {
-	// 	try {
-	// 		const respuestaSubasta = await axios.get<Subasta>( `${ server.baseURL }/subastas/${this.idSubasta}` );
-	// 		this.subasta = respuestaSubasta.data;
-	// 	}catch (error) {
-	// 		router.push({ name: '404' });
-	// 	}
-	// }
 
 }
 </script>

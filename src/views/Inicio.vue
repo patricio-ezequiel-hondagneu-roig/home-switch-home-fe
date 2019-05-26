@@ -18,7 +18,14 @@
 			no-data-text="No hay subastas activas por el momento ¡Intentalo más tarde!"
 		>
 			<template #items="props">
-				<td class="text-xs-left" v-if="obtenerResdenciaPorId(props.item.idResidencia) !== null">{{ obtenerResdenciaPorId(props.item.idResidencia).pais + ', ' + obtenerResdenciaPorId(props.item.idResidencia).provincia + ', ' + obtenerResdenciaPorId(props.item.idResidencia).localidad + ', ' + obtenerResdenciaPorId(props.item.idResidencia).domicilio }}</td>
+				<td class="text-xs-left" v-if="obtenerResidenciaPorId(props.item.idResidencia) !== null">
+					{{
+						obtenerResidenciaPorId(props.item.idResidencia).pais + ', ' +
+						obtenerResidenciaPorId(props.item.idResidencia).provincia + ', ' +
+						obtenerResidenciaPorId(props.item.idResidencia).localidad + ', ' +
+						obtenerResidenciaPorId(props.item.idResidencia).domicilio
+					}}
+				</td>
 				<td class="text-xs-right">{{ props.item.fechaDeInicio }}</td>
 				<td class="text-xs-right">{{ props.item.fechaDeFin }}</td>
 				<td class="text-xs-right">{{ props.item.montoInicial }}</td>
@@ -81,134 +88,137 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios';
-import { Component, Vue } from 'vue-property-decorator';
-import CargaDeOfertaDeSubasta from '@/components/CargaDeOfertaDeSubasta.vue';
-import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
-import TablaDeSubastas from '@/components/TablaDeSubastas.vue';
-import { Residencia } from '@/interfaces/residencia.interface';
-import { Subasta } from '@/interfaces/subasta.interface';
-import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
-import { server } from '@/utils/helper';
+	import axios from 'axios';
+	import { Component, Vue } from 'vue-property-decorator';
+	import CargaDeOfertaDeSubasta from '@/components/CargaDeOfertaDeSubasta.vue';
+	import DetalleDeSubasta from '@/components/DetalleDeSubasta.vue';
+	import TablaDeSubastas from '@/components/TablaDeSubastas.vue';
+	import { Residencia } from '@/interfaces/residencia.interface';
+	import { Subasta } from '@/interfaces/subasta.interface';
+	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+	import { server } from '@/utils/helper';
 
-@Component({
-	components: {
-		CargaDeOfertaDeSubasta,
-		DetalleDeSubasta
-	},
-})
-export default class Inicio extends Vue {
-	/**
-	 * Lista de todas las subastas actualmente en el sistema.
-	 */
-	public subastas: Subasta[ ] = [ ];
-
-	public subasta: Subasta = {
-		idSubasta: '',
-		idResidencia: '',
-		montoInicial: 0,
-		fechaDeInicio: '',
-		fechaDeFin: '',
-		ofertas: [ ],
-	};
-
-	public detalleDeSubastaEsVisible: boolean = false;
-	public ofertarDeSubastaEsVisible: boolean = false;
-
-	public residencias: Residencia[ ] = [ ];
-
-	/**
-	 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
-	 */
-	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
-		{
-			text: 'Direccion completa',
-			value: '', // Aca no sé que iria
-			align: 'center'
+	@Component({
+		components: {
+			CargaDeOfertaDeSubasta,
+			DetalleDeSubasta
 		},
-		{
-			text: 'Fecha de inicio',
-			value: 'fechaDeInicio',
-			align: 'right'
-		},
-		{
-			text: 'Fecha de fin',
-			value: 'fechaDeFin',
-			align: 'right'
-		},
-		{
-			text: 'Monto inicial',
-			value: 'montoInicial',
-			align: 'right'
-		},
-		{
-			text: 'Ofertas',
-			value: 'ofertas',
-			align: 'right'
-		},
-		{
-			text: '',
-			value: '',
-			align: 'right',
-			sortable: false
-		},
-	];
+	})
+	export default class Inicio extends Vue {
+		public detalleDeSubastaEsVisible: boolean = false;
+		public ofertarDeSubastaEsVisible: boolean = false;
 
-	/**
-	 * Hook de ciclo de vida.
-	 *
-	 * Carga las subastas actualmente en el sistema al instanciar el componente.
-	 */
-	public created( ): void {
-		this.obtenerSubastas( );
-		this.obtenerResidencias( );
-	}
+		public subasta: Subasta = {
+			idSubasta: '',
+			idResidencia: '',
+			montoInicial: 0,
+			fechaDeInicio: '',
+			fechaDeFin: '',
+			ofertas: [ ],
+		};
 
-	/**
-	 * Solicita la lista de todas las subastas actualmente en el sistema.
-	 *
-	 * Al recibir una respuesta de éxito, actualiza la lista de subastas del componente con las recibidas.
-	 */
-	public async obtenerSubastas( ): Promise<void> {
-		// TODO: Agregar bloque try para el caso donde la solicitud falle
-		const respuestaSubastas = await axios.get<Subasta[ ]>( `${ server.baseURL }/subastas` );
-		this.subastas = respuestaSubastas.data;
-	}
+		/**
+		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
+		 */
+		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+			{
+				text: 'Direccion completa',
+				value: '', // Aca no sé que iria
+				align: 'center'
+			},
+			{
+				text: 'Fecha de inicio',
+				value: 'fechaDeInicio',
+				align: 'right'
+			},
+			{
+				text: 'Fecha de fin',
+				value: 'fechaDeFin',
+				align: 'right'
+			},
+			{
+				text: 'Monto inicial',
+				value: 'montoInicial',
+				align: 'right'
+			},
+			{
+				text: 'Ofertas',
+				value: 'ofertas',
+				align: 'right'
+			},
+			{
+				text: '',
+				value: '',
+				align: 'right',
+				sortable: false
+			},
+		];
 
-// -----------------------------------------------------Comportamiento de ventana emergente
-	public mostrarDetalles( subastaParaDetallar: Subasta ): void {
-		this.subasta = subastaParaDetallar;
-		this.mostrarDetalleDeSubasta();
-	}
-	public mostrarOfertar( subastaParaOfertar: Subasta ): void {
-		this.subasta = subastaParaOfertar;
-		this.mostrarOfertarSubasta();
-	}
-	public mostrarDetalleDeSubasta( ): void {
-		this.detalleDeSubastaEsVisible = true;
-	}
-	public ocultarDetalleDeSubasta( ): void {
-		this.detalleDeSubastaEsVisible = false;
-	}
-	public mostrarOfertarSubasta( ): void {
-		this.ofertarDeSubastaEsVisible = true;
-	}
-	public ocultarOfertarSubasta( ): void {
-		this.ofertarDeSubastaEsVisible = false;
-	}
-// ----------------------------------------------------------------------------------------------
+		/**
+		 * Lista de todas las residencias actualmente en el sistema.
+		 */
+		public get residencias( ): Residencia[ ] {
+			return this.$store.getters.residencias;
+		}
 
-	// Aca se arruina todo
-	public async obtenerResidencias( ): Promise<void> {
-		const respuestaResidencias = await axios.get<Residencia[ ]>( `${ server.baseURL }/residencias` );
-		this.residencias = respuestaResidencias.data;
-	}
+		/**
+		 * Lista de todas las subastas actualmente en el sistema.
+		 */
+		public get subastas( ): Subasta[ ] {
+			return this.$store.getters.subastas;
+		}
 
-	public obtenerResdenciaPorId( idResidencia: String ): Residencia | null {
-		const resdenciaRespuesta = this.residencias.find((residencia) => residencia.idResidencia === idResidencia);
-		return (resdenciaRespuesta === undefined) ? null : resdenciaRespuesta;
+		/**
+		 * Hook de ciclo de vida.
+		 *
+		 * Obtiene las listas de residencias y de subastas.
+		 */
+		public created( ): void {
+			this.obtenerSubastas( );
+			this.obtenerResidencias( );
+		}
+
+		/**
+		 * Solicita al store que actualice la lista local de residencias.
+		 */
+		public async obtenerResidencias( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerResidencias' );
+		}
+
+		/**
+		 * Solicita al store que actualice la lista local de subastas.
+		 */
+		public async obtenerSubastas( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerSubastas' );
+		}
+
+	// -----------------------------------------------------Comportamiento de ventana emergente
+		public mostrarDetalles( subastaParaDetallar: Subasta ): void {
+			this.subasta = subastaParaDetallar;
+			this.mostrarDetalleDeSubasta();
+		}
+		public mostrarOfertar( subastaParaOfertar: Subasta ): void {
+			this.subasta = subastaParaOfertar;
+			this.mostrarOfertarSubasta();
+		}
+		public mostrarDetalleDeSubasta( ): void {
+			this.detalleDeSubastaEsVisible = true;
+		}
+		public ocultarDetalleDeSubasta( ): void {
+			this.detalleDeSubastaEsVisible = false;
+		}
+		public mostrarOfertarSubasta( ): void {
+			this.ofertarDeSubastaEsVisible = true;
+		}
+		public ocultarOfertarSubasta( ): void {
+			this.ofertarDeSubastaEsVisible = false;
+		}
+	// ----------------------------------------------------------------------------------------------
+
+		public obtenerResidenciaPorId( idResidencia: String ): Residencia | null {
+			return this.$store.getters.residenciaConId( idResidencia );
+		}
 	}
-}
 </script>
 
 <style>

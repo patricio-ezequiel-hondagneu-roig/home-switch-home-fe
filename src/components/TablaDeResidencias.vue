@@ -83,173 +83,154 @@
 
 
 <script lang="ts">
-import axios from 'axios';
-import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
-import { Residencia, ResidenciaParaModificar } from '@/interfaces/residencia.interface';
-import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
-import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
-import { server } from '@/utils/helper';
-import ModificacionDeResidencia from './ModificacionDeResidencia.vue';
-import router from '@/router';
-@Component({
-	components: {
-		ModificacionDeResidencia
-	}
-})
-export default class TablaDeResidencias extends Vue {
-	/**
-	 * Lista de las residencias a mostrar en la tabla
-	 */
-	@Prop( )
-	public readonly residencias!: Residencia[ ];
+	import axios from 'axios';
+	import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
+	import { Residencia, ResidenciaParaModificar } from '@/interfaces/residencia.interface';
+	import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
+	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+	import { server } from '@/utils/helper';
+	import ModificacionDeResidencia from './ModificacionDeResidencia.vue';
+	import router from '@/router';
 
-	/**
-	 * Flag que indica si se debe o no mostrar el formulario de modificación.
-	 */
-	public formularioDeModificacionEsVisible: boolean = false;
+	@Component({
+		components: {
+			ModificacionDeResidencia
+		}
+	})
+	export default class TablaDeResidencias extends Vue {
+		/**
+		 * Lista de las residencias a mostrar en la tabla
+		 */
+		@Prop( )
+		public readonly residencias!: Residencia[ ];
 
-	/**
-	 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
-	 */
-	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
-		{
-			text: 'Id',
-			value: 'idResidencia',
-			align: 'right'
-		},
-		{
-			text: 'Título',
-			value: 'titulo',
-			align: 'right'
-		},
-		{
-			text: 'País',
-			value: 'pais',
-			align: 'right'
-		},
-		{
-			text: 'Provincia',
-			value: 'provincia',
-			align: 'right'
-		},
-		{
-			text: 'Localidad',
-			value: 'localidad',
-			align: 'right'
-		},
-		{
-			text: 'Domicilio',
-			value: 'domicilio',
-			align: 'right'
-		},
-		{
-			text: 'Descripción',
-			value: 'descripcion',
-			align: 'right'
-		},
-		{
-			text: 'Fotos',
-			value: 'fotos',
-			align: 'right'
-		},
-		{
-			text: 'Monto inicial de subasta',
-			value: 'montoInicialDeSubasta',
-			align: 'right'
-		},
-		{
-			text: '',
-			value: '',
-			align: 'right',
-			sortable: false
-		},
-	];
-	/**
-	 * Variable que almacena una residencia mientras está siendo modificada, es _null_ en cualquier otro caso.
-	 */
-	public residenciaParaModificar: Residencia | null = null;
-	/**
-	 * Emite el evento _residenciaModificada_ con la residencia recibida.
-	 */
-	@Emit( 'residenciaModificada' )
-	public emitirEventoResidenciaModificada( residenciaModificada: Residencia ): Residencia {
-		return residenciaModificada;
-	}
+		/**
+		 * Flag que indica si se debe o no mostrar el formulario de modificación.
+		 */
+		public formularioDeModificacionEsVisible: boolean = false;
 
-	/**
-	 * Emite el evento _residenciaEliminada_ con la residencia recibida.
-	 */
-	@Emit( 'residenciaEliminada' )
-	public emitirEventoResidenciaEliminada( residenciaEliminada: Residencia ): Residencia {
-		return residenciaEliminada;
-	}
+		/**
+		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
+		 */
+		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+			{
+				text: 'Id',
+				value: 'idResidencia',
+				align: 'right'
+			},
+			{
+				text: 'Título',
+				value: 'titulo',
+				align: 'right'
+			},
+			{
+				text: 'País',
+				value: 'pais',
+				align: 'right'
+			},
+			{
+				text: 'Provincia',
+				value: 'provincia',
+				align: 'right'
+			},
+			{
+				text: 'Localidad',
+				value: 'localidad',
+				align: 'right'
+			},
+			{
+				text: 'Domicilio',
+				value: 'domicilio',
+				align: 'right'
+			},
+			{
+				text: 'Descripción',
+				value: 'descripcion',
+				align: 'right'
+			},
+			{
+				text: 'Fotos',
+				value: 'fotos',
+				align: 'right'
+			},
+			{
+				text: 'Monto inicial de subasta',
+				value: 'montoInicialDeSubasta',
+				align: 'right'
+			},
+			{
+				text: '',
+				value: '',
+				align: 'right',
+				sortable: false
+			},
+		];
 
-	/**
-	 * Emite el evento _error_ con el error recibido.
-	 */
-	@Emit( 'error' )
-	public emitirEventoError( error: Error ): Error {
-		return error;
-	}
+		/**
+		 * Variable que almacena una residencia mientras está siendo modificada, es _null_ en cualquier otro caso.
+		 */
+		public residenciaParaModificar: Residencia | null = null;
 
-	/**
-	 * Oculta el formulario de modificación de residencias y emite el evento _residenciaModificada_ con la
-	 * residencia modificada como dato.
-	 */
-	public modificarResidencia( residencia: Residencia ): void {
-		this.emitirEventoResidenciaModificada( residencia );
-		this.ocultarFormularioDeModificacion( );
-	}
+		/**
+		 * Emite el evento _residenciaModificada_.
+		 */
+		@Emit( 'residenciaModificada' )
+		public emitirEventoResidenciaModificada( ): void { }
 
-	/**
-	 * Solicita la eliminación de la residencia con el ID recibido.
-	 *
-	 * Al recibir la respuesta de éxito emite el evento _residenciaModificada_ con la residencia eliminada como dato.
-	 *
-	 * Falla en caso de que no exista residencia con el ID recibido.
-	 */
-	public async eliminarResidencia( idResidencia: string ): Promise<void> {
-		const residencia: Residencia | undefined = this.residencias.find( ( _residencia ) => {
-			return _residencia.idResidencia === idResidencia;
-		});
+		/**
+		 * Emite el evento _residenciaEliminada_.
+		 */
+		@Emit( 'residenciaEliminada' )
+		public emitirEventoResidenciaEliminada( ): void { }
 
-		if ( residencia === undefined ) {
-			throw new Error( `No existe ninguna residencia con ID "${ idResidencia }"` );
+		/**
+		 * Emite el evento _error_ con el error recibido.
+		 */
+		@Emit( 'error' )
+		public emitirEventoError( error: Error ): Error {
+			return error;
 		}
 
-		try {
-			const url: string = `${ server.baseURL }/residencias/${ residencia.idResidencia }`;
-			await axios.delete( url );
-			this.emitirEventoResidenciaEliminada( residencia );
-		}
-		catch ( error ) {
-			this.emitirEventoError( new Error( error.response.data.message ) );
-		}
-	}
-
-	/**
-	 * Muestra el formulario de modificación de residencias para la residencia con un ID dado.
-	 */
-	public mostrarFormularioDeModificacion( idResidencia: string ): void {
-		const residencia: Residencia | undefined = this.residencias.find( ( _residencia ) => {
-			return _residencia.idResidencia === idResidencia;
-		});
-
-		if ( residencia === undefined ) {
-			throw new Error( `No existe ninguna residencia con ID "${ idResidencia }"` );
+		/**
+		 * Oculta el formulario de modificación de residencias y emite el evento _residenciaModificada_.
+		 */
+		public modificarResidencia( residencia: Residencia ): void {
+			this.emitirEventoResidenciaModificada( );
+			this.ocultarFormularioDeModificacion( );
 		}
 
-		this.residenciaParaModificar = residencia;
+		/**
+		 * Solicita la eliminación de la residencia con el ID recibido.
+		 *
+		 * Al recibir la respuesta de éxito emite el evento _residenciaModificada_.
+		 *
+		 * Falla en caso de que no exista residencia con el ID recibido.
+		 */
+		public async eliminarResidencia( idResidencia: string ): Promise<void> {
+			await this.$store.dispatch( 'eliminarResidencia', idResidencia );
+		}
 
-		this.formularioDeModificacionEsVisible = true;
-	}
+		/**
+		 * Muestra el formulario de modificación de residencias para la residencia con un ID dado.
+		 */
+		public  mostrarFormularioDeModificacion( idResidencia: string ): void {
+			const residencia: Residencia | null = this.$store.getters.residenciaConId( idResidencia );
 
-	/**
-	 * Oculta el formulario de modificación de residencias.
-	 */
-	public ocultarFormularioDeModificacion( ): void {
-		this.formularioDeModificacionEsVisible = false;
-		this.residenciaParaModificar = null;
+			if ( residencia === null ) {
+				throw new Error( `No existe ninguna residencia con ID "${ idResidencia }"` );
+			}
+
+			this.residenciaParaModificar = residencia;
+
+			this.formularioDeModificacionEsVisible = true;
+		}
+
+		/**
+		 * Oculta el formulario de modificación de residencias.
+		 */
+		public ocultarFormularioDeModificacion( ): void {
+			this.formularioDeModificacionEsVisible = false;
+			this.residenciaParaModificar = null;
+		}
 	}
-}
 </script>

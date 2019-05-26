@@ -48,13 +48,6 @@ import { VuetifyFormRef } from '../typings/vuetify-form-ref.d';
 
 @Component
 export default class Ingreso extends Vue {
-
-	/** Devuelve los errores a mostrar, si los hubiera */
-	public get errores( ): string[ ] {
-		return ( this.mostrarError )
-			? [ 'El código ingresado es inválido' ]
-			: [ ];
-	}
 	public formulario: VuetifyFormRef | null = null;
 	public formularioEsValido: boolean = false;
 
@@ -77,12 +70,25 @@ export default class Ingreso extends Vue {
 
 	private mostrarError: boolean = false;
 
-	/** Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM. */
+	/**
+	 * Devuelve los errores a mostrar, si los hubiera
+	 */
+	public get errores( ): string[ ] {
+		return ( this.mostrarError )
+			? [ 'El código ingresado es inválido' ]
+			: [ ];
+	}
+
+	/**
+	 * Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM.
+	 */
 	public beforeMount( ): void {
 		this.restablecerFormulario( );
 	}
 
-	/** Hook de ciclo de vida. Guarda la referencia al formulario de carga. */
+	/**
+	 * Hook de ciclo de vida. Guarda la referencia al formulario de carga.
+	 */
 	public beforeUpdate( ): void {
 		if ( this.formulario === null ) {
 			this.formulario = this.$refs.formulario as unknown as VuetifyFormRef;
@@ -100,16 +106,14 @@ export default class Ingreso extends Vue {
 	public async ingresar( ): Promise<void> {
 		if ( this.codigo === '12345' ) {
 			this.esperandoValidacionDeIngreso = true;
-			// TODO: Cambiar esta espera de 3 segundos por una llamada real al servidor
-			const tresSegundos = 3000;
-			await new Promise( (resolve) => setTimeout( ( ) => resolve( ), tresSegundos ) );
+			await this.$store.dispatch( 'iniciarSesionComoAdmin' );
 			this.esperandoValidacionDeIngreso = false;
 
-			await this.$store.dispatch( 'iniciarSesionComoAdmin' );
 			await this.$store.dispatch( 'mostrarAlerta', {
 				tipo: 'success',
 				texto: 'Ingresaste a Home Switch Home'
 			});
+
 			this.restablecerFormulario( );
 			this.$router.push({ name: 'administracion' });
 		} else {

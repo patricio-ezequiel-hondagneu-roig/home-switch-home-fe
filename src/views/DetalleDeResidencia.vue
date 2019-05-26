@@ -1,7 +1,7 @@
 <template>
 		<v-container fluid fill-height>
 		<v-layout align-center justify-center row wrap>
-			<v-card v-if='residencia!==null' class="pa-3" width="40rem">
+			<v-card v-if="residencia !== null" class="pa-3" width="40rem">
 				<v-card-title>
 					<h5 class="headline">Residencia ID {{idResidencia}} - {{residencia.titulo}}</h5>
 				</v-card-title>
@@ -16,7 +16,7 @@
 					Monto inicial de subasta: ${{residencia.montoInicialDeSubasta}}
 				</v-card-text>
 			</v-card>
-			<v-card v-if='residencia===null'>
+			<v-card v-if="residencia === null">
 				No hay residencia para mostrar.
 			</v-card>
 		</v-layout>
@@ -34,6 +34,7 @@
 		</v-snackbar>
 	</v-container>
 </template>
+
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import axios from 'axios';
@@ -42,47 +43,32 @@ import { server } from '@/utils/helper';
 import router from '@/router';
 import { Route } from 'vue-router';
 import { VuetifyThemeOptionName } from '@/typings/vuetify-theme-option-name';
+
+// TODO: Refactorizar y agregar comentarios JSDoc
+
 @Component
 export default class DetalleDeResidencia extends Vue{
-	@Prop()
+	@Prop( )
 	public readonly idResidencia!: string;
 
-	public residencia: Residencia | '' = '';
-	public alertaEsVisible: boolean = false;
-	/**
-	 * Valor que indica el color con el que se muestra la alerta.
-	 */
-	public tipoDeAlerta: VuetifyThemeOptionName = 'info';
-
-	/**
-	 * Texto a mostrar en la alerta.
-	 */
-	public textoDeAlerta: string = '';
-
-	public created() {
-		this.traerResidencia();
+	public get residencia( ): Residencia | null {
+		return this.$store.getters.residenciaConId( this.idResidencia );
 	}
-	public async traerResidencia(): Promise<void> {
-		try {
-			const respuestaResidencia = await axios.get<Residencia>( `${ server.baseURL }/residencias/${this.idResidencia}` );
-			this.residencia = respuestaResidencia.data;
-		}catch (error) {
-			error = new Error( error.response.data.message ) ;
+
+	public created( ) {
+		this.obtenerResidencia( );
+	}
+
+	public async obtenerResidencia( ): Promise<void> {
+		await this.$store.dispatch( 'obtenerResidencias' );
+
+		if ( this.residencia === null ) {
+			this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: `No existe ninguna residencia con el ID provisto (${ this.idResidencia })`
+			});
 			router.push({ name: '404' });
 		}
-	}
-	public mostrarError( error: Error ): void {
-			this.mostrarAlerta( error.message, 'error' );
-	}
-	public mostrarAlerta( texto: string, tipo: VuetifyThemeOptionName ): void {
-			this.textoDeAlerta = texto;
-			this.tipoDeAlerta = tipo;
-			this.alertaEsVisible = true;
-	}
-	public ocultarAlerta( ): void {
-			this.textoDeAlerta = '';
-			this.tipoDeAlerta = 'info';
-			this.alertaEsVisible = false;
 	}
 }
 </script>
