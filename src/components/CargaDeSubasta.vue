@@ -195,6 +195,9 @@
 		 */
 		public async crearSubasta( ): Promise<void> {
 			this.esperandoCreacionDeSubasta = true;
+
+			this.modelo.idResidencia = this.modelo.idResidencia._id;
+
 			await this.$store.dispatch( 'crearSubasta', this.modelo );
 			this.esperandoCreacionDeSubasta = false;
 
