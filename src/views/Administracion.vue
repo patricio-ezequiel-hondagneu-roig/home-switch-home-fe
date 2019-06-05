@@ -12,19 +12,19 @@
 							:class="`elevation-${ hover ? 12 : 2 }`"
 							:to="{ name: 'administracion de residencias' }"
 						>
-						<v-layout fill-height column>
-							<v-layout justify-center class="primary pa-2">
-								<v-icon class="icono-grande">home</v-icon>
+							<v-layout fill-height column>
+								<v-layout justify-center class="primary pa-2">
+									<v-icon class="icono-grande">home</v-icon>
+								</v-layout>
+								<v-layout column class="verticalmente-desbordable">
+									<v-card-title primary-title>
+										<h1 class="headline mb-0">Residencias</h1>
+									</v-card-title>
+									<v-card-text>
+										Ver, crear, modificar y eliminar residencias.
+									</v-card-text>
+								</v-layout>
 							</v-layout>
-							<v-layout column class="verticalmente-desbordable">
-								<v-card-title primary-title>
-									<h1 class="headline mb-0">Residencias</h1>
-								</v-card-title>
-								<v-card-text>
-									Ver, crear, modificar y eliminar residencias.
-								</v-card-text>
-							</v-layout>
-						</v-layout>
 						</v-card>
 					</v-hover>
 

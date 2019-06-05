@@ -56,7 +56,7 @@
 									flat
 									icon
 									class="secondary--text"
-									:to="{ name: 'detalle de residencia', params: { idResidencia: props.item.idResidencia } }"
+									@click.stop="mostrarDetalle( props.item.idResidencia )"
 								>
 								<v-icon>info</v-icon>
 								</v-btn>
@@ -67,7 +67,13 @@
 				</td>
 			</template>
 		</v-data-table>
-
+		<v-dialog persistent v-model="detalleEsVisible" max-width="40rem">
+			<DetalleDeResidencia
+				v-if="residenciaParaMostrar !== null"
+				:residencia="residenciaParaMostrar"
+				@ok="ocultarDetalle( )"
+			/>
+		</v-dialog>
 		<v-dialog persistent v-model="formularioDeModificacionEsVisible" max-width="40rem">
 			<ModificacionDeResidencia
 				v-if="residenciaParaModificar !== null"
@@ -90,11 +96,13 @@
 	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 	import { server } from '@/utils/helper';
 	import ModificacionDeResidencia from './ModificacionDeResidencia.vue';
+	import DetalleDeResidencia from './DetalleDeResidencia.vue';
 	import router from '@/router';
 
 	@Component({
 		components: {
-			ModificacionDeResidencia
+			ModificacionDeResidencia,
+			DetalleDeResidencia
 		}
 	})
 	export default class TablaDeResidencias extends Vue {
@@ -103,12 +111,22 @@
 		 */
 		@Prop( )
 		public readonly residencias!: Residencia[ ];
-
 		/**
 		 * Flag que indica si se debe o no mostrar el formulario de modificación.
 		 */
 		public formularioDeModificacionEsVisible: boolean = false;
-
+		/**
+		 * Flag que indica que el detalle de una residencia es visible
+		 */
+		public detalleEsVisible: boolean = false;
+		/**
+		 * Variable que almacena una residencia mientras está siendo modificada, es _null_ en cualquier otro caso.
+		 */
+		public residenciaParaModificar: Residencia | null = null;
+		/**
+		 * Variable que almacena una residencia a ser mostrada en detalle
+		 */
+		public residenciaParaMostrar: Residencia | null = null;
 		/**
 		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
 		 */
@@ -165,12 +183,26 @@
 				sortable: false
 			},
 		];
-
 		/**
-		 * Variable que almacena una residencia mientras está siendo modificada, es _null_ en cualquier otro caso.
+		 * agregar residencia mock
 		 */
-		public residenciaParaModificar: Residencia | null = null;
-
+		public created() {
+			/**
+			 * mock de residencia
+			 */
+			const residenciaMock: Residencia = {
+				idResidencia: '0',
+				titulo: 'Residencia los HDP',
+				pais: 'Argentina',
+				provincia: 'Buenos Aires',
+				localidad: 'La Plata',
+				domicilio: 'Nowhere',
+				descripcion: 'Una residencia creada para poder testear',
+				fotos: [],
+				montoInicialDeSubasta: 100
+			};
+			this.residencias.push(residenciaMock);
+		}
 		/**
 		 * Emite el evento _residenciaModificada_.
 		 */
@@ -209,7 +241,27 @@
 		public async eliminarResidencia( idResidencia: string ): Promise<void> {
 			await this.$store.dispatch( 'eliminarResidencia', idResidencia );
 		}
+		/**
+		 * Mostrar detalle de residencia con un id dado
+		 */
+		public  mostrarDetalle( idResidencia: string ): void {
+			const residencia: Residencia | null = this.$store.getters.residenciaConId( idResidencia );
 
+			if ( residencia === null ) {
+				throw new Error( `No existe ninguna residencia con ID "${ idResidencia }"` );
+			}
+
+			this.residenciaParaMostrar = residencia;
+
+			this.detalleEsVisible = true;
+		}
+		/**
+		 * Oculta detalla de la residencia
+		 */
+		public ocultarDetalle( ): void {
+			this.detalleEsVisible = false;
+			this.residenciaParaMostrar = null;
+		}
 		/**
 		 * Muestra el formulario de modificación de residencias para la residencia con un ID dado.
 		 */
