@@ -146,7 +146,7 @@
 		public async modificarSubasta( ): Promise<void> {
 			this.esperandoModificacionDeSubasta = true;
 			await this.$store.dispatch( 'modificarSubasta', {
-				idSubasta: this.subasta.idSubasta,
+				idSubasta: this.subasta._id,
 				subastaParaModificar: this.modelo,
 			});
 			this.esperandoModificacionDeSubasta = false;

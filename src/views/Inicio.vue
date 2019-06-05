@@ -109,7 +109,7 @@
 		public ofertarDeSubastaEsVisible: boolean = false;
 
 		public subasta: Subasta = {
-			idSubasta: '',
+			_id: '',
 			idResidencia: '',
 			montoInicial: 0,
 			fechaDeInicio: '',

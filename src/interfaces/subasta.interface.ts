@@ -1,7 +1,7 @@
 import { RemoverPropiedades } from '@/typings/remover-propiedades';
 
 export interface Subasta {
-	idSubasta: string;
+	_id: string;
 	idResidencia: string;
 	montoInicial: number;
 	fechaDeInicio: string;
@@ -9,5 +9,5 @@ export interface Subasta {
 	ofertas: string[ ];
 }
 
-export type SubastaParaCrear = RemoverPropiedades<Subasta, 'idSubasta' | 'ofertas'>;
-export type SubastaParaModificar = RemoverPropiedades<Subasta, 'idSubasta' | 'idResidencia' | 'ofertas' >;
+export type SubastaParaCrear = RemoverPropiedades<Subasta, '_id' | 'ofertas'>;
+export type SubastaParaModificar = RemoverPropiedades<Subasta, '_id' | 'idResidencia' | 'ofertas' >;

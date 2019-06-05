@@ -155,7 +155,7 @@ export default class CargaDeOfertaDeSubasta extends Vue {
 	 */
 	public async crearOferta( ): Promise<void> {
 		try {
-			const url: string = `${ server.baseURL }/subastas/${ this.subasta.idSubasta }/ofertas`;
+			const url: string = `${ server.baseURL }/subastas/${ this.subasta._id }/ofertas`;
 			this.esperandoCreacionDeOferta = true;
 			const respuesta = await axios.post<Oferta>( url, this.modelo );
 			this.esperandoCreacionDeOferta = false;

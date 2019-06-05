@@ -7,7 +7,7 @@
 			:items="subastas"
 		>
 			<template #items="props">
-				<td class="text-xs-right">{{ props.item.idSubasta }}</td>
+				<td class="text-xs-right">{{ props.item._id }}</td>
 				<td class="text-xs-right">{{ props.item.idResidencia }}</td>
 				<td class="text-xs-right">{{ props.item.fechaDeInicio }}</td>
 				<td class="text-xs-right">{{ props.item.fechaDeFin }}</td>
@@ -24,7 +24,7 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarFormularioDeModificacion( props.item.idSubasta )"
+									@click.stop="mostrarFormularioDeModificacion( props.item._id )"
 									v-on="on"
 								>
 									<v-icon>edit</v-icon>
@@ -38,7 +38,7 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="eliminarSubasta( props.item.idSubasta )"
+									@click.stop="eliminarSubasta( props.item._id )"
 									v-on="on"
 								>
 									<v-icon>delete</v-icon>
@@ -97,7 +97,7 @@
 		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 			{
 				text: 'Id',
-				value: 'idSubasta',
+				value: '_id',
 				align: 'right'
 			},
 			{
@@ -174,7 +174,7 @@
 		 */
 		public mostrarFormularioDeModificacion( idSubasta: string ): void {
 			const subasta: Subasta | undefined = this.subastas.find( ( _subasta ) => {
-				return _subasta.idSubasta === idSubasta;
+				return _subasta._id === idSubasta;
 			});
 
 			if ( subasta === undefined ) {

@@ -55,9 +55,9 @@ export default new Vuex.Store({
 		},
 
 		subastaConId: ( state ) => {
-			return ( idSubasta: Subasta[ 'idSubasta' ] ): Subasta | null => {
+			return ( idSubasta: Subasta[ '_id' ] ): Subasta | null => {
 				const subasta = state.subastas.find( ( _subasta ) => {
-					return _subasta.idSubasta === idSubasta;
+					return _subasta._id === idSubasta;
 				});
 
 				return ( subasta !== undefined )
@@ -131,7 +131,7 @@ export default new Vuex.Store({
 
 		modificarSubasta( state, subasta: Subasta ): void {
 			const indiceDeSubasta = state.subastas.findIndex( ( _subasta ) => {
-				return _subasta.idSubasta === subasta.idSubasta;
+				return _subasta._id === subasta._id;
 			});
 
 			// Reemplaza si la subasta ya existe, agrega si no existe
@@ -143,9 +143,9 @@ export default new Vuex.Store({
 			}
 		},
 
-		eliminarSubasta( state, idSubasta: Subasta[ 'idSubasta' ] ): void {
+		eliminarSubasta( state, idSubasta: Subasta[ '_id' ] ): void {
 			const indiceDeSubasta = state.subastas.findIndex( ( _subasta ) => {
-				return _subasta.idSubasta === idSubasta;
+				return _subasta._id === idSubasta;
 			});
 
 			if ( indiceDeSubasta !== -1 ) {
@@ -352,7 +352,7 @@ export default new Vuex.Store({
 		 * @param argumentos objeto que contiene el ID y los datos de la subasta a modificar
 		 */
 		async modificarSubasta( { commit, dispatch }, argumentos: {
-			idSubasta: Subasta[ 'idSubasta' ],
+			idSubasta: Subasta[ '_id' ],
 			subastaParaModificar: SubastaParaModificar
 		}): Promise<void> {
 			try {
@@ -386,7 +386,7 @@ export default new Vuex.Store({
 		 *
 		 * @param idSubasta ID de la subasta a eliminar
 		 */
-		async eliminarSubasta( { commit, dispatch }, idSubasta: Subasta[ 'idSubasta' ] ): Promise<void> {
+		async eliminarSubasta( { commit, dispatch }, idSubasta: Subasta[ '_id' ] ): Promise<void> {
 			try {
 				const url: string = `${ server.baseURL }/subastas/${ idSubasta }`;
 				await axios.delete( url );
