@@ -5,6 +5,7 @@ import Ingreso from './views/Ingreso.vue';
 import Administracion from './views/Administracion.vue';
 import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue';
 import AdministracionDeSubastas from './views/AdministracionDeSubastas.vue';
+import AdministracionDeSuscripciones from './views/AdministracionDeSuscripciones.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 import { verificarPermisos } from './helpers/guardas-de-navegacion/verificar-permisos.guard';
 
@@ -39,6 +40,14 @@ const router = new Router({
 			path: '/administracion/subastas',
 			name: 'administracion de subastas',
 			component: AdministracionDeSubastas,
+			meta: {
+				requierePermisosDeAdmin: true,
+			}
+		},
+		{
+			path: '/administracion/suscripciones',
+			name: 'administracion de suscripciones',
+			component: AdministracionDeSuscripciones,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}

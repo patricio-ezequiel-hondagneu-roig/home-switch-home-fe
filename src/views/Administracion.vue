@@ -51,6 +51,29 @@
 						</v-card>
 					</v-hover>
 
+					<v-hover>
+						<v-card
+							slot-scope="{ hover }"
+							class="tarjeta-de-enlace"
+							:class="`elevation-${ hover ? 12 : 2 }`"
+							:to="{ name: 'administracion de suscripciones' }"
+						>
+						<v-layout fill-height column>
+							<v-layout justify-center class="primary pa-2">
+								<v-icon class="icono-grande">update</v-icon>
+							</v-layout>
+							<v-layout column class="verticalmente-desbordable">
+								<v-card-title primary-title>
+									<h1 class="headline mb-0">Suscripciones</h1>
+								</v-card-title>
+								<v-card-text>
+									Ver, crear, modificar y eliminar suscripciones.
+								</v-card-text>
+							</v-layout>
+						</v-layout>
+						</v-card>
+					</v-hover>
+
 				</v-layout>
 			</section>
 		</v-layout>
