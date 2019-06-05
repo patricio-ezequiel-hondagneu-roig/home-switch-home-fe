@@ -183,26 +183,7 @@
 				sortable: false
 			},
 		];
-		/**
-		 * agregar residencia mock
-		 */
-		public created() {
-			/**
-			 * mock de residencia
-			 */
-			const residenciaMock: Residencia = {
-				idResidencia: '0',
-				titulo: 'Residencia los HDP',
-				pais: 'Argentina',
-				provincia: 'Buenos Aires',
-				localidad: 'La Plata',
-				domicilio: 'Nowhere',
-				descripcion: 'Una residencia creada para poder testear',
-				fotos: [],
-				montoInicialDeSubasta: 100
-			};
-			this.residencias.push(residenciaMock);
-		}
+
 		/**
 		 * Emite el evento _residenciaModificada_.
 		 */
