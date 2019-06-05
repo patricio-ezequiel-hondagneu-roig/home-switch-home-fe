@@ -4,7 +4,6 @@ import Inicio from './views/Inicio.vue';
 import Ingreso from './views/Ingreso.vue';
 import Administracion from './views/Administracion.vue';
 import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue';
-import DetalleDeResidencia from './views/DetalleDeResidencia.vue';
 import AdministracionDeSubastas from './views/AdministracionDeSubastas.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 import { verificarPermisos } from './helpers/guardas-de-navegacion/verificar-permisos.guard';
@@ -32,15 +31,6 @@ const router = new Router({
 			path: '/administracion/residencias',
 			name: 'administracion de residencias',
 			component: AdministracionDeResidencias,
-			meta: {
-				requierePermisosDeAdmin: true,
-			}
-		},
-		{
-			path: '/administracion/residencias/:idResidencia',
-			name: 'detalle de residencia',
-			component: DetalleDeResidencia,
-			props: true,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}
