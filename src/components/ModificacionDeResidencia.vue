@@ -207,7 +207,7 @@
 		public async modificarResidencia( ): Promise<void> {
 			this.esperandoModificacionDeResidencia = true;
 			await this.$store.dispatch( 'modificarResidencia', {
-				idResidencia: this.residencia.idResidencia,
+				_id: this.residencia._id,
 				residenciaParaModificar: this.modelo,
 			});
 			this.esperandoModificacionDeResidencia = false;

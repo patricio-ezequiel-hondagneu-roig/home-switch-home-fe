@@ -1,7 +1,7 @@
 import { RemoverPropiedades } from '@/typings/remover-propiedades';
 
 export interface Residencia {
-	idResidencia: string;
+	_id: string;
 	titulo: string;
 	pais: string;
 	provincia: string;
@@ -12,5 +12,5 @@ export interface Residencia {
 	montoInicialDeSubasta: number;
 }
 
-export type ResidenciaParaCrear = RemoverPropiedades<Residencia, 'idResidencia'>;
-export type ResidenciaParaModificar = RemoverPropiedades<Residencia, 'idResidencia'>;
+export type ResidenciaParaCrear = RemoverPropiedades<Residencia, '_id'>;
+export type ResidenciaParaModificar = RemoverPropiedades<Residencia, '_id'>;

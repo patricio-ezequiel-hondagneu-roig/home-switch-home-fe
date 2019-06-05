@@ -39,9 +39,9 @@ export default new Vuex.Store({
 		},
 
 		residenciaConId: ( state ) => {
-			return ( idResidencia: Residencia[ 'idResidencia' ] ): Residencia | null => {
+			return ( idResidencia: Residencia[ '_id' ] ): Residencia | null => {
 				const residencia = state.residencias.find( ( _residencia ) => {
-					return _residencia.idResidencia === idResidencia;
+					return _residencia._id === idResidencia;
 				});
 
 				return ( residencia !== undefined )
@@ -99,7 +99,7 @@ export default new Vuex.Store({
 
 		modificarResidencia( state, residencia: Residencia ): void {
 			const indiceDeResidencia = state.residencias.findIndex( ( _residencia ) => {
-				return _residencia.idResidencia === residencia.idResidencia;
+				return _residencia._id === residencia._id;
 			});
 
 			// Reemplaza si la residencia ya existe, agrega si no existe
@@ -111,9 +111,9 @@ export default new Vuex.Store({
 			}
 		},
 
-		eliminarResidencia( state, idResidencia: Residencia[ 'idResidencia' ] ): void {
+		eliminarResidencia( state, idResidencia: Residencia[ '_id' ] ): void {
 			const indiceDeResidencia = state.residencias.findIndex( ( _residencia ) => {
-				return _residencia.idResidencia === idResidencia;
+				return _residencia._id === idResidencia;
 			});
 
 			if ( indiceDeResidencia !== -1 ) {
@@ -232,7 +232,7 @@ export default new Vuex.Store({
 		 * @param argumentos objeto que contiene el ID y los datos de la residencia a modificar
 		 */
 		async modificarResidencia( { commit, dispatch }, argumentos: {
-			idResidencia: Residencia[ 'idResidencia' ],
+			idResidencia: Residencia[ '_id' ],
 			residenciaParaModificar: ResidenciaParaModificar
 		}): Promise<void> {
 			try {
@@ -267,7 +267,7 @@ export default new Vuex.Store({
 		 *
 		 * @param idResidencia ID de la residencias a eliminar
 		 */
-		async eliminarResidencia( { commit, dispatch }, idResidencia: Residencia[ 'idResidencia' ] ): Promise<void> {
+		async eliminarResidencia( { commit, dispatch }, idResidencia: Residencia[ '_id' ] ): Promise<void> {
 			try {
 				const url: string = `${ server.baseURL }/residencias/${ idResidencia }`;
 				await axios.delete( url );

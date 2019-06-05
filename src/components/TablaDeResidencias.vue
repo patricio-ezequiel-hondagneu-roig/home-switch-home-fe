@@ -7,7 +7,7 @@
 			:items="residencias"
 		>
 			<template #items="props">
-				<td class="text-xs-right">{{ props.item.idResidencia }}</td>
+				<td class="text-xs-right">{{ props.item._id }}</td>
 				<td class="text-xs-right">{{ props.item.titulo }}</td>
 				<td class="text-xs-right">{{ props.item.pais }}</td>
 				<td class="text-xs-right">{{ props.item.provincia }}</td>
@@ -28,7 +28,7 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarFormularioDeModificacion( props.item.idResidencia )"
+									@click.stop="mostrarFormularioDeModificacion( props.item._id )"
 									v-on="on"
 								>
 									<v-icon>edit</v-icon>
@@ -42,7 +42,7 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="eliminarResidencia( props.item.idResidencia )"
+									@click.stop="eliminarResidencia( props.item._id )"
 									v-on="on"
 								>
 									<v-icon>delete</v-icon>
@@ -56,7 +56,7 @@
 									flat
 									icon
 									class="secondary--text"
-									@click.stop="mostrarDetalle( props.item.idResidencia )"
+									@click.stop="mostrarDetalle( props.item._id )"
 								>
 								<v-icon>info</v-icon>
 								</v-btn>
@@ -133,7 +133,7 @@
 		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 			{
 				text: 'Id',
-				value: 'idResidencia',
+				value: '_id',
 				align: 'right'
 			},
 			{
