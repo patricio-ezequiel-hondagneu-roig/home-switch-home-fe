@@ -4,6 +4,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { Residencia, ResidenciaParaModificar, ResidenciaParaCrear } from './interfaces/residencia.interface';
 import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/subasta.interface';
+import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
 import { server } from './utils/helper';
 
 Vue.use( Vuex );
@@ -20,6 +21,7 @@ export default new Vuex.Store({
 		alerta: alerta,
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
+		suscripciones: <Suscripcion[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -64,6 +66,10 @@ export default new Vuex.Store({
 					? subasta
 					: null;
 			};
+		},
+
+		suscripciones: ( state ) => {
+			return state.suscripciones;
 		},
 	},
 	mutations: {
@@ -151,6 +157,14 @@ export default new Vuex.Store({
 			if ( indiceDeSubasta !== -1 ) {
 				state.subastas.splice( indiceDeSubasta, 1 );
 			}
+		},
+
+		actualizarSuscripciones( state, suscripcion: Suscripcion[ ] ): void {
+			state.suscripciones = suscripcion;
+		},
+
+		agregarSuscripcion( state, suscripcion: Suscripcion ): void {
+			state.suscripciones.push( suscripcion );
 		},
 	},
 	actions: {
@@ -398,6 +412,89 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerSubastas' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor la lista de todas las suscripciones existentes y actualiza el store con ellas.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 */
+		async obtenerSuscripciones( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones` );
+				const suscripciones = respuesta.data;
+				commit( 'actualizarSuscripciones', suscripciones );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async obtenerSuscripcionPremium( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=premium&ultima` );
+				const suscripciones = respuesta.data;
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async obtenerSuscripcionRegular( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=regular&ultima` );
+				const suscripciones = respuesta.data;
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que cree una suscripcion con los parámetros provistos y obtiene la lista de suscripciones
+		 * actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param suscripcionParaCrear objeto que contiene la información necesaria para crear una suscripcion
+		 */
+		async crearSuscripcion( { commit, dispatch }, suscripcionParaCrear: SuscripcionParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/suscripcioness`;
+				const respuesta = await axios.post<Suscripcion>( url, suscripcionParaCrear );
+				const suscripcionCreada = respuesta.data;
+				commit( 'agregarSuscripcion', suscripcionCreada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La suscripcion se cargó con éxito.'
+				});
+
+				await dispatch( 'obtenerSuscripciones' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
