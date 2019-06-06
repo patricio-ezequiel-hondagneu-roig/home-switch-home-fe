@@ -71,6 +71,15 @@ export default new Vuex.Store({
 		suscripciones: ( state ) => {
 			return state.suscripciones;
 		},
+
+		// No se utiliza el store correctamente
+		obtenerSuscripcionPremium: ( state ) => {
+			return axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=premium&ultima` );
+		},
+
+		obtenerSuscripcionRegular: ( state ) => {
+			return axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=regular&ultima` );
+		},
 	},
 	mutations: {
 		iniciarSesionComoAdmin( state ) {
@@ -433,36 +442,6 @@ export default new Vuex.Store({
 				const respuesta = await axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones` );
 				const suscripciones = respuesta.data;
 				commit( 'actualizarSuscripciones', suscripciones );
-			}
-			catch ( error ) {
-				dispatch( 'mostrarAlerta', {
-					tipo: 'error',
-					texto: ( error.response !== undefined )
-						? error.response.data.message
-						: 'Ocurrió un error al conectarse al servidor'
-				});
-			}
-		},
-
-		async obtenerSuscripcionPremium( { commit, dispatch } ): Promise<void> {
-			try {
-				const respuesta = await axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=premium&ultima` );
-				const suscripciones = respuesta.data;
-			}
-			catch ( error ) {
-				dispatch( 'mostrarAlerta', {
-					tipo: 'error',
-					texto: ( error.response !== undefined )
-						? error.response.data.message
-						: 'Ocurrió un error al conectarse al servidor'
-				});
-			}
-		},
-
-		async obtenerSuscripcionRegular( { commit, dispatch } ): Promise<void> {
-			try {
-				const respuesta = await axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=regular&ultima` );
-				const suscripciones = respuesta.data;
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
