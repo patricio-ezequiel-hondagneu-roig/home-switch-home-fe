@@ -30,8 +30,8 @@
 		@Prop( )
 		public readonly suscripciones!: Suscripcion[ ];
 
-		public async eliminarResidencia( idResidencia: string ): Promise<void> {
-			await this.$store.dispatch( 'eliminarResidencia', idResidencia );
+		public async obtenerSuscripcionPremium( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerSuscripcionPremium' );
 		}
 	}
 </script>
