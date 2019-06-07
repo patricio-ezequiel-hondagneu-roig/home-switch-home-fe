@@ -2,7 +2,7 @@
 	<v-container fluid fill-height>
 		<v-layout align-center row wrap>
 			<v-flex align-center justify-center>
-				<v-btn flat class="success" @click.stop="mostrarFormularioDeCarga( )">
+				<v-btn flat class="primary" @click.stop="mostrarFormularioDeCarga( )">
 					Cargar subasta
 				</v-btn>
 				<v-dialog persistent v-model="formularioDeCargaEsVisible" max-width="40rem">

@@ -255,11 +255,11 @@ export default new Vuex.Store({
 		 * @param argumentos objeto que contiene el ID y los datos de la residencia a modificar
 		 */
 		async modificarResidencia( { commit, dispatch }, argumentos: {
-			idResidencia: Residencia[ '_id' ],
+			_id: Residencia[ '_id' ],
 			residenciaParaModificar: ResidenciaParaModificar
 		}): Promise<void> {
 			try {
-				const url = `${ server.baseURL }/residencias/${ argumentos.idResidencia }`;
+				const url = `${ server.baseURL }/residencias/${ argumentos._id }`;
 				const residenciaParaModificar = argumentos.residenciaParaModificar;
 				const respuesta = await axios.put<Residencia>( url, residenciaParaModificar );
 				const residenciaModificada = respuesta.data;

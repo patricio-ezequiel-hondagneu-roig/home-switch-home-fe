@@ -1,6 +1,6 @@
 <template>
-
-		<v-layout align-center justify-center row wrap>
+	<v-layout>
+    	<v-flex xs12 sm6 >
 			<v-card v-if="residencia!==null" width="40rem">
 				<v-carousel v-if="residencia.fotos.length > 0"
 					class="gray--text"
@@ -18,14 +18,20 @@
 					class="white--text"
 					height="200px"
 				>
-					<v-layout justify-center class="primary pa-2">
+					<v-layout>
 						<img
 							src="@/assets/images/residenciaSinFoto.jpg"
-							width=500
+							width="560px"
 							height="200px"
 						>
 					</v-layout>
 				</v-img>
+				<v-card-title>
+					<div>
+						<span><strong>{{residencia.pais}}, {{residencia.provincia}}, {{residencia.localidad}}, {{residencia.domicilio}}.</strong></span><br>
+						<span>{{residencia.descripcion}}</span>
+					</div>
+				</v-card-title>
 				<v-container style="position:absolute;top:0;color:white;text-shadow:0.25em 0 0.25em black" fluid>
 					<v-layout fill-height>
 						<v-flex xs12 align-end flexbox>
@@ -33,15 +39,9 @@
 						</v-flex>
 					</v-layout>
 				</v-container>
-				<v-card-title>
-					<div>
-						<span><strong>{{residencia.pais}}, {{residencia.provincia}}, {{residencia.localidad}}, {{residencia.domicilio}}.</strong></span><br>
-						<span>{{residencia.descripcion}}</span>
-					</div>
-				</v-card-title>
 				<v-card-actions>
 					<v-spacer></v-spacer>
-					<v-btn class="success" flat @click.stop="emitirEventoOk( )">
+					<v-btn class="primary" @click.stop="emitirEventoOk( )">
 						Ok
 					</v-btn>
 				</v-card-actions>
@@ -49,7 +49,8 @@
 			<v-card v-if='residencia===null'>
 				No hay residencia para mostrar.
 			</v-card>
-		</v-layout>
+    	</v-flex>
+	</v-layout>
 
 
 </template>

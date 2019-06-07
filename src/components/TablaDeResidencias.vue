@@ -13,7 +13,6 @@
 				<td class="text-xs-right">{{ props.item.provincia }}</td>
 				<td class="text-xs-right">{{ props.item.localidad }}</td>
 				<td class="text-xs-right">{{ props.item.domicilio }}</td>
-				<td class="text-xs-right">{{ props.item.descripcion }}</td>
 				<td class="text-xs-right">
 					{{ props.item.fotos.length }} {{ props.item.fotos.length === 1 ? 'foto' : 'fotos' }}
 				</td>
@@ -159,11 +158,6 @@
 			{
 				text: 'Domicilio',
 				value: 'domicilio',
-				align: 'right'
-			},
-			{
-				text: 'Descripción',
-				value: 'descripcion',
 				align: 'right'
 			},
 			{
