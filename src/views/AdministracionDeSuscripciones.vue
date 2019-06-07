@@ -7,7 +7,15 @@
 				<br>
 				1000 $
 				<br>
-				<v-btn block color="primary" dark>Modificar precio de la suscripción premium</v-btn>
+				<v-btn block color="primary" dark @click.stop="mostrarFormularioDeCargaPremium( )" >
+					Modificar precio de la suscripción premium
+				</v-btn>
+				<v-dialog persistent v-model="formularioDeCargaPremiumEsVisible" max-width="40rem">
+					<CargaDeSuscripcionPremium
+						@suscripcionCreada="ocultarFormularioDeCargaPremium( )"
+						@cancelacion="ocultarFormularioDeCargaPremium( )"
+					/>
+				</v-dialog>
 			</v-card-text>
 
 			<v-card-text>
@@ -15,7 +23,15 @@
 				<br>
 				1000 $
 				<br>
-				<v-btn block color="primary" dark>Modificar precio de la suscripción regular</v-btn>
+				<v-btn block color="primary" dark @click.stop="mostrarFormularioDeCargaRegular( )" >
+					Modificar precio de la suscripción regular
+				</v-btn>
+				<v-dialog persistent v-model="formularioDeCargaRegularEsVisible" max-width="40rem">
+					<CargaDeSuscripcionRegular
+						@suscripcionCreada="ocultarFormularioDeCargaRegular( )"
+						@cancelacion="ocultarFormularioDeCargaRegular( )"
+					/>
+				</v-dialog>
 			</v-card-text>
 
 		</v-card>
@@ -23,16 +39,46 @@
 </template>
 
 <script lang="ts">
-	import { Vue, Prop } from 'vue-property-decorator';
 	import { Suscripcion } from '@/interfaces/suscripcion.interface';
+	import { Component, Vue } from 'vue-property-decorator';
+	import CargaDeSuscripcionPremium from '@/components/CargaDeSuscripcionPremium.vue';
+	import CargaDeSuscripcionRegular from '@/components/CargaDeSuscripcionRegular.vue';
+
+	@Component({
+		components: {
+			CargaDeSuscripcionPremium,
+			CargaDeSuscripcionRegular,
+		},
+	})
 
 	export default class AdministracionDeSuscripciones extends Vue {
-		@Prop( )
-		public readonly suscripciones!: Suscripcion[ ];
 
-		public async obtenerSuscripcionPremium( ): Promise<void> {
-			await this.$store.dispatch( 'obtenerSuscripcionPremium' );
+		/**
+		 * Flag que indica si se debe o no mostrar el formulario de carga.
+		 */
+		public formularioDeCargaPremiumEsVisible: boolean = false;
+		public formularioDeCargaRegularEsVisible: boolean = false;
+
+		// Muestra el formulario de carga de una suscripcion premium.
+		public mostrarFormularioDeCargaPremium( ): void {
+			this.formularioDeCargaPremiumEsVisible = true;
 		}
+
+		// Muestra el formulario de carga de una suscripcion regular.
+		public mostrarFormularioDeCargaRegular( ): void {
+			this.formularioDeCargaRegularEsVisible = true;
+		}
+
+		// Oculta el formulario de carga de una suscripcion premium.
+		public ocultarFormularioDeCargaPremium( ): void {
+			this.formularioDeCargaPremiumEsVisible = false;
+		}
+
+		// Oculta el formulario de carga de una suscripcion regular.
+		public ocultarFormularioDeCargaRegular( ): void {
+			this.formularioDeCargaRegularEsVisible = false;
+		}
+
 	}
 </script>
 

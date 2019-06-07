@@ -463,7 +463,7 @@ export default new Vuex.Store({
 		 */
 		async crearSuscripcion( { commit, dispatch }, suscripcionParaCrear: SuscripcionParaCrear ): Promise<void> {
 			try {
-				const url = `${ server.baseURL }/suscripcioness`;
+				const url = `${ server.baseURL }/suscripciones`;
 				const respuesta = await axios.post<Suscripcion>( url, suscripcionParaCrear );
 				const suscripcionCreada = respuesta.data;
 				commit( 'agregarSuscripcion', suscripcionCreada );
