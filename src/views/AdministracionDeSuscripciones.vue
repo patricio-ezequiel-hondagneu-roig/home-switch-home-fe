@@ -1,9 +1,9 @@
 <template>
-	<v-layout class="justify-center">
-		<v-card class="text-xs-center texto">
+	<v-layout class="justify-center" row wrap>
 
-			<v-card-text>
-				Precio actual de la Suscripcion Premium:
+		<v-container>
+			<v-card class="text-xs-center texto">
+				Precio actual de la Suscripcion <span style="font-weight:bold">Premium:</span>
 				<br>
 				1000 $
 				<br>
@@ -16,10 +16,12 @@
 						@cancelacion="ocultarFormularioDeCargaPremium( )"
 					/>
 				</v-dialog>
-			</v-card-text>
+			</v-card>
+		</v-container>
 
-			<v-card-text>
-				Precio actual de la Suscripcion Regular:
+		<v-container>
+			<v-card class="text-xs-center texto">
+				Precio actual de la Suscripcion <span style="font-weight:bold">Regular</span>:
 				<br>
 				1000 $
 				<br>
@@ -32,9 +34,9 @@
 						@cancelacion="ocultarFormularioDeCargaRegular( )"
 					/>
 				</v-dialog>
-			</v-card-text>
+			</v-card>
+		</v-container>
 
-		</v-card>
 	</v-layout>
 </template>
 
