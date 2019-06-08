@@ -6,8 +6,7 @@ export interface Subasta {
 	montoInicial: number;
 	fechaDeInicio: string;
 	fechaDeFin: string;
-	ofertas: string[ ];
 }
 
-export type SubastaParaCrear = RemoverPropiedades<Subasta, '_id' | 'ofertas'>;
-export type SubastaParaModificar = RemoverPropiedades<Subasta, '_id' | 'idResidencia' | 'ofertas' >;
+export type SubastaParaCrear = RemoverPropiedades<Subasta, '_id' >;
+export type SubastaParaModificar = RemoverPropiedades<Subasta, '_id' | 'idResidencia' >;
