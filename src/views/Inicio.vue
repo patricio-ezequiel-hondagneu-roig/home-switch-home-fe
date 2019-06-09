@@ -114,7 +114,6 @@
 			montoInicial: 0,
 			fechaDeInicio: '',
 			fechaDeFin: '',
-			ofertas: [ ],
 		};
 
 		/**

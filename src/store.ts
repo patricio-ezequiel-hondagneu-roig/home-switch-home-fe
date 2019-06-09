@@ -7,6 +7,8 @@ import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/su
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
 import { server } from './utils/helper';
 
+import * as moment from 'moment';
+
 Vue.use( Vuex );
 
 const alerta: InformacionDeAlerta & { esVisible: boolean } = {
@@ -72,13 +74,38 @@ export default new Vuex.Store({
 			return state.suscripciones;
 		},
 
-		// No se utiliza el store correctamente
 		obtenerSuscripcionPremium: ( state ) => {
-			return axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=premium&ultima` );
+			const suscripciones = [ ...state.suscripciones ];
+			return suscripciones
+				.sort( ( a, b ) => {
+					if ( a.fechaDeCreacion > b.fechaDeCreacion ) {
+						return -1;
+					}
+					else if ( a.fechaDeCreacion < b.fechaDeCreacion ) {
+						return +1;
+					}
+					else {
+						return 0;
+					}
+				})
+				.find( ( suscripcion ) => suscripcion.tipoDeSuscripcion === 'Premium' );
 		},
 
 		obtenerSuscripcionRegular: ( state ) => {
-			return axios.get<Suscripcion[ ]>( `${ server.baseURL }/suscripciones?plan=regular&ultima` );
+			const suscripciones = [ ...state.suscripciones ];
+			return suscripciones
+				.sort( ( a, b ) => {
+					if ( a.fechaDeCreacion > b.fechaDeCreacion ) {
+						return -1;
+					}
+					else if ( a.fechaDeCreacion < b.fechaDeCreacion ) {
+						return +1;
+					}
+					else {
+						return 0;
+					}
+				})
+				.find( ( suscripcion ) => suscripcion.tipoDeSuscripcion === 'Regular' );
 		},
 	},
 	mutations: {

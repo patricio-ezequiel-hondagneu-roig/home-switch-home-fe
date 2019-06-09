@@ -15,14 +15,6 @@
 				></v-text-field>
 
 				<v-text-field
-					v-model="modelo.fechaDeCreacion"
-					label="Fecha de creacion"
-					:rules="validadores.fechaDeCreacion"
-					type="date"
-					required
-				></v-text-field>
-
-				<v-text-field
 					:value="modelo.monto"
 					@input="modelo.monto = extraerNumero( $event, modelo.monto )"
 					label="Monto nuevo a cobrar para la suscripcion premium"
@@ -61,6 +53,7 @@
 	import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 	import { server } from '@/utils/helper';
 	import { SuscripcionParaCrear, Suscripcion } from '../interfaces/suscripcion.interface';
+	import * as moment from 'moment';
 
 	@Component
 	export default class CargaDeSuscripcion extends Vue {
@@ -142,6 +135,7 @@
 		 */
 		public async crearSuscripcionPremium( ): Promise<void> {
 			this.esperandoCreacionDeSuscripcionPremium = true;
+			this.modelo.fechaDeCreacion = moment.utc().toISOString();
 			await this.$store.dispatch( 'crearSuscripcion', this.modelo );
 			this.esperandoCreacionDeSuscripcionPremium = false;
 
