@@ -5,6 +5,7 @@ import Vuex from 'vuex';
 import { Residencia, ResidenciaParaModificar, ResidenciaParaCrear } from './interfaces/residencia.interface';
 import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/subasta.interface';
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
+import { Cliente, ClienteParaCrear } from './interfaces/cliente.interface';
 import { server } from './utils/helper';
 
 import * as moment from 'moment';
@@ -501,6 +502,38 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerSuscripciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que cree un cliente regular con los parámetros provistos y obtiene la lista de clientes
+		 * actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param clienteParaCrear objeto que contiene la información necesaria para crear un cliente regular
+		 */
+		async crearClienteRegular( { commit, dispatch }, clienteParaCrear: ClienteParaCrear ): Promise<void> {
+			try {
+				// const url = `${ server.baseURL }/subastas`;
+				// const respuesta = await axios.post<Subasta>( url, subastaParaCrear );
+				// const subastaCreada = respuesta.data;
+				// commit( 'agregarSubasta', subastaCreada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'El cliente se creo con éxito.'
+				});
+
+				// await dispatch( 'obtenerSubastas' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
