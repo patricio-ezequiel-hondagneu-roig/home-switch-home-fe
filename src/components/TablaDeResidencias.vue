@@ -5,6 +5,7 @@
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
 			:items="residencias"
+			no-data-text="No hay residencias cargadas en el sistema ¡Intentá crear algunas!"
 		>
 			<template #items="props">
 				<td class="text-xs-right">{{ props.item._id }}</td>

@@ -4,7 +4,6 @@
 			<v-card v-if="residencia!==null" width="40rem">
 				<v-carousel v-if="residencia.fotos.length > 0"
 					class="gray--text"
-					height="200px"
 					:cycle="false"
 					hide-delimiters
 				>
