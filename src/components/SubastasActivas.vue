@@ -1,9 +1,9 @@
 <template>
 	<div>
-		<v-container v-if="obtenerSubastas.length !== 0">
+		<v-container>
 			<v-layout>
 				<v-expansion-panel light focusable>
-					<v-expansion-panel-content>
+					<v-expansion-panel-content lazy ripple>
 						<template v-slot:header>
 							<span class="font-weight-bold headline sombra-texto">Subastas</span>
 						</template>
@@ -15,7 +15,7 @@
 							>
 								<v-card
 								height="200"
-								width="500"
+								width="600"
 								elevation-5
 								>
 									<v-layout row wrap>
@@ -35,13 +35,13 @@
 										</v-flex>
 										<v-flex>
 											<v-layout row>
-												<v-flex class="mt-2 ml-4">
-													<v-layout column align-start>
+												<v-flex class="mt-2 ml-4" wrap>
+													<v-layout column align-start wrap>
 														<v-flex class="font-weight-bold headline sombra-texto">
 															{{obtenerResidenciaConId(subasta.idResidencia).titulo}}
 														</v-flex>
-														<v-flex class="subheading sombra-texto">
-															<v-chip>
+														<v-flex class="sombra-texto">
+															<v-chip disabled small>
 																{{obtenerResidenciaConId(subasta.idResidencia).pais}} , {{obtenerResidenciaConId(subasta.idResidencia).provincia}} ,
 																{{obtenerResidenciaConId(subasta.idResidencia).localidad}} , {{obtenerResidenciaConId(subasta.idResidencia).domicilio}}
 															</v-chip>
@@ -49,10 +49,10 @@
 														<v-flex class="subheading ml-3 red--text">
 															Finaliza: {{subasta.fechaDeFin}}
 														</v-flex>
-														<v-flex font-weight-bold display-1 align-self-end mt-1 mr-3 pr-2>
+														<v-flex font-weight-bold display-1 align-self-end mt-1 mr-2>
 															<span class="green--text">$ {{subasta.montoInicial}}</span>
 														</v-flex>
-														<v-flex align-self-end mr-3>
+														<v-flex align-self-end>
 															<v-tooltip left open-delay="100" close-delay="0">
 																<template v-slot:activator="{ on }">
 																	<v-btn
@@ -126,8 +126,24 @@ import { Residencia } from '@/interfaces/residencia.interface';
 export default class SubastasActivas extends Vue{
 	public detalleDeResidenciaEsVisible: boolean = false;
 	public ofertarDeSubastaEsVisible: boolean = false;
-	public subastaParam!: Subasta;
-	public residenciaParam!: Residencia;
+	public subastaParam: Subasta = {
+		_id: '',
+		idResidencia: '',
+		montoInicial: 0,
+		fechaDeInicio: '',
+		fechaDeFin: '',
+	};
+	public residenciaParam: Residencia = {
+		_id: '',
+		titulo: '',
+		pais: '',
+		provincia: '',
+		localidad: '',
+		domicilio: '',
+		descripcion: '',
+		fotos: [ ],
+		montoInicialDeSubasta: 0,
+	};
 	/* ------Al crearse este componente se actualizan los datos que va a actualizar y los obtengo--------*/
 	public created( ): void {
 		this.actualizarSubastas( );
@@ -157,8 +173,9 @@ export default class SubastasActivas extends Vue{
 		const residencia = this.$store.getters.residenciaConId( _id );
 		if ( residencia === null ) {
 				throw new Error( `No existe ninguna residencia con ID "${ _id }"` );
+		} else {
+			return residencia;
 		}
-		return residencia;
 	}
 	// -----------------------------------------------------Comportamiento de ventana emergente
 	public mostrarDetallesResidencia( res: Residencia ): void {

@@ -5,6 +5,7 @@
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
 			:items="subastas"
+			no-data-text="No hay subastas cargadas aún."
 		>
 			<template #items="props">
 				<td class="text-xs-right">{{ props.item._id }}</td>
@@ -12,10 +13,6 @@
 				<td class="text-xs-right">{{ props.item.fechaDeInicio }}</td>
 				<td class="text-xs-right">{{ props.item.fechaDeFin }}</td>
 				<td class="text-xs-right">{{ props.item.montoInicial }}</td>
-				<td class="text-xs-right">
-					{{ props.item.ofertas.length }} {{ props.item.ofertas.length === 1 ? 'oferta' : 'ofertas' }}
-				</td>
-
 				<td>
 					<v-layout row>
 						<v-tooltip left open-delay="100" close-delay="0">
@@ -118,11 +115,6 @@
 			{
 				text: 'Monto Inicial',
 				value: 'montoInicial',
-				align: 'right'
-			},
-			{
-				text: 'Ofertas',
-				value: 'ofertas',
 				align: 'right'
 			},
 			{
