@@ -200,6 +200,19 @@
 		 */
 		public async crearResidencia( ): Promise<void> {
 			this.esperandoCreacionDeResidencia = true;
+
+			// --------------------------------------------------------------------------------------------------------------
+			// El elemento en la posición 0 del arreglo de fotos tiene todas las urls
+			// Lo que quiero hacer ahora es que a partir de fotos[0] se cree un arreglo de fotos de manera correcta
+			const unString = this.modelo.fotos[0];
+			const unStringArreglo = unString.split(' ');
+
+			unStringArreglo.forEach( (entry) =>	entry += ' ' );
+
+			this.modelo.fotos = unStringArreglo;
+			// Se puede refactorizar aun más este codigo pero no lo hago xq' no se si se utilizara a futuro
+			// --------------------------------------------------------------------------------------------------------------
+
 			await this.$store.dispatch( 'crearResidencia', this.modelo );
 			this.esperandoCreacionDeResidencia = false;
 
