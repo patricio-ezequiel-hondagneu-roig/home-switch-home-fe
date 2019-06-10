@@ -5,7 +5,7 @@
 			<v-card class="text-xs-center texto">
 				Precio actual de la Suscripcion <span style="font-weight:bold">Premium:</span>
 				<br>
-				1000 $
+				$ {{ this.suscripcionPremiumActual ? this.suscripcionPremiumActual.monto : '¿Primera vez aqui? Intenta modificar el precio de suscripcion!' }}
 				<br>
 				<v-btn block color="primary" dark @click.stop="mostrarFormularioDeCargaPremium( )" >
 					Modificar precio de la suscripción premium
@@ -23,7 +23,7 @@
 			<v-card class="text-xs-center texto">
 				Precio actual de la Suscripcion <span style="font-weight:bold">Regular</span>:
 				<br>
-				1000 $
+				$ {{ this.suscripcionRegularActual ? this.suscripcionRegularActual.monto : '¿Primera vez aqui? Intenta modificar el precio de suscripcion!' }}
 				<br>
 				<v-btn block color="primary" dark @click.stop="mostrarFormularioDeCargaRegular( )" >
 					Modificar precio de la suscripción regular
@@ -61,6 +61,10 @@
 		public formularioDeCargaPremiumEsVisible: boolean = false;
 		public formularioDeCargaRegularEsVisible: boolean = false;
 
+		public created( ) {
+			this.obtenerSuscripciones();
+		}
+
 		// Muestra el formulario de carga de una suscripcion premium.
 		public mostrarFormularioDeCargaPremium( ): void {
 			this.formularioDeCargaPremiumEsVisible = true;
@@ -81,6 +85,20 @@
 			this.formularioDeCargaRegularEsVisible = false;
 		}
 
+		public get suscripcionPremiumActual( ): Suscripcion | undefined {
+			return this.$store.getters.obtenerSuscripcionPremium;
+		}
+
+		public get suscripcionRegularActual( ): Suscripcion | undefined {
+			return this.$store.getters.obtenerSuscripcionRegular;
+		}
+
+		/**
+		 * Solicita al store que actualice la lista local de suscripciones.
+		 */
+		public async obtenerSuscripciones( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerSuscripciones' );
+		}
 	}
 </script>
 
