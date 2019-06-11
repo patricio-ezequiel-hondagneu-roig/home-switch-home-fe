@@ -56,13 +56,47 @@
 					required
 				></v-text-field>
 
-				<v-text-field
-					v-model="modelo.tarjetaDeCredito"
-					label="Tarjeta de Crédito"
-					:rules="validadores.tarjetaDeCredito"
-					required
-					mask="credit-card"
-				></v-text-field>
+				<v-container>
+					<v-layout>
+						<v-flex
+							xs12
+							md7>
+							<v-text-field
+								v-model="modelo.tarjetaDeCredito"
+								label="Tarjeta de Crédito"
+								:rules="validadores.tarjetaDeCredito"
+								required
+								mask="credit-card"
+								counter="16"
+							></v-text-field>
+						</v-flex>
+
+						<v-flex
+							xs12
+							md5>
+							<v-text-field
+								v-model="modelo.codigoDeSeguridad"
+								label="Código de seguridad"
+								:rules="validadores.codigoDeSeguridad"
+								required
+								type="number"
+								counter="4"
+							></v-text-field>
+						</v-flex>
+
+						<v-flex
+							xs12
+							md5>
+							<v-text-field
+								v-model="modelo.fechaDeExpiracion"
+								label="Fecha de expiración"
+								:rules="validadores.fechaDeExpiracion"
+								required
+								type="date"
+							></v-text-field>
+						</v-flex>
+					</v-layout>
+				</v-container>
 			</v-form>
 		</v-card-text>
 
@@ -92,6 +126,7 @@
 	import { tarjetaDeCredito } from '@/helpers/validadores/tarjeta-de-credito';
 	import { correoElectronico } from '@/helpers/validadores/correo-electronico';
 	import { mayorDeDieciocho } from '@/helpers/validadores/mayor-de-dieciocho';
+	import { codigoDeSeguridad } from '@/helpers/validadores/codigo-de-seguridad';
 
 
 	@Component
@@ -117,6 +152,8 @@
 			ciudad: '',
 			email: '',
 			tarjetaDeCredito: '',
+			codigoDeSeguridad: '',
+			fechaDeExpiracion: '',
 			creditos: [ ],
 		};
 
@@ -158,6 +195,15 @@
 				requerido( 'Tarjeta de crédito' ),
 				textoNoVacio( 'Tarjeta de crédito' ),
 				tarjetaDeCredito( 'Tarjeta de crédito' )
+			],
+			codigoDeSeguridad: [
+				requerido( 'Codigo de seguridad' ),
+				textoNoVacio( 'Codigo de seguridad' )
+			],
+			fechaDeExpiracion: [
+				requerido( 'Fecha de expiración' ),
+				textoNoVacio( 'Fecha de expiración' ),
+				codigoDeSeguridad( 'Fecha de expiración' )
 			]
 		};
 
@@ -229,6 +275,8 @@
 			this.modelo.ciudad = '';
 			this.modelo.email = '';
 			this.modelo.tarjetaDeCredito = '';
+			this.modelo.fechaDeExpiracion = '';
+			this.modelo.codigoDeSeguridad = '';
 			this.modelo.creditos = [ ];
 
 			this.formularioEsValido = false;

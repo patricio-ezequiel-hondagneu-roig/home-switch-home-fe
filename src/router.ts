@@ -6,6 +6,7 @@ import Administracion from './views/Administracion.vue';
 import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue';
 import AdministracionDeSubastas from './views/AdministracionDeSubastas.vue';
 import AdministracionDeSuscripciones from './views/AdministracionDeSuscripciones.vue';
+import AdministracionDePublicaciones from './views/AdministracionDePublicaciones.vue';
 import IniciarSesion from './views/IniciarSesion.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 import { verificarPermisos } from './helpers/guardas-de-navegacion/verificar-permisos.guard';
@@ -49,6 +50,14 @@ const router = new Router({
 			path: '/administracion/suscripciones',
 			name: 'administracion de suscripciones',
 			component: AdministracionDeSuscripciones,
+			meta: {
+				requierePermisosDeAdmin: true,
+			}
+		},
+		{
+			path: '/administracion/publicaciones',
+			name: 'administracion de publicaciones',
+			component: AdministracionDePublicaciones,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}
