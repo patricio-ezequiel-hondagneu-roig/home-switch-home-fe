@@ -14,6 +14,7 @@
 								class="my-2"
 							>
 								<v-card
+								v-if="obtenerResidenciaConId(subasta.idResidencia) !== null"
 								height="200"
 								width="600"
 								elevation-5
@@ -170,12 +171,7 @@ export default class SubastasActivas extends Vue{
 		return this.$store.getters.subastas;
 	}
 	public obtenerResidenciaConId(_id: String): Residencia | undefined {
-		const residencia = this.$store.getters.residenciaConId( _id );
-		if ( residencia === null ) {
-				throw new Error( `No existe ninguna residencia con ID "${ _id }"` );
-		} else {
-			return residencia;
-		}
+		return this.$store.getters.residenciaConId( _id );
 	}
 	// -----------------------------------------------------Comportamiento de ventana emergente
 	public mostrarDetallesResidencia( res: Residencia ): void {
