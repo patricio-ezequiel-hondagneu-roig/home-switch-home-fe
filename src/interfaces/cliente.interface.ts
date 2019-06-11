@@ -9,7 +9,7 @@ export interface Cliente {
 	contraseña: string;
 	fechaDeNacimiento: string;
 	celular: string;
-	ciudad: string;
+	pais: string;
 
 	tarjetaDeCredito: string;
 	codigoDeSeguridad: string; // Codigo de seguridad de la tarjeta

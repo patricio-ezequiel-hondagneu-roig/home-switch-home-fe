@@ -43,9 +43,9 @@
 				></v-text-field>
 
 				<v-text-field
-					v-model="modelo.ciudad"
-					label="Ciudad"
-					:rules="validadores.ciudad"
+					v-model="modelo.pais"
+					label="Pais"
+					:rules="validadores.pais"
 					required
 				></v-text-field>
 
@@ -127,7 +127,7 @@
 	import { correoElectronico } from '@/helpers/validadores/correo-electronico';
 	import { mayorDeDieciocho } from '@/helpers/validadores/mayor-de-dieciocho';
 	import { codigoDeSeguridad } from '@/helpers/validadores/codigo-de-seguridad';
-
+	import moment from 'moment';
 
 	@Component
 	export default class CargaDeClienteRegular extends Vue {
@@ -149,7 +149,7 @@
 			contraseña: '',
 			fechaDeNacimiento: '',
 			celular: '',
-			ciudad: '',
+			pais: '',
 			email: '',
 			tarjetaDeCredito: '',
 			codigoDeSeguridad: '',
@@ -182,9 +182,9 @@
 				requerido( 'Celular' ),
 				textoNoVacio( 'Celular' )
 			],
-			ciudad: [
-				requerido( 'Ciudad' ),
-				textoNoVacio( 'Ciudad' )
+			pais: [
+				requerido( 'Pais' ),
+				textoNoVacio( 'Pais' )
 			],
 			email: [
 				requerido( 'Email' ),
@@ -250,7 +250,10 @@
 		 */
 		public async crearClienteRegular( ): Promise<void> {
 			this.esperandoCreacionDeCliente = true;
-			// this.modelo.fechaDeCreacion = moment.utc().toISOString();
+
+			this.modelo.fechaDeNacimiento = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
+			this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeExpiracion).utc().toISOString();
+
 			// await this.$store.dispatch( 'crearSuscripcion', this.modelo );
 			this.esperandoCreacionDeCliente = false;
 
@@ -272,7 +275,7 @@
 			this.modelo.contraseña = '';
 			this.modelo.fechaDeNacimiento = '';
 			this.modelo.celular = '';
-			this.modelo.ciudad = '';
+			this.modelo.pais = '';
 			this.modelo.email = '';
 			this.modelo.tarjetaDeCredito = '';
 			this.modelo.fechaDeExpiracion = '';
