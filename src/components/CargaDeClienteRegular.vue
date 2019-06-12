@@ -79,7 +79,7 @@
 								label="Código de seguridad"
 								:rules="validadores.codigoDeSeguridad"
 								required
-								type="number"
+								mask="####"
 								counter="4"
 							></v-text-field>
 						</v-flex>
@@ -127,6 +127,7 @@
 	import { correoElectronico } from '@/helpers/validadores/correo-electronico';
 	import { mayorDeDieciocho } from '@/helpers/validadores/mayor-de-dieciocho';
 	import { codigoDeSeguridad } from '@/helpers/validadores/codigo-de-seguridad';
+	import { Credito } from '../interfaces/credito.interface';
 	import moment from 'moment';
 
 	@Component
@@ -154,7 +155,7 @@
 			tarjetaDeCredito: '',
 			codigoDeSeguridad: '',
 			fechaDeExpiracion: '',
-			creditos: [ ],
+			creditos: <Credito[]> [],
 		};
 
 		/**
@@ -251,8 +252,20 @@
 		public async crearClienteRegular( ): Promise<void> {
 			this.esperandoCreacionDeCliente = true;
 
+			// Transformo las fechas con la moment js
 			this.modelo.fechaDeNacimiento = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
 			this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeExpiracion).utc().toISOString();
+
+			// Agrego dos creditos nuevos al cliente
+			this.modelo.creditos.push({
+				fechaDeCreacion: moment().utc().toISOString(),
+				activo: true
+			});
+
+			this.modelo.creditos.push({
+				fechaDeCreacion: moment().utc().toISOString(),
+				activo: true
+			});
 
 			// await this.$store.dispatch( 'crearSuscripcion', this.modelo );
 			this.esperandoCreacionDeCliente = false;
@@ -280,7 +293,7 @@
 			this.modelo.tarjetaDeCredito = '';
 			this.modelo.fechaDeExpiracion = '';
 			this.modelo.codigoDeSeguridad = '';
-			this.modelo.creditos = [ ];
+			this.modelo.creditos = <Credito[]> [];
 
 			this.formularioEsValido = false;
 		}
