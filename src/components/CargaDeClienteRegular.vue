@@ -129,6 +129,7 @@
 	import { codigoDeSeguridad } from '@/helpers/validadores/codigo-de-seguridad';
 	import { Credito } from '../interfaces/credito.interface';
 	import moment from 'moment';
+	import { Suscripcion } from '@/interfaces/suscripcion.interface';
 
 	@Component
 	export default class CargaDeClienteRegular extends Vue {
@@ -267,6 +268,9 @@
 				activo: true
 			});
 
+			// Se le asigna la suscripcion regular al cliente
+			this.modelo.idSuscripcion = this.suscripcionRegularActual._id;
+
 			// await this.$store.dispatch( 'crearSuscripcion', this.modelo );
 			this.esperandoCreacionDeCliente = false;
 
@@ -296,6 +300,21 @@
 			this.modelo.creditos = <Credito[]> [];
 
 			this.formularioEsValido = false;
+		}
+
+		/**
+		 * Solicita al store que actualice la lista local de suscripciones.
+		 */
+		public async obtenerSuscripciones( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerSuscripciones' );
+		}
+
+		public created( ) {
+			this.obtenerSuscripciones();
+		}
+
+		public get suscripcionRegularActual( ): Suscripcion {
+			return this.$store.getters.obtenerSuscripcionRegular;
 		}
 	}
 </script>
