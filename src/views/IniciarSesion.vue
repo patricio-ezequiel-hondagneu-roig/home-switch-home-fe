@@ -63,14 +63,6 @@ import { Cliente } from '@/interfaces/cliente.interface';
 })
 
 export default class IniciarSesion extends Vue {
-	/**
-	 * Devuelve los errores a mostrar, si los hubiera
-	 */
-	public get errores( ): string[ ] {
-		return ( this.mostrarError )
-			? [ 'El email o la contraseña ingresados no son validos' ]
-			: [ ];
-	}
 	public email: String = '';
 	public contraseña: String = '';
 
@@ -80,6 +72,14 @@ export default class IniciarSesion extends Vue {
 	public formularioDeCargaEsVisible: boolean = false;
 
 	private mostrarError: boolean = false;
+	/**
+	 * Devuelve los errores a mostrar, si los hubiera
+	 */
+	public get errores( ): string[ ] {
+		return ( this.mostrarError )
+			? [ 'El email o la contraseña ingresados no son validos' ]
+			: [ ];
+	}
 
 	// Muestra el formulario de carga de un cliente regular.
 	public mostrarFormularioDeCarga( ): void {
