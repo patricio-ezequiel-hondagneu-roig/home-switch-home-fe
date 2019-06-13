@@ -20,13 +20,14 @@ const alerta: InformacionDeAlerta & { esVisible: boolean } = {
 
 export default new Vuex.Store({
 	state: {
+		alerta: alerta,
 		esAdmin: <boolean | null> null,
 		perfil: <Cliente | null> null,
-		alerta: alerta,
+		clienteLoggedIn: <Cliente | null> null,
+		clientes: <Cliente[ ]> [ ],
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
-		clientes: <Cliente[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -39,6 +40,14 @@ export default new Vuex.Store({
 
 		alerta: ( state ) => {
 			return state.alerta;
+		},
+
+		clientes: ( state ) => {
+			return state.clientes;
+		},
+
+		clienteLoggedIn: ( state ) => {
+			return state.clienteLoggedIn;
 		},
 
 		residencias: ( state ) => {
@@ -110,11 +119,6 @@ export default new Vuex.Store({
 				})
 				.find( ( suscripcion ) => suscripcion.tipoDeSuscripcion === 'Regular' );
 		},
-
-		clientes: ( state ) => {
-			return state.clientes;
-		},
-
 		clienteConId: ( state ) => {
 			return ( idCliente: Cliente[ '_id' ] ): Cliente | null => {
 				const cliente = state.clientes.find( ( _cliente ) => {
@@ -264,7 +268,9 @@ export default new Vuex.Store({
 				state.clientes.push( cliente );
 			}
 		},
-
+		modificarClienteLoggedIn( state, cliente: Cliente ): void {
+			state.clienteLoggedIn = cliente;
+		},
 		eliminarCliente( state, idCliente: Cliente[ '_id' ] ): void {
 			const indiceDeCliente = state.clientes.findIndex( ( _cliente ) => {
 				return _cliente._id === idCliente;
@@ -697,6 +703,31 @@ export default new Vuex.Store({
 					texto: 'El cliente se modificó con éxito.'
 				});
 
+				await dispatch( 'obtenerClientes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		async modificarClienteLoggedIn( { commit, dispatch }, argumentos: {
+			idCliente: Cliente[ '_id' ],
+			clienteParaModificar: ClienteParaModificar
+		}): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/clientes/${ argumentos.idCliente }`;
+				const clienteParaModificar = argumentos.clienteParaModificar;
+				const respuesta = await axios.put<Cliente>( url, clienteParaModificar );
+				const clienteModificado = respuesta.data;
+				commit( 'modificarClienteLoggedIn', clienteModificado );
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'Su información se modificó con éxito.'
+				});
 				await dispatch( 'obtenerClientes' );
 			}
 			catch ( error ) {

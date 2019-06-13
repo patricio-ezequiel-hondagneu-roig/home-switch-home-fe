@@ -175,12 +175,11 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 	 */
 	public async modificarSubasta( ): Promise<void> {
 		this.esperandoModificacionDeInfo = true;
-		/*await this.$store.dispatch( 'modificarInfo', {
+		await this.$store.dispatch( 'modificarClienteLoggedIn', {
 			idCliente: this.cliente._id,
 			clienteParaModificar: this.modelo,
-		});*/
+		});
 		this.esperandoModificacionDeInfo = false;
-
 		this.restablecerFormulario( );
 		this.emitirEventoInfoModificada( );
 	}
