@@ -21,6 +21,7 @@ const alerta: InformacionDeAlerta & { esVisible: boolean } = {
 export default new Vuex.Store({
 	state: {
 		esAdmin: <boolean | null> null,
+		perfil: <Cliente | null> null,
 		alerta: alerta,
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
@@ -125,11 +126,28 @@ export default new Vuex.Store({
 					: null;
 			};
 		},
+
+		clienteConEmail: ( state ) => {
+			return ( emailCliente: Cliente[ 'email' ] ): Cliente | null => {
+				const cliente = state.clientes.find( ( _cliente ) => {
+					return _cliente.email === emailCliente;
+				});
+
+				return ( cliente !== undefined )
+					? cliente
+					: null;
+			};
+		},
 	},
 	mutations: {
 		iniciarSesionComoAdmin( state ) {
 			state.esAdmin = true;
 			localStorage.setItem( 'esAdmin', 'esAdmin' );
+		},
+
+		iniciarSesionComoCliente( state, cliente: Cliente ) {
+			state.perfil = cliente;
+			localStorage.setItem( 'perfil', 'perfil' );
 		},
 
 		cerrarSesionComoAdmin( state ) {
@@ -260,6 +278,10 @@ export default new Vuex.Store({
 	actions: {
 		iniciarSesionComoAdmin( { commit } ) {
 			commit( 'iniciarSesionComoAdmin' );
+		},
+
+		iniciarSesionComoCliente( { commit } ) {
+			commit( 'iniciarSesionComoCliente' );
 		},
 
 		cerrarSesionComoAdmin( { commit } ) {

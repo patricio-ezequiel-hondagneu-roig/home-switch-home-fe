@@ -331,8 +331,16 @@
 			await this.$store.dispatch( 'obtenerSuscripciones' );
 		}
 
+		/**
+		 * Solicita al store que actualice la lista local de clientes.
+		 */
+		public async obtenerClientes( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerClientes' );
+		}
+
 		public created( ) {
 			this.obtenerSuscripciones();
+			this.obtenerClientes();
 		}
 
 		public get suscripcionRegularActual( ): Suscripcion {

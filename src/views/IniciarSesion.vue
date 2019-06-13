@@ -13,14 +13,19 @@
 
 								<v-card-text>
 									<v-form>
-									<v-text-field prepend-icon="email" name="email" label="Email" type="text"></v-text-field>
-									<v-text-field prepend-icon="lock" name="contraseña" label="Contraseña" id="contraseña" type="password"></v-text-field>
+									<v-text-field v-model="email" prepend-icon="email" name="email" label="Email" type="text"></v-text-field>
+									<v-text-field  v-model="contraseña" prepend-icon="lock" name="contraseña" label="Contraseña" id="contraseña" type="password"></v-text-field>
 									</v-form>
 								</v-card-text>
 
 								<v-card-actions>
 									<v-spacer></v-spacer>
-									<v-btn color="primary">Ingresar</v-btn>
+									<v-btn
+										color="primary"
+										@click.stop="ingresar( )"
+									>
+										Ingresar
+									</v-btn>
 								</v-card-actions>
 
 							</v-card>
@@ -47,30 +52,56 @@
 
 
 <script lang="ts">
-	import { Vue, Component } from 'vue-property-decorator';
-	import CargaDeClienteRegular from '@/components/CargaDeClienteRegular.vue';
+import { Vue, Component } from 'vue-property-decorator';
+import CargaDeClienteRegular from '@/components/CargaDeClienteRegular.vue';
+import { Cliente } from '@/interfaces/cliente.interface';
 
-	@Component({
-		components: {
-			CargaDeClienteRegular,
-		},
-	})
+@Component({
+	components: {
+		CargaDeClienteRegular,
+	},
+})
 
-	export default class IniciarSesion extends Vue {
+export default class IniciarSesion extends Vue {
+	/**
+	 * Devuelve los errores a mostrar, si los hubiera
+	 */
+	public get errores( ): string[ ] {
+		return ( this.mostrarError )
+			? [ 'El email o la contraseña ingresados no son validos' ]
+			: [ ];
+	}
+	public email: String = '';
+	public contraseña: String = '';
 
-		/**
-		 * Flag que indica si se debe o no mostrar el formulario de carga.
-		 */
-		public formularioDeCargaEsVisible: boolean = false;
+	/**
+	 * Flag que indica si se debe o no mostrar el formulario de carga.
+	 */
+	public formularioDeCargaEsVisible: boolean = false;
 
-		// Muestra el formulario de carga de un cliente regular.
-		public mostrarFormularioDeCarga( ): void {
-			this.formularioDeCargaEsVisible = true;
-		}
+	private mostrarError: boolean = false;
 
-		// Muestra el formulario de carga de un cliente regular.
-		public ocultarFormularioDeCarga( ): void {
-			this.formularioDeCargaEsVisible = false;
+	// Muestra el formulario de carga de un cliente regular.
+	public mostrarFormularioDeCarga( ): void {
+		this.formularioDeCargaEsVisible = true;
+	}
+
+	// Muestra el formulario de carga de un cliente regular.
+	public ocultarFormularioDeCarga( ): void {
+		this.formularioDeCargaEsVisible = false;
+	}
+
+	/**
+	 * Se fija si el email y la contraseña son validos y devuelve el cliente
+	 */
+	public async ingresar( ): Promise<void> {
+		const cliente = this.$store.getters.clienteConEmail(this.email);
+
+		if ( cliente !== null && cliente.contraseña === this.contraseña ) {
+			await this.$store.dispatch( 'iniciarSesionComoCliente', cliente );
+		} else {
+			// Se debería informar del error
 		}
 	}
+}
 </script>
