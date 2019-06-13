@@ -1,4 +1,5 @@
 import { RemoverPropiedades } from '@/typings/remover-propiedades';
+import { Credito } from './credito.interface';
 
 export interface Cliente {
 	_id: string;
@@ -10,12 +11,12 @@ export interface Cliente {
 	fechaDeNacimiento: string;
 	celular: string;
 	pais: string;
-	tarjetaDeCredito: string;
-	codigoDeSeguridad: string;
-	fechaDeexpiracion: string;
 
-	// Va a tener un arreglo de objetos {fechaDeCreacion: string, valido: boollean} ¿es un arreglo de strings?
-	creditos: string[ ];
+	tarjetaDeCredito: string;
+	codigoDeSeguridad: string; // Codigo de seguridad de la tarjeta
+	fechaDeExpiracion: string; // Fecha de expiracion de la tarjeta
+
+	creditos: Credito[ ];
 }
 
 export type ClienteParaCrear = RemoverPropiedades<Cliente, '_id' >;

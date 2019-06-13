@@ -43,9 +43,9 @@
 				></v-text-field>
 
 				<v-text-field
-					v-model="modelo.ciudad"
-					label="Ciudad"
-					:rules="validadores.ciudad"
+					v-model="modelo.pais"
+					label="Pais"
+					:rules="validadores.pais"
 					required
 				></v-text-field>
 
@@ -56,13 +56,47 @@
 					required
 				></v-text-field>
 
-				<v-text-field
-					v-model="modelo.tarjetaDeCredito"
-					label="Tarjeta de Crédito"
-					:rules="validadores.tarjetaDeCredito"
-					required
-					mask="credit-card"
-				></v-text-field>
+				<v-container>
+					<v-layout>
+						<v-flex
+							xs12
+							md7>
+							<v-text-field
+								v-model="modelo.tarjetaDeCredito"
+								label="Tarjeta de Crédito"
+								:rules="validadores.tarjetaDeCredito"
+								required
+								mask="credit-card"
+								counter="16"
+							></v-text-field>
+						</v-flex>
+
+						<v-flex
+							xs12
+							md5>
+							<v-text-field
+								v-model="modelo.codigoDeSeguridad"
+								label="Código de seguridad"
+								:rules="validadores.codigoDeSeguridad"
+								required
+								mask="####"
+								counter="4"
+							></v-text-field>
+						</v-flex>
+
+						<v-flex
+							xs12
+							md5>
+							<v-text-field
+								v-model="modelo.fechaDeExpiracion"
+								label="Fecha de expiración"
+								:rules="validadores.fechaDeExpiracion"
+								required
+								type="date"
+							></v-text-field>
+						</v-flex>
+					</v-layout>
+				</v-container>
 			</v-form>
 		</v-card-text>
 
@@ -92,7 +126,10 @@
 	import { tarjetaDeCredito } from '@/helpers/validadores/tarjeta-de-credito';
 	import { correoElectronico } from '@/helpers/validadores/correo-electronico';
 	import { mayorDeDieciocho } from '@/helpers/validadores/mayor-de-dieciocho';
-
+	import { codigoDeSeguridad } from '@/helpers/validadores/codigo-de-seguridad';
+	import { Credito } from '../interfaces/credito.interface';
+	import moment from 'moment';
+	import { Suscripcion } from '@/interfaces/suscripcion.interface';
 
 	@Component
 	export default class CargaDeClienteRegular extends Vue {
@@ -118,8 +155,8 @@
 			email: '',
 			tarjetaDeCredito: '',
 			codigoDeSeguridad: '',
-			fechaDeexpiracion: '',
-			creditos: [ ],
+			fechaDeExpiracion: '',
+			creditos: <Credito[]> [],
 		};
 
 		/**
@@ -147,9 +184,9 @@
 				requerido( 'Celular' ),
 				textoNoVacio( 'Celular' )
 			],
-			ciudad: [
-				requerido( 'Ciudad' ),
-				textoNoVacio( 'Ciudad' )
+			pais: [
+				requerido( 'Pais' ),
+				textoNoVacio( 'Pais' )
 			],
 			email: [
 				requerido( 'Email' ),
@@ -160,6 +197,15 @@
 				requerido( 'Tarjeta de crédito' ),
 				textoNoVacio( 'Tarjeta de crédito' ),
 				tarjetaDeCredito( 'Tarjeta de crédito' )
+			],
+			codigoDeSeguridad: [
+				requerido( 'Codigo de seguridad' ),
+				textoNoVacio( 'Codigo de seguridad' )
+			],
+			fechaDeExpiracion: [
+				requerido( 'Fecha de expiración' ),
+				textoNoVacio( 'Fecha de expiración' ),
+				codigoDeSeguridad( 'Fecha de expiración' )
 			]
 		};
 
@@ -206,7 +252,25 @@
 		 */
 		public async crearClienteRegular( ): Promise<void> {
 			this.esperandoCreacionDeCliente = true;
-			// this.modelo.fechaDeCreacion = moment.utc().toISOString();
+
+			// Transformo las fechas con la moment js
+			this.modelo.fechaDeNacimiento = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
+			this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeExpiracion).utc().toISOString();
+
+			// Agrego dos creditos nuevos al cliente
+			this.modelo.creditos.push({
+				fechaDeCreacion: moment().utc().toISOString(),
+				activo: true
+			});
+
+			this.modelo.creditos.push({
+				fechaDeCreacion: moment().utc().toISOString(),
+				activo: true
+			});
+
+			// Se le asigna la suscripcion regular al cliente
+			this.modelo.idSuscripcion = this.suscripcionRegularActual._id;
+
 			// await this.$store.dispatch( 'crearSuscripcion', this.modelo );
 			this.esperandoCreacionDeCliente = false;
 
@@ -231,9 +295,26 @@
 			this.modelo.pais = '';
 			this.modelo.email = '';
 			this.modelo.tarjetaDeCredito = '';
-			this.modelo.creditos = [ ];
+			this.modelo.fechaDeExpiracion = '';
+			this.modelo.codigoDeSeguridad = '';
+			this.modelo.creditos = <Credito[]> [];
 
 			this.formularioEsValido = false;
+		}
+
+		/**
+		 * Solicita al store que actualice la lista local de suscripciones.
+		 */
+		public async obtenerSuscripciones( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerSuscripciones' );
+		}
+
+		public created( ) {
+			this.obtenerSuscripciones();
+		}
+
+		public get suscripcionRegularActual( ): Suscripcion {
+			return this.$store.getters.obtenerSuscripcionRegular;
 		}
 	}
 </script>
