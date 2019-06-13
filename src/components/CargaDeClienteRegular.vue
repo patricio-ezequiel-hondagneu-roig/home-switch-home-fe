@@ -92,7 +92,7 @@
 								label="Fecha de expiración"
 								:rules="validadores.fechaDeExpiracion"
 								required
-								type="date"
+								type="month"
 							></v-text-field>
 						</v-flex>
 					</v-layout>
@@ -126,8 +126,8 @@
 	import { tarjetaDeCredito } from '@/helpers/validadores/tarjeta-de-credito';
 	import { correoElectronico } from '@/helpers/validadores/correo-electronico';
 	import { mayorDeDieciocho } from '@/helpers/validadores/mayor-de-dieciocho';
+	import { cuatroCaracteres } from '@/helpers/validadores/cuatro-caracteres';
 	import { codigoDeSeguridad } from '@/helpers/validadores/codigo-de-seguridad';
-	import { Credito } from '../interfaces/credito.interface';
 	import moment from 'moment';
 	import { Suscripcion } from '@/interfaces/suscripcion.interface';
 
@@ -156,7 +156,7 @@
 			tarjetaDeCredito: '',
 			codigoDeSeguridad: '',
 			fechaDeExpiracion: '',
-			creditos: <Credito[]> [],
+			creditos: [],
 		};
 
 		/**
@@ -200,7 +200,8 @@
 			],
 			codigoDeSeguridad: [
 				requerido( 'Codigo de seguridad' ),
-				textoNoVacio( 'Codigo de seguridad' )
+				textoNoVacio( 'Codigo de seguridad' ),
+				cuatroCaracteres( 'Codigo de seguridad' ),
 			],
 			fechaDeExpiracion: [
 				requerido( 'Fecha de expiración' ),
@@ -246,36 +247,62 @@
 		}
 
 		/**
+		 * Emite el evento _error_ con el error recibido.
+		 */
+		@Emit( 'error' )
+		public emitirEventoError( error: Error ): Error {
+			return error;
+		}
+
+		/**
 		 * Solicita la creación de un cliente regular de acuerdo al estado actual del modelo.
 		 *
 		 * Al recibir la respuesta de éxito restablece el formulario y emite el evento _clienteCreado_.
 		 */
 		public async crearClienteRegular( ): Promise<void> {
-			this.esperandoCreacionDeCliente = true;
 
-			// Transformo las fechas con la moment js
-			this.modelo.fechaDeNacimiento = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
-			this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeExpiracion).utc().toISOString();
+			const tarjetaInvalida = '1111111111111112';
 
-			// Agrego dos creditos nuevos al cliente
-			this.modelo.creditos.push({
-				fechaDeCreacion: moment().utc().toISOString(),
-				activo: true
-			});
+			if (this.modelo.tarjetaDeCredito === tarjetaInvalida) {
 
-			this.modelo.creditos.push({
-				fechaDeCreacion: moment().utc().toISOString(),
-				activo: true
-			});
+				// @Emit( $event )
+				// +--------------------------------------------------------------------+
+				// |																	|
+				// |												(\__/)				|
+				// |	Aca hay que tirar una pantalla con un error (0 .0)				|
+				// |											   ('')-('')			|
+				// |																	|
+				// +--------------------------------------------------------------------+
 
-			// Se le asigna la suscripcion regular al cliente
-			this.modelo.idSuscripcion = this.suscripcionRegularActual._id;
+			} else {
 
-			// await this.$store.dispatch( 'crearSuscripcion', this.modelo );
-			this.esperandoCreacionDeCliente = false;
+				this.esperandoCreacionDeCliente = true;
 
-			this.restablecerFormulario( );
-			this.emitirEventoClienteRegularCreado( );
+				// Transformo las fechas con la moment js
+				this.modelo.fechaDeNacimiento = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
+				this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeExpiracion).utc().toISOString();
+
+				// Agrego dos creditos nuevos al cliente
+				this.modelo.creditos.push({
+					fechaDeCreacion: moment().utc().toISOString(),
+					activo: true
+				});
+
+				this.modelo.creditos.push({
+					fechaDeCreacion: moment().utc().toISOString(),
+					activo: true
+				});
+
+				// Se le asigna la suscripcion regular al cliente
+				this.modelo.idSuscripcion = this.suscripcionRegularActual._id;
+
+				// await this.$store.dispatch( 'crearSuscripcion', this.modelo );
+				this.esperandoCreacionDeCliente = false;
+
+				this.restablecerFormulario( );
+				this.emitirEventoClienteRegularCreado( );
+
+			}
 		}
 
 		/**
@@ -297,7 +324,7 @@
 			this.modelo.tarjetaDeCredito = '';
 			this.modelo.fechaDeExpiracion = '';
 			this.modelo.codigoDeSeguridad = '';
-			this.modelo.creditos = <Credito[]> [];
+			this.modelo.creditos = [];
 
 			this.formularioEsValido = false;
 		}
