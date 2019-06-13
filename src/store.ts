@@ -5,7 +5,7 @@ import Vuex from 'vuex';
 import { Residencia, ResidenciaParaModificar, ResidenciaParaCrear } from './interfaces/residencia.interface';
 import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/subasta.interface';
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
-import { Cliente, ClienteParaCrear } from './interfaces/cliente.interface';
+import { Cliente, ClienteParaCrear , ClienteParaModificar } from './interfaces/cliente.interface';
 import { server } from './utils/helper';
 
 import * as moment from 'moment';
@@ -20,8 +20,10 @@ const alerta: InformacionDeAlerta & { esVisible: boolean } = {
 
 export default new Vuex.Store({
 	state: {
-		esAdmin: <boolean | null> null,
 		alerta: alerta,
+		esAdmin: <boolean | null> null,
+		clienteLoggedIn: <Cliente | null> null,
+		clientes: <Cliente[ ]> [ ],
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
@@ -37,6 +39,14 @@ export default new Vuex.Store({
 
 		alerta: ( state ) => {
 			return state.alerta;
+		},
+
+		clientes: ( state ) => {
+			return state.clientes;
+		},
+
+		clienteLoggedIn: ( state ) => {
+			return state.clienteLoggedIn;
 		},
 
 		residencias: ( state ) => {
@@ -202,6 +212,25 @@ export default new Vuex.Store({
 
 		agregarSuscripcion( state, suscripcion: Suscripcion ): void {
 			state.suscripciones.push( suscripcion );
+		},
+		modificarCliente( state, cliente: Cliente ): void {
+			const indiceDeCliente = state.clientes.findIndex( ( _cliente ) => {
+				return _cliente._id === cliente._id;
+			});
+
+			// Reemplaza si la subasta ya existe, agrega si no existe
+			if ( indiceDeCliente !== -1 ) {
+				state.clientes.splice( indiceDeCliente, 1, cliente );
+			}
+			else {
+				state.clientes.push( cliente );
+			}
+		},
+		modificarClienteLoggedIn( state, cliente: Cliente ): void {
+			state.clienteLoggedIn = cliente;
+		},
+		actualizarClientes( state, clientes: Cliente[ ] ): void {
+			state.clientes = clientes;
 		},
 	},
 	actions: {
@@ -543,6 +572,71 @@ export default new Vuex.Store({
 						: 'Ocurrió un error al conectarse al servidor'
 				});
 			}
-		}
+		},
+		async obtenerClientes( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Cliente[ ]>( `${ server.baseURL }/clientes` );
+				const clientes = respuesta.data;
+				commit( 'actualizarClientes', clientes );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		async modificarCliente( { commit, dispatch }, argumentos: {
+			idCliente: Cliente[ '_id' ],
+			clienteParaModificar: ClienteParaModificar
+		}): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/clientes/${ argumentos.idCliente }`;
+				const clienteParaModificar = argumentos.clienteParaModificar;
+				const respuesta = await axios.put<Cliente>( url, clienteParaModificar );
+				const clienteModificado = respuesta.data;
+				commit( 'modificarCliente', clienteModificado );
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'Su información se modificó con éxito.'
+				});
+				await dispatch( 'obtenerClientes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		async modificarClienteLoggedIn( { commit, dispatch }, argumentos: {
+			idCliente: Cliente[ '_id' ],
+			clienteParaModificar: ClienteParaModificar
+		}): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/clientes/${ argumentos.idCliente }`;
+				const clienteParaModificar = argumentos.clienteParaModificar;
+				const respuesta = await axios.put<Cliente>( url, clienteParaModificar );
+				const clienteModificado = respuesta.data;
+				commit( 'modificarClienteLoggedIn', clienteModificado );
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'Su información se modificó con éxito.'
+				});
+				await dispatch( 'obtenerClientes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
 	},
 });
