@@ -282,8 +282,8 @@ export default new Vuex.Store({
 		},
 	},
 	actions: {
-		iniciarSesionComoAdmin( { commit } ) {
-			commit( 'iniciarSesionComoAdmin' );
+		iniciarSesionComoAdmin( { commit }, cliente: Cliente ) {
+			commit( 'iniciarSesionComoAdmin', cliente );
 		},
 
 		iniciarSesionComoCliente( { commit } ) {

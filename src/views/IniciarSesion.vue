@@ -14,7 +14,7 @@
 								<v-card-text>
 									<v-form>
 									<v-text-field v-model="email" prepend-icon="email" name="email" label="Email" type="text"></v-text-field>
-									<v-text-field  v-model="contraseña" prepend-icon="lock" name="contraseña" label="Contraseña" id="contraseña" type="password"></v-text-field>
+									<v-text-field  v-model="contraseña" prepend-icon="lock" name="contraseña" label="Contraseña" id="contraseña" type="text"></v-text-field>
 									</v-form>
 								</v-card-text>
 
@@ -98,9 +98,21 @@ export default class IniciarSesion extends Vue {
 		const cliente = this.$store.getters.clienteConEmail(this.email);
 
 		if ( cliente !== null && cliente.contraseña === this.contraseña ) {
+
 			await this.$store.dispatch( 'iniciarSesionComoCliente', cliente );
+
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'success',
+				texto: `Bienvenido ${cliente.nombre} ${cliente.apellido}`
+			});
+
 		} else {
-			// Se debería informar del error
+
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: 'Los datos ingresados no son validos'
+			});
+
 		}
 	}
 }
