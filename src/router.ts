@@ -7,6 +7,7 @@ import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue
 import AdministracionDeSubastas from './views/AdministracionDeSubastas.vue';
 import AdministracionDeSuscripciones from './views/AdministracionDeSuscripciones.vue';
 import IniciarSesion from './views/IniciarSesion.vue';
+import DatosDeUsuario from './views/DatosDeUsuario.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
 import { verificarPermisos } from './helpers/guardas-de-navegacion/verificar-permisos.guard';
 
@@ -68,6 +69,12 @@ const router = new Router({
 			meta: {
 				requiereNoHaberIngresado: true,
 			}
+		},
+		{
+			path: '/infoUsuario/:idDeUsuario',
+			name: 'info de usuario',
+			component: DatosDeUsuario,
+			props: true
 		},
 		{
 			path: '/404',

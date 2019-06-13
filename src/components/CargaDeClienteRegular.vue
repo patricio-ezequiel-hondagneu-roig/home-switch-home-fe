@@ -114,9 +114,11 @@
 			contraseña: '',
 			fechaDeNacimiento: '',
 			celular: '',
-			ciudad: '',
+			pais: '',
 			email: '',
 			tarjetaDeCredito: '',
+			codigoDeSeguridad: '',
+			fechaDeexpiracion: '',
 			creditos: [ ],
 		};
 
@@ -226,7 +228,7 @@
 			this.modelo.contraseña = '';
 			this.modelo.fechaDeNacimiento = '';
 			this.modelo.celular = '';
-			this.modelo.ciudad = '';
+			this.modelo.pais = '';
 			this.modelo.email = '';
 			this.modelo.tarjetaDeCredito = '';
 			this.modelo.creditos = [ ];
