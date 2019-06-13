@@ -58,12 +58,43 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+	import { Component, Vue } from 'vue-property-decorator';
+	import CargaDeClienteRegular from '@/components/CargaDeClienteRegular.vue';
+	import { Cliente } from '@/interfaces/cliente.interface';
 
-@Component
-export default class Administracion extends Vue {
+	@Component({
+		components: {
+			CargaDeClienteRegular,
+		},
+	})
+	export default class Administracion extends Vue {
 
-}
+		/**
+		 * Lista de todos los clientes actualmente en el sistema.
+		 */
+		public get clientes( ): Cliente[ ] {
+			return this.$store.getters.clientes;
+		}
+
+		/**
+		 * Hook de ciclo de vida.
+		 *
+		 * Carga los clientes actualmente en el sistema al instanciar el componente.
+		 */
+		public created( ): void {
+			this.obtenerClientes( );
+		}
+
+		/**
+		 * Solicita la lista de todos los clientes actualmente en el sistema.
+		 *
+		 * Al recibir una respuesta de éxito, actualiza la lista de clientes del componente con las recibidas.
+		 */
+		public obtenerClientes( ): void {
+			this.$store.dispatch( 'obtenerClientes' );
+		}
+
+	}
 </script>
 
 <style lang="stylus" scoped>

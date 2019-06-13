@@ -264,16 +264,11 @@
 			const tarjetaInvalida = '1111111111111112';
 
 			if (this.modelo.tarjetaDeCredito === tarjetaInvalida) {
-
-				// @Emit( $event )
-				// +--------------------------------------------------------------------+
-				// |																	|
-				// |												(\__/)				|
-				// |	Aca hay que tirar una pantalla con un error (0 .0)				|
-				// |											   ('')-('')			|
-				// |																	|
-				// +--------------------------------------------------------------------+
-
+				// +----------------------------------------------------+
+				// |											(\__/)	|
+				// |Aca hay que tirar una pantalla con un error (0 .0)	|
+				// |										   ('')-('')|
+				// +----------------------------------------------------+
 			} else {
 
 				this.esperandoCreacionDeCliente = true;
@@ -296,7 +291,7 @@
 				// Se le asigna la suscripcion regular al cliente
 				this.modelo.idSuscripcion = this.suscripcionRegularActual._id;
 
-				// await this.$store.dispatch( 'crearSuscripcion', this.modelo );
+				await this.$store.dispatch( 'crearCliente', this.modelo );
 				this.esperandoCreacionDeCliente = false;
 
 				this.restablecerFormulario( );
@@ -342,6 +337,20 @@
 
 		public get suscripcionRegularActual( ): Suscripcion {
 			return this.$store.getters.obtenerSuscripcionRegular;
+		}
+
+		/**
+		 * Solicita la creación de un cliente de acuerdo al estado actual del modelo.
+		 *
+		 * Al recibir la respuesta de éxito restablece el formulario y emite el evento _residenciaCreada_.
+		 */
+		public async crearCliente( ): Promise<void> {
+			this.esperandoCreacionDeCliente = true;
+			await this.$store.dispatch( 'crearCliente', this.modelo );
+			this.esperandoCreacionDeCliente = false;
+
+			this.restablecerFormulario( );
+			this.emitirEventoClienteRegularCreado( );
 		}
 	}
 </script>

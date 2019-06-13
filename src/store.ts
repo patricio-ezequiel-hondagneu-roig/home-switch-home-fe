@@ -5,7 +5,7 @@ import Vuex from 'vuex';
 import { Residencia, ResidenciaParaModificar, ResidenciaParaCrear } from './interfaces/residencia.interface';
 import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/subasta.interface';
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
-import { Cliente, ClienteParaCrear } from './interfaces/cliente.interface';
+import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cliente.interface';
 import { server } from './utils/helper';
 
 import * as moment from 'moment';
@@ -25,6 +25,7 @@ export default new Vuex.Store({
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
+		clientes: <Cliente[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -108,6 +109,22 @@ export default new Vuex.Store({
 				})
 				.find( ( suscripcion ) => suscripcion.tipoDeSuscripcion === 'Regular' );
 		},
+
+		clientes: ( state ) => {
+			return state.clientes;
+		},
+
+		clienteConId: ( state ) => {
+			return ( idCliente: Cliente[ '_id' ] ): Cliente | null => {
+				const cliente = state.clientes.find( ( _cliente ) => {
+					return _cliente._id === idCliente;
+				});
+
+				return ( cliente !== undefined )
+					? cliente
+					: null;
+			};
+		},
 	},
 	mutations: {
 		iniciarSesionComoAdmin( state ) {
@@ -132,6 +149,7 @@ export default new Vuex.Store({
 			state.alerta.esVisible = false;
 		},
 
+		// Residencias
 		actualizarResidencias( state, residencias: Residencia[ ] ): void {
 			state.residencias = residencias;
 		},
@@ -164,6 +182,7 @@ export default new Vuex.Store({
 			}
 		},
 
+		// Subastas
 		actualizarSubastas( state, subastas: Subasta[ ] ): void {
 			state.subastas = subastas;
 		},
@@ -196,12 +215,46 @@ export default new Vuex.Store({
 			}
 		},
 
+		// Suscripciones
 		actualizarSuscripciones( state, suscripcion: Suscripcion[ ] ): void {
 			state.suscripciones = suscripcion;
 		},
 
 		agregarSuscripcion( state, suscripcion: Suscripcion ): void {
 			state.suscripciones.push( suscripcion );
+		},
+
+		// Clientes
+		actualizarClientes( state, clientes: Cliente[ ] ): void {
+			state.clientes = clientes;
+		},
+
+		agregarCliente( state, cliente: Cliente ): void {
+			state.clientes.push( cliente );
+		},
+
+		modificarCliente( state, cliente: Cliente ): void {
+			const indiceDeCliente = state.clientes.findIndex( ( _cliente ) => {
+				return _cliente._id === cliente._id;
+			});
+
+			// Reemplaza si el cliente ya existe, agrega si no existe
+			if ( indiceDeCliente !== -1 ) {
+				state.clientes.splice( indiceDeCliente, 1, cliente );
+			}
+			else {
+				state.clientes.push( cliente );
+			}
+		},
+
+		eliminarCliente( state, idCliente: Cliente[ '_id' ] ): void {
+			const indiceDeCliente = state.clientes.findIndex( ( _cliente ) => {
+				return _cliente._id === idCliente;
+			});
+
+			if ( indiceDeCliente !== -1 ) {
+				state.clientes.splice( indiceDeCliente, 1 );
+			}
 		},
 	},
 	actions: {
@@ -543,6 +596,126 @@ export default new Vuex.Store({
 						: 'Ocurrió un error al conectarse al servidor'
 				});
 			}
-		}
+		},
+
+		/**
+		 * Solicita al servidor la lista de todos los clientes existentes y actualiza el store con ellas.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 */
+		async obtenerClientes( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Cliente[ ]>( `${ server.baseURL }/clientes` );
+				const clientes = respuesta.data;
+				commit( 'actualizarClientes', clientes );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que cree un cliente con los parámetros provistos y obtiene la lista de clientes
+		 * actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param clienteParaCrear objeto que contiene la información necesaria para crear un cliente
+		 */
+		async crearCliente( { commit, dispatch }, clienteParaCrear: ClienteParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/clientes`;
+				const respuesta = await axios.post<Cliente>( url, clienteParaCrear );
+				const clienteCreado = respuesta.data;
+				commit( 'agregarCliente', clienteCreado );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'El cliente se cargó con éxito.'
+				});
+
+				await dispatch( 'obtenerClientes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que modifique un cliente con los parámetros provistos y obtiene la lista de
+		 * clientes actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param argumentos objeto que contiene el ID y los datos del cliente a modificar
+		 */
+		async modificarCliente( { commit, dispatch }, argumentos: {
+			_id: Cliente[ '_id' ],
+			clienteParaModificar: ClienteParaModificar
+		}): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/clientes/${ argumentos._id }`;
+				const clienteParaModificar = argumentos.clienteParaModificar;
+				const respuesta = await axios.put<Cliente>( url, clienteParaModificar );
+				const clienteModificado = respuesta.data;
+				commit( 'modificarCliente', clienteModificado );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'El cliente se modificó con éxito.'
+				});
+
+				await dispatch( 'obtenerClientes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que elimine al cliente con el ID provisto y obtiene la lista de clientes
+		 * actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param idCliente ID del cliente a eliminar
+		 */
+		async eliminarCliente( { commit, dispatch }, idCliente: Cliente[ '_id' ] ): Promise<void> {
+			try {
+				const url: string = `${ server.baseURL }/clientes/${ idCliente }`;
+				await axios.delete( url );
+				commit( 'eliminarCliente', idCliente );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'El cliente se eliminó con éxito.'
+				});
+
+				await dispatch( 'obtenerClientes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
 	},
 });
