@@ -104,7 +104,7 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 		pais: this.cliente.pais ,
 		tarjetaDeCredito: this.cliente.tarjetaDeCredito ,
 		codigoDeSeguridad: this.cliente.codigoDeSeguridad,
-		fechaDeexpiracion: this.cliente.fechaDeexpiracion,
+		fechaDeExpiracion: this.cliente.fechaDeExpiracion,
 		creditos: this.cliente.creditos
 	};
 

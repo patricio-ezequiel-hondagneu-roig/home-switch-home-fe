@@ -71,7 +71,7 @@ export default class DatosDeUsuario extends Vue {
 		pais: 'Argentina',
 		tarjetaDeCredito: '0000000000001234',
 		codigoDeSeguridad: '0012',
-		fechaDeexpiracion: '2020/01/05',
+		fechaDeExpiracion: '2020/01/05',
 		creditos: []
 	};
 	/* variable que ayuda a que se muestre o no ventana dialog de modificación */
@@ -99,8 +99,8 @@ export default class DatosDeUsuario extends Vue {
 		}
 	/* metodo que modifica info de Usuario */
 	public modificarInfo( usuario: Cliente ): void {
-			this.emitirEventoInfoModificada( );
-			this.ocultarFormularioDeModificacion( );
-		}
+		this.emitirEventoInfoModificada( );
+		this.ocultarFormularioDeModificacion( );
+	}
 }
 </script>
