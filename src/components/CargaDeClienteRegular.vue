@@ -261,14 +261,24 @@
 		 */
 		public async crearClienteRegular( ): Promise<void> {
 
-			const tarjetaInvalida = '1111111111111112';
+			const tarjetaInvalida = '2222222222222222';
 
 			if (this.modelo.tarjetaDeCredito === tarjetaInvalida) {
-				// +----------------------------------------------------+
-				// |											(\__/)	|
-				// |Aca hay que tirar una pantalla con un error (0 .0)	|
-				// |										   ('')-('')|
-				// +----------------------------------------------------+
+
+				// Escenario de tarjeta no valida
+				await this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: 'La tarjeta no es válida'
+				});
+
+			} else if (this.$store.getters.clienteConEmail(this.modelo.email).length !== null) {
+
+				// Escenario de email que esta en uso
+				await this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: 'El email ya esta en uso, elija otro'
+				});
+
 			} else {
 
 				this.esperandoCreacionDeCliente = true;
