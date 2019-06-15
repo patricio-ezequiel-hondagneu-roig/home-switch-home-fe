@@ -119,6 +119,7 @@ export default new Vuex.Store({
 				})
 				.find( ( suscripcion ) => suscripcion.tipoDeSuscripcion === 'Regular' );
 		},
+
 		clienteConId: ( state ) => {
 			return ( idCliente: Cliente[ '_id' ] ): Cliente | null => {
 				const cliente = state.clientes.find( ( _cliente ) => {
@@ -142,6 +143,11 @@ export default new Vuex.Store({
 					: null;
 			};
 		},
+
+		perfil: ( state ) => {
+			return state.perfil;
+		},
+
 	},
 	mutations: {
 		iniciarSesionComoAdmin( state ) {
@@ -286,8 +292,8 @@ export default new Vuex.Store({
 			commit( 'iniciarSesionComoAdmin', cliente );
 		},
 
-		iniciarSesionComoCliente( { commit } ) {
-			commit( 'iniciarSesionComoCliente' );
+		iniciarSesionComoCliente( { commit }, cliente: Cliente ) {
+			commit( 'iniciarSesionComoCliente', cliente );
 		},
 
 		cerrarSesionComoAdmin( { commit } ) {

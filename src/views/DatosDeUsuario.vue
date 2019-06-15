@@ -15,7 +15,7 @@
 						Info de Cliente
 					</v-flex>
 					<v-flex class="body-1" ml-2 mt-1>
-						Nombre completo: {{cliente.nombre}} {{cliente.apellido}}<br>
+						Nombre completo: {{	}} {{cliente.apellido}}<br>
 						Email: {{cliente.email}}<br>
 						F.nac: {{cliente.fechaDeNacimiento}}<br>
 						Calular: {{cliente.celular}}<br>
@@ -101,6 +101,10 @@ export default class DatosDeUsuario extends Vue {
 	public modificarInfo( usuario: Cliente ): void {
 		this.emitirEventoInfoModificada( );
 		this.ocultarFormularioDeModificacion( );
+	}
+
+	public get perfil( ): Cliente {
+		return this.$store.getters.perfil;
 	}
 }
 </script>
