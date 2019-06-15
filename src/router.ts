@@ -73,16 +73,16 @@ const router = new Router({
 			}
 		},
 		{
-			path: '/ingresar',
-			name: 'ingresar',
+			path: '/admin',
+			name: 'ingreso de admin',
 			component: Ingreso,
 			meta: {
 				requiereNoHaberIngresado: true,
 			}
 		},
 		{
-			path: '/iniciarSesion',
-			name: 'iniciar sesion',
+			path: '/ingresar',
+			name: 'iniciar sesion como cliente',
 			component: IniciarSesion,
 			meta: {
 				requiereNoHaberIngresado: true,

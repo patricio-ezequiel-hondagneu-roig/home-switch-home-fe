@@ -22,10 +22,10 @@
 				</v-btn>
 				<v-btn
 					flat
-					v-if="!esAdmin"
+					v-if="(clienteLoggedIn === null) & !esAdmin"
 					color="primary"
 					class="text--lighten-1"
-					:to="{ name: 'ingresar' }"
+					:to="{ name: 'iniciar sesion como cliente' }"
 				>
 					Ingresar
 				</v-btn>
@@ -40,7 +40,16 @@
 				</v-btn>
 				<v-btn
 					flat
-					v-if="esAdmin"
+					v-if="clienteLoggedIn === null"
+					color="primary"
+					class="text--lighten-1"
+					:to="{ name: 'info de usuario' }"
+				>
+					Cuenta <v-icon dark class="ml-1">build</v-icon>
+				</v-btn>
+				<v-btn
+					flat
+					v-if="(clienteLoggedIn !== null) | esAdmin"
 					color="accent"
 					class="text--lighten-3 ml-4"
 					@click="salir( )"
@@ -61,6 +70,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { InformacionDeAlerta } from '@/interfaces/informacion-de-alerta.interface';
 import Alerta from '@/components/Alerta.vue';
+import { Cliente } from '@/interfaces/cliente.interface';
 
 @Component({
 	components: {
@@ -74,14 +84,20 @@ export default class App extends Vue {
 	public get esAdmin( ): boolean {
 		return this.$store.getters.esAdmin;
 	}
-
+	public get clienteLoggedIn(): Cliente | null {
+		return this.$store.getters.clienteLoggedIn;
+	}
 	/**
 	 * Cierra la sesión del usuario actual
 	 */
 	public async salir( ): Promise<void> {
-		await this.$store.dispatch( 'cerrarSesionComoAdmin' );
+		if (this.clienteLoggedIn === null) {
+			await this.$store.dispatch( 'cerrarSesionComoAdmin' );
+		} else {
+			this.$store.getters.clienteLoggedIn = null;
+		}
 		await this.$store.dispatch( 'mostrarAlerta', { texto: 'Saliste de Home Switch Home', tipo: 'success' } );
-		this.$router.push({ name: 'ingresar' });
+		this.$router.push({ name: 'inicio' });
 	}
 }
 </script>
