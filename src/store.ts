@@ -113,7 +113,16 @@ export default new Vuex.Store({
 				})
 				.find( ( suscripcion ) => suscripcion.tipoDeSuscripcion === 'Regular' );
 		},
+		suscripcionConId: ( state ) => {
+			return ( idSuscripcion: Suscripcion[ '_id' ] ): Suscripcion | null => {
+				const suscripcion = state.suscripciones.find( ( _suscripcion ) => {
+					return _suscripcion._id === idSuscripcion;
+				});
 
+				return ( suscripcion !== undefined )
+					? suscripcion : null;
+			};
+		},
 		clienteConId: ( state ) => {
 			return ( idCliente: Cliente[ '_id' ] ): Cliente | null => {
 				const cliente = state.clientes.find( ( _cliente ) => {

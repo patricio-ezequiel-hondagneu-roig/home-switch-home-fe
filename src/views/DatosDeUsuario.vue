@@ -8,7 +8,7 @@
 				class="ma-1"
 				>
 					<v-layout column align-center ma-1>
-						<v-flex subheading  font-weight-black ml-1>
+						<v-flex subheading  font-weight-black mt-2 ml-1>
 							Info de Cuenta
 						</v-flex>
 					</v-layout>
@@ -102,14 +102,22 @@
 				<v-card
 				class="ma-1"
 				width="200"
-				height="150"
 				>
 					<v-layout column align-center>
 						<v-flex align-center mt-5 class="body-1 font-weight-medium">
 							Tipo de cuenta
 						</v-flex>
 						<v-flex align-center mt-1 class="title font-weight-black">
-							Tipo de cuenta
+							{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
+						</v-flex>
+						<v-flex mt-1 mb-4>
+							<v-btn
+								v-if="suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Premium'"
+								color="#FFC21E"
+								@click.stop=""
+							>
+								Mejorar
+							</v-btn>
 						</v-flex>
 					</v-layout>
 				</v-card>
@@ -130,6 +138,7 @@ import { Component, Vue , Emit } from 'vue-property-decorator';
 import ModificacionDeDatosDeCliente from '@/components/ModificacionDeDatosDeCliente.vue';
 import { Cliente } from '../interfaces/cliente.interface';
 import moment from 'moment';
+import { Suscripcion } from '../interfaces/suscripcion.interface';
 @Component({
 	components: {
 		ModificacionDeDatosDeCliente,
@@ -170,6 +179,9 @@ export default class DatosDeUsuario extends Vue {
 		perfil.fechaDeNacimiento = moment(perfil.fechaDeNacimiento).utc().format('DD-MM-YYYY');
 		perfil.fechaDeExpiracion = moment(perfil.fechaDeExpiracion).utc().format('DD-MM-YYYY');
 		return perfil;
+	}
+	public suscripcionPorId(id: String): Suscripcion {
+		return this.$store.getters.suscripcionConId(id);
 	}
 }
 </script>
