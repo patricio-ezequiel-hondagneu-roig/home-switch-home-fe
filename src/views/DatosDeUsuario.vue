@@ -1,79 +1,141 @@
 <template>
-	<content>
-		<v-layout column align-center>
-			<v-card
-			width="500"
-			class="mt-5"
-			>
-				<v-layout column align-center>
-					<v-flex title mt-2>
-						Datos Personales - {{idDeUsuario}}
-					</v-flex>
-				</v-layout>
-				<v-layout column align-start ml-2>
-					<v-flex subheading font-weight-bold ml-1>
-						Info de Cliente
-					</v-flex>
-					<v-flex class="body-1" ml-2 mt-1>
-						Nombre completo: {{	}} {{cliente.apellido}}<br>
-						Email: {{cliente.email}}<br>
-						F.nac: {{cliente.fechaDeNacimiento}}<br>
-						Calular: {{cliente.celular}}<br>
-						País: {{cliente.pais}}<br>
-						Nro. T.Credito: ****-****-****-{{cliente.tarjetaDeCredito.substr(-4)}}
-					</v-flex>
-				</v-layout>
-				<v-layout column align-end>
-					<v-flex ma-1>
-						<v-btn
-							color="primary"
-							@click.stop="mostrarFormularioDeModificacion()"
-						>
-						Modificar
-						</v-btn>
-					</v-flex>
-				</v-layout>
-			</v-card>
+	<v-container grid-list-{xs through xl}>
+		<v-layout row wrap>
+			<v-flex>
+				<v-card
+				v-if="perfil !== null"
+				width="500"
+				class="ma-1"
+				>
+					<v-layout column align-center ma-1>
+						<v-flex subheading  font-weight-black ml-1>
+							Info de Cuenta
+						</v-flex>
+					</v-layout>
+					<hr class="ma-1">
+					<v-layout column ml-2>
+						<v-flex subheading  font-weight-black ml-1>
+							Info personal y de contacto
+						</v-flex>
+						<v-layout row>
+							<v-layout column class="body-1 font-weight-medium" ml-2 mt-1>
+								<v-flex ma-1>
+									Nombre completo:
+								</v-flex>
+								<v-flex ma-1>
+									Fecha de nacimiento:
+								</v-flex>
+								<v-flex ma-1>
+									País:
+								</v-flex>
+								<v-flex ma-1>
+									Calular:
+								</v-flex>
+								<v-flex ma-1>
+									Email:
+								</v-flex>
+							</v-layout>
+							<v-layout column class="body-1" mr-2 mt-1 align-end>
+								<v-flex ma-1>
+									{{	perfil.nombre }} {{ perfil.apellido }}
+								</v-flex>
+								<v-flex ma-1>
+									{{ perfil.fechaDeNacimiento }}
+								</v-flex>
+								<v-flex ma-1>
+									{{ perfil.pais }}
+								</v-flex>
+								<v-flex ma-1>
+									{{ perfil.celular }}
+								</v-flex>
+								<v-flex ma-1>
+									{{ perfil.email }}
+								</v-flex>
+							</v-layout>
+						</v-layout>
+						<v-layout column align-end>
+							<v-flex ma-1>
+								<v-btn
+									color="primary"
+									@click.stop="mostrarFormularioDeModificacion()"
+								>
+								Modificar
+								</v-btn>
+							</v-flex>
+						</v-layout>
+						<hr class="ma-3">
+						<v-flex subheading  font-weight-black ml-1>
+							Tarjeta de crédito
+						</v-flex>
+						<v-layout row>
+							<v-layout column class="body-1 font-weight-medium" ml-2 mt-1>
+								<v-flex ma-1>
+									Nro. de tarjeta de Crédito:
+								</v-flex>
+								<v-flex ma-1>
+									Fecha de expiracion:
+								</v-flex>
+							</v-layout>
+							<v-layout column class="body-1" mr-2 mt-1 align-end>
+								<v-flex ma-1>
+									**** - **** - **** - {{perfil.tarjetaDeCredito.substr(-4)}}
+								</v-flex>
+								<v-flex ma-1>
+									{{perfil.fechaDeExpiracion}}
+								</v-flex>
+							</v-layout>
+						</v-layout>
+						<v-layout column align-end>
+							<v-flex ma-1>
+								<v-btn
+									color="primary"
+									@click.stop="mostrarFormularioDeModificacion()"
+								>
+								Modificar
+								</v-btn>
+							</v-flex>
+						</v-layout>
+					</v-layout>
+				</v-card>
+			</v-flex>
+			<v-flex>
+				<v-card
+				class="ma-1"
+				width="200"
+				height="150"
+				>
+					<v-layout column align-center>
+						<v-flex align-center mt-5 class="body-1 font-weight-medium">
+							Tipo de cuenta
+						</v-flex>
+						<v-flex align-center mt-1 class="title font-weight-black">
+							Tipo de cuenta
+						</v-flex>
+					</v-layout>
+				</v-card>
+			</v-flex>
 		</v-layout>
 		<v-dialog persistent v-model="formularioDeModificacionEsVisible" max-width="40rem">
 			<ModificacionDeDatosDeCliente
-				:cliente="cliente"
+				:cliente="perfil"
 				@infoModificada="modificarInfo( $event )"
 				@error="emitirEventoError( $event )"
 				@cancelacion="ocultarFormularioDeModificacion( )"
 			/>
 		</v-dialog>
-	</content>
+	</v-container>
 </template>
 <script lang="ts">
-import { Component, Vue , Prop , Emit } from 'vue-property-decorator';
+import { Component, Vue , Emit } from 'vue-property-decorator';
 import ModificacionDeDatosDeCliente from '@/components/ModificacionDeDatosDeCliente.vue';
 import { Cliente } from '../interfaces/cliente.interface';
+import moment from 'moment';
 @Component({
 	components: {
 		ModificacionDeDatosDeCliente,
 	}
 })
 export default class DatosDeUsuario extends Vue {
-	/* parametro que le llega a DatosDeUsuario por prop */
-	@Prop({ default: undefined })
-		public readonly idDeUsuario!: string;
-	/* pseudo interfaz de usuario con sus atributos */
-	public cliente: Cliente = {
-		_id: this.idDeUsuario,
-		idSuscripcion: '0',
-		nombre: 'Juan',
-		apellido: 'Perez',
-		email: 'juanperez@gmail.com',
-		contraseña: '12345',
-		fechaDeNacimiento: '1994/01/03',
-		celular: '2215628189',
-		pais: 'Argentina',
-		tarjetaDeCredito: '0000000000001234',
-		codigoDeSeguridad: '0012',
-		fechaDeExpiracion: '2020/01/05',
-		creditos: []
-	};
 	/* variable que ayuda a que se muestre o no ventana dialog de modificación */
 	public formularioDeModificacionEsVisible = false;
 	/* Cuando se crea instancia de DatosDeUsuario se va a buscar usuario segun su id */
@@ -104,7 +166,10 @@ export default class DatosDeUsuario extends Vue {
 	}
 
 	public get perfil( ): Cliente {
-		return this.$store.getters.perfil;
+		const perfil = this.$store.getters.perfil;
+		perfil.fechaDeNacimiento = moment(perfil.fechaDeNacimiento).utc().format('DD-MM-YYYY');
+		perfil.fechaDeExpiracion = moment(perfil.fechaDeExpiracion).utc().format('DD-MM-YYYY');
+		return perfil;
 	}
 }
 </script>

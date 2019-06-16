@@ -23,7 +23,6 @@ export default new Vuex.Store({
 		alerta: alerta,
 		esAdmin: <boolean | null> null,
 		perfil: <Cliente | null> null,
-		clienteLoggedIn: <Cliente | null> null,
 		clientes: <Cliente[ ]> [ ],
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
@@ -45,11 +44,6 @@ export default new Vuex.Store({
 		clientes: ( state ) => {
 			return state.clientes;
 		},
-
-		clienteLoggedIn: ( state ) => {
-			return state.clienteLoggedIn;
-		},
-
 		residencias: ( state ) => {
 			return state.residencias;
 		},
@@ -127,8 +121,7 @@ export default new Vuex.Store({
 				});
 
 				return ( cliente !== undefined )
-					? cliente
-					: null;
+					? cliente : null;
 			};
 		},
 
@@ -163,6 +156,10 @@ export default new Vuex.Store({
 		cerrarSesionComoAdmin( state ) {
 			state.esAdmin = false;
 			localStorage.removeItem( 'esAdmin' );
+		},
+		cerrarSesionComoCliente( state ) {
+			state.perfil = null;
+			localStorage.removeItem( 'perfil' );
 		},
 
 		mostrarAlerta( state, informacionDeAlerta: InformacionDeAlerta ) {
@@ -274,8 +271,8 @@ export default new Vuex.Store({
 				state.clientes.push( cliente );
 			}
 		},
-		modificarClienteLoggedIn( state, cliente: Cliente ): void {
-			state.clienteLoggedIn = cliente;
+		modificarPerfil( state, cliente: Cliente ): void {
+			state.perfil = cliente;
 		},
 		eliminarCliente( state, idCliente: Cliente[ '_id' ] ): void {
 			const indiceDeCliente = state.clientes.findIndex( ( _cliente ) => {
@@ -299,7 +296,9 @@ export default new Vuex.Store({
 		cerrarSesionComoAdmin( { commit } ) {
 			commit( 'cerrarSesionComoAdmin' );
 		},
-
+		cerrarSesionComoCliente( { commit } ) {
+			commit( 'cerrarSesionComoCliente' );
+		},
 		mostrarAlerta( { commit }, informacionDeAlerta: InformacionDeAlerta ) {
 			commit( 'mostrarAlerta', informacionDeAlerta );
 		},
@@ -720,7 +719,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
-		async modificarClienteLoggedIn( { commit, dispatch }, argumentos: {
+		async modificarPerfil( { commit, dispatch }, argumentos: {
 			idCliente: Cliente[ '_id' ],
 			clienteParaModificar: ClienteParaModificar
 		}): Promise<void> {
@@ -729,7 +728,8 @@ export default new Vuex.Store({
 				const clienteParaModificar = argumentos.clienteParaModificar;
 				const respuesta = await axios.put<Cliente>( url, clienteParaModificar );
 				const clienteModificado = respuesta.data;
-				commit( 'modificarClienteLoggedIn', clienteModificado );
+				commit( 'modificarPerfil', clienteModificado );
+				commit( 'modificarCliente', clienteModificado );
 				dispatch( 'mostrarAlerta', {
 					tipo: 'success',
 					texto: 'Su información se modificó con éxito.'

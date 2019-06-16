@@ -68,7 +68,7 @@
 																</template>
 																<span>Detalles</span>
 															</v-tooltip>
-															<v-tooltip left open-delay="100" close-delay="0">
+															<v-tooltip left open-delay="100" close-delay="0" v-if="perfil !== null">
 																<template v-slot:activator="{ on }">
 																	<v-btn
 																		color="#E0E0E0"
@@ -118,6 +118,7 @@ import CargaDeOfertaDeSubasta from '@/components/CargaDeOfertaDeSubasta.vue';
 import DetalleDeResidencia from './DetalleDeResidencia.vue';
 import { Subasta } from '@/interfaces/subasta.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
+import { Cliente } from '@/interfaces/cliente.interface';
 @Component({
 	components: {
 		CargaDeOfertaDeSubasta,
@@ -193,6 +194,10 @@ export default class SubastasActivas extends Vue{
 	}
 	public ocultarOfertarSubasta( ): void {
 		this.ofertarDeSubastaEsVisible = false;
+	}
+	// me traigo perfil para saber si esta logeado un cliente
+	public get perfil(): Cliente | null {
+		return this.$store.getters.perfil;
 	}
 }
 </script>

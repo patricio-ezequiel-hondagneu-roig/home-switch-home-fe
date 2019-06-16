@@ -268,15 +268,14 @@
 				// Escenario de tarjeta no valida
 				await this.$store.dispatch( 'mostrarAlerta', {
 					tipo: 'error',
-					texto: 'La tarjeta no es válida'
+					texto: 'La tarjeta no es válida.'
 				});
 
-			} else if (this.$store.getters.clienteConEmail(this.modelo.email).length !== null) {
-
+			} else if (this.$store.getters.clienteConEmail(this.modelo.email) !== null) {
 				// Escenario de email que esta en uso
 				await this.$store.dispatch( 'mostrarAlerta', {
 					tipo: 'error',
-					texto: 'El email ya esta en uso, elija otro'
+					texto: 'El email ya esta en uso, elija otro.'
 				});
 
 			} else {

@@ -1,5 +1,8 @@
 <template>
-	<v-card class="pa-3">
+	<v-card
+	v-if="cliente !== null"
+	class="pa-3"
+	>
 		<v-card-title>
 			<h5 class="headline">Modificar Info de Cliente</h5>
 		</v-card-title>
@@ -28,12 +31,14 @@
 					v-model="modelo.celular"
 					label="Celular"
 					counter="11"
+					:rules="validadores.celular"
 					hint="Cod.Area + Número "
 					required
 				></v-text-field>
 				<v-text-field
 					v-model="modelo.pais"
 					label="País"
+					:rules="validadores.pais"
 					required
 				></v-text-field>
 				<v-text-field
@@ -74,6 +79,7 @@ import router from '@/router';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
 import { Cliente, ClienteParaModificar } from '../interfaces/cliente.interface';
+import moment from 'moment';
 
 @Component
 export default class ModificacionDeDatosDeCliente extends Vue {
@@ -125,6 +131,14 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 			textoNoVacio( 'Email' ),
 			correoElectronico( 'Email' )
 		],
+		celular: [
+			requerido( 'Celular' ),
+			textoNoVacio( 'Celular'),
+		],
+		pais: [
+			requerido( 'País' ),
+			textoNoVacio( 'País'),
+		],
 		tarjetaDeCredito: [
 			requerido( 'Tarjeta de crédito' ),
 			textoNoVacio( 'Tarjeta de crédito'),
@@ -173,9 +187,13 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 	 *
 	 * Al recibir la respuesta de éxito restablece el formulario y emite el evento _subastaModificada_.
 	 */
-	public async modificarSubasta( ): Promise<void> {
+	public async modificarInfo( ): Promise<void> {
+		// Transformo las fechas con la moment js
+		this.modelo.fechaDeNacimiento = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
+		this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeExpiracion).utc().toISOString();
+
 		this.esperandoModificacionDeInfo = true;
-		await this.$store.dispatch( 'modificarClienteLoggedIn', {
+		await this.$store.dispatch( 'modificarPerfil', {
 			idCliente: this.cliente._id,
 			clienteParaModificar: this.modelo,
 		});

@@ -55,6 +55,7 @@
 import { Vue, Component } from 'vue-property-decorator';
 import CargaDeClienteRegular from '@/components/CargaDeClienteRegular.vue';
 import { Cliente } from '@/interfaces/cliente.interface';
+import router from '@/router';
 
 @Component({
 	components: {
@@ -105,7 +106,7 @@ export default class IniciarSesion extends Vue {
 				tipo: 'success',
 				texto: `Bienvenido ${cliente.nombre} ${cliente.apellido}`
 			});
-
+			router.push('/');
 		} else {
 
 			await this.$store.dispatch( 'mostrarAlerta', {

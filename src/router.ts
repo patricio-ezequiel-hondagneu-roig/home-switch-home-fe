@@ -89,10 +89,9 @@ const router = new Router({
 			}
 		},
 		{
-			path: '/infoUsuario/:idDeUsuario',
+			path: '/infoUsuario',
 			name: 'info de usuario',
-			component: DatosDeUsuario,
-			props: true
+			component: DatosDeUsuario
 		},
 		{
 			path: '/404',
