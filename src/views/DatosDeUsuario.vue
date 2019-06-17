@@ -40,7 +40,7 @@
 									{{	perfil.nombre }} {{ perfil.apellido }}
 								</v-flex>
 								<v-flex ma-1>
-									{{ perfil.fechaDeNacimiento }}
+									{{ fechaNac }}
 								</v-flex>
 								<v-flex ma-1>
 									{{ perfil.pais }}
@@ -81,7 +81,7 @@
 									**** - **** - **** - {{perfil.tarjetaDeCredito.substr(-4)}}
 								</v-flex>
 								<v-flex ma-1>
-									{{perfil.fechaDeExpiracion}}
+									{{fechaExp}}
 								</v-flex>
 							</v-layout>
 						</v-layout>
@@ -89,7 +89,7 @@
 							<v-flex ma-1>
 								<v-btn
 									color="primary"
-									@click.stop="mostrarFormularioDeModificacion()"
+									@click.stop="mostrarFormularioDeModificacionTarjeta()"
 								>
 								Modificar
 								</v-btn>
@@ -108,15 +108,34 @@
 							Tipo de cuenta
 						</v-flex>
 						<v-flex align-center mt-1 class="title font-weight-black">
-							{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
+							<span v-if="suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion === 'Premcium'" color="#FFC21E">
+								{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
+							</span>
+							<span v-if="suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion === 'Regular'">
+								{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
+							</span>
 						</v-flex>
 						<v-flex mt-1 mb-4>
 							<v-btn
-								v-if="suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Premium'"
+								v-if="(!enEspera) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Premium')"
 								color="#FFC21E"
-								@click.stop=""
+								@click.stop="enEspera = true"
 							>
-								Mejorar
+								Solicitar promoción
+							</v-btn>
+							<v-btn
+								v-if="(!enEspera) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Regular')"
+								color="red"
+								@click.stop="enEspera = true"
+							>
+								Baja de premium
+							</v-btn>
+							<v-btn
+								v-if="(enEspera)"
+								color="green"
+								disabled
+							>
+								Espere confirmación
 							</v-btn>
 						</v-flex>
 					</v-layout>
@@ -131,31 +150,53 @@
 				@cancelacion="ocultarFormularioDeModificacion( )"
 			/>
 		</v-dialog>
+		<v-dialog persistent v-model="formularioDeModificacionTarjetaEsVisible" max-width="40rem">
+			<ModificarDeTarjetaDeCreditoDeCliente
+				:cliente="perfil"
+				@infoModificada="modificarInfo( $event )"
+				@error="emitirEventoError( $event )"
+				@cancelacion="ocultarFormularioDeModificacionTarjeta( )"
+			/>
+		</v-dialog>
 	</v-container>
 </template>
 <script lang="ts">
 import { Component, Vue , Emit } from 'vue-property-decorator';
 import ModificacionDeDatosDeCliente from '@/components/ModificacionDeDatosDeCliente.vue';
+import ModificarDeTarjetaDeCreditoDeCliente from '@/components/ModificarDeTarjetaDeCreditoDeCliente.vue';
 import { Cliente } from '../interfaces/cliente.interface';
 import moment from 'moment';
 import { Suscripcion } from '../interfaces/suscripcion.interface';
 @Component({
 	components: {
 		ModificacionDeDatosDeCliente,
+		ModificarDeTarjetaDeCreditoDeCliente
 	}
 })
 export default class DatosDeUsuario extends Vue {
+	/* var mock lista de espera de prom */
+	public enEspera: boolean = false;
+	/* fechas a mostrar */
+	public fechaNac!: String;
+	public fechaExp!: String;
 	/* variable que ayuda a que se muestre o no ventana dialog de modificación */
 	public formularioDeModificacionEsVisible = false;
+	public formularioDeModificacionTarjetaEsVisible = false;
 	/* Cuando se crea instancia de DatosDeUsuario se va a buscar usuario segun su id */
 
 	/* Muestra formulario de modificación de datos de usuario*/
 	public mostrarFormularioDeModificacion( ): void {
 		this.formularioDeModificacionEsVisible = true;
 	}
+	public mostrarFormularioDeModificacionTarjeta( ): void {
+		this.formularioDeModificacionTarjetaEsVisible = true;
+	}
 	/* Oculta formulario de modificación de datos de usuario*/
 	public ocultarFormularioDeModificacion( ): void {
 			this.formularioDeModificacionEsVisible = false;
+	}
+	public ocultarFormularioDeModificacionTarjeta( ): void {
+			this.formularioDeModificacionTarjetaEsVisible = false;
 	}
 	/* Eventos
 	 * Emitidos por ModificacionDeDatosDeUsuario
@@ -172,12 +213,13 @@ export default class DatosDeUsuario extends Vue {
 	public modificarInfo( usuario: Cliente ): void {
 		this.emitirEventoInfoModificada( );
 		this.ocultarFormularioDeModificacion( );
+		this.ocultarFormularioDeModificacionTarjeta( );
 	}
 
 	public get perfil( ): Cliente {
 		const perfil = this.$store.getters.perfil;
-		perfil.fechaDeNacimiento = moment(perfil.fechaDeNacimiento).utc().format('DD-MM-YYYY');
-		perfil.fechaDeExpiracion = moment(perfil.fechaDeExpiracion).utc().format('DD-MM-YYYY');
+		this.fechaNac = moment(perfil.fechaDeNacimiento).utc().format('DD-MM-YYYY');
+		this.fechaExp = moment(perfil.fechaDeExpiracion).utc().format('DD-MM-YYYY');
 		return perfil;
 	}
 	public suscripcionPorId(id: String): Suscripcion {

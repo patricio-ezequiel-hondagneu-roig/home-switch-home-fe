@@ -4,48 +4,32 @@
 	class="pa-3"
 	>
 		<v-card-title>
-			<h5 class="headline">Modificar Info de Cliente</h5>
+			<h5 class="headline">Modificar tarjeta de crédito</h5>
 		</v-card-title>
 		<v-card-text>
 			<v-form v-model="formularioEsValido" ref="formulario">
 				<v-text-field
-					v-model="modelo.nombre"
-					label="Nombre/s"
-					:rules="validadores.nombre"
+					v-model="modelo.tarjetaDeCredito"
+					label="Nro. tarjeta de crédito"
+					:rules="validadores.tarjetaDeCredito"
+					counter="16"
+					hint="Los guiones se insertan automáticamente"
+					mask="credit-card"
 					required
 				></v-text-field>
 				<v-text-field
-					v-model="modelo.apellido"
-					label="Apellido/s"
-					:rules="validadores.apellido"
+					v-model="modelo.codigoDeSeguridad"
+					label="Cod. de seguridad"
+					:rules="validadores.codigoDeSeguridad"
+					counter="4"
+					hint="4 digitos"
 					required
 				></v-text-field>
 				<v-text-field
-					v-model="modelo.fechaDeNacimiento"
-					label="Fecha de nacimiento"
-					:rules="validadores.fechaDeNacimiento"
+					v-model="modelo.fechaDeExpiracion"
+					label="Fecha de expiración"
+					:rules="validadores.fechaDeExpiracion"
 					hint="DD/MM/YYYY"
-					required
-				></v-text-field>
-				<v-text-field
-					v-model="modelo.pais"
-					label="País"
-					:rules="validadores.pais"
-					required
-				></v-text-field>
-				<v-text-field
-					v-model="modelo.celular"
-					label="Celular"
-					counter="11"
-					:rules="validadores.celular"
-					hint="Cod.Area + Número "
-					required
-				></v-text-field>
-				<v-text-field
-					v-model="modelo.email"
-					label="Email"
-					:rules="validadores.correoElectronico"
-					hint="ejemplo@ejemplo.com"
 					required
 				></v-text-field>
 			</v-form>
@@ -72,6 +56,7 @@ import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
 import { requerido } from '@/helpers/validadores/requerido';
 import { textoNoVacio } from '@/helpers/validadores/texto-no-vacio';
 import { correoElectronico } from '@/helpers/validadores/correo-electronico';
+import { tarjetaDeCredito } from '@/helpers/validadores/tarjeta-de-credito';
 import router from '@/router';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
@@ -79,7 +64,7 @@ import { Cliente, ClienteParaModificar } from '../interfaces/cliente.interface';
 import moment from 'moment';
 
 @Component
-export default class ModificacionDeDatosDeCliente extends Vue {
+export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 	public formulario: VuetifyFormRef | null = null;
 	public formularioEsValido: boolean = false;
 	/**
@@ -115,26 +100,18 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 	 * Conjunto de reglas de validación para cada campo del formulario de carga.
 	 */
 	public validadores = {
-		nombre: [
-			requerido( 'Nombre' ),
-			textoNoVacio( 'Nombre' ),
+		tarjetaDeCredito: [
+			requerido( 'Tarjeta de crédito' ),
+			textoNoVacio( 'Tarjeta de crédito'),
+			tarjetaDeCredito( 'Tarjeta de crédito' )
 		],
-		apellido: [
-			requerido( 'Apellido' ),
-			textoNoVacio( 'Apellido' ),
+		codigoDeSeguridad: [
+			requerido( 'Codigo de seguridad' ),
+			textoNoVacio( 'Codigo de seguridad'),
 		],
-		correoElectronico: [
-			requerido( 'Email' ),
-			textoNoVacio( 'Email' ),
-			correoElectronico( 'Email' )
-		],
-		celular: [
-			requerido( 'Celular' ),
-			textoNoVacio( 'Celular'),
-		],
-		pais: [
-			requerido( 'País' ),
-			textoNoVacio( 'País'),
+		fechaDeExpiracion: [
+			requerido( 'Fecha de expiración' ),
+			textoNoVacio( 'Fecha de expiración'),
 		],
 	};
 
@@ -198,13 +175,9 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 		if ( this.formulario !== null ) {
 			this.formulario.resetValidation( );
 		}
-
-		this.modelo.nombre           	= this.cliente.nombre;
-		this.modelo.apellido          	= this.cliente.apellido;
-		this.modelo.email           	= this.cliente.email;
-		this.modelo.celular             = this.cliente.celular;
-		this.modelo.pais             	= this.cliente.pais;
-		this.modelo.fechaDeNacimiento   = this.cliente.fechaDeNacimiento;
+		this.modelo.tarjetaDeCredito    = this.cliente.tarjetaDeCredito;
+		this.modelo.codigoDeSeguridad    = this.cliente.codigoDeSeguridad;
+		this.modelo.fechaDeExpiracion    = this.cliente.fechaDeExpiracion;
 		this.formularioEsValido = false;
 	}
 }
