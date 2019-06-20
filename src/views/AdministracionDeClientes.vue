@@ -33,7 +33,7 @@
 							slot-scope="{ hover }"
 							class="tarjeta-de-enlace"
 							:class="`elevation-${ hover ? 12 : 2 }`"
-							:to="{ name: 'administracion de clientes' }"
+							:to="{ name: 'clientes registrados' }"
 						>
 							<v-layout fill-height column>
 								<v-layout justify-center class="primary pa-2">
@@ -50,7 +50,6 @@
 							</v-layout>
 						</v-card>
 					</v-hover>
-
 				</v-layout>
 			</section>
 		</v-layout>
