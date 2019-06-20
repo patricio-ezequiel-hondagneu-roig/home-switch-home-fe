@@ -29,6 +29,7 @@
 		 */
 		public created( ): void {
 			this.obtenerClientes( );
+			this.obtenerSuscripciones( );
 		}
 		/**
 		 * Solicita la lista de todas los clientes actualmente en el sistema.
@@ -37,6 +38,9 @@
 		 */
 		public obtenerClientes( ): void {
 			this.$store.dispatch( 'obtenerClientes' );
+		}
+		public obtenerSuscripciones( ): void {
+			this.$store.dispatch( 'obtenerSuscripciones' );
 		}
 	}
 </script>
