@@ -107,6 +107,7 @@
 						<v-flex align-center mt-5 class="body-1 font-weight-medium">
 							Tipo de cuenta
 						</v-flex>
+
 						<v-flex align-center mt-1 class="title font-weight-black">
 							<span v-if="suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion === 'Premcium'" color="#FFC21E">
 								{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
@@ -115,6 +116,7 @@
 								{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
 							</span>
 						</v-flex>
+
 						<v-flex mt-1 mb-4>
 							<v-btn
 								v-if="(!enEspera) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Premium')"
@@ -138,6 +140,14 @@
 								Espere confirmación
 							</v-btn>
 						</v-flex>
+
+						<v-flex class="body-1 font-weight-medium">
+							Actualmente esta pagando:
+						</v-flex>
+						<v-flex align-center mt-1 class="title font-weight-black">
+							$ {{suscripcionPorId(perfil.idSuscripcion).monto}}
+						</v-flex>
+						<br>
 					</v-layout>
 				</v-card>
 			</v-flex>
