@@ -23,13 +23,15 @@
 					:rules="validadores.codigoDeSeguridad"
 					counter="4"
 					hint="4 digitos"
+					mask="####"
 					required
 				></v-text-field>
 				<v-text-field
 					v-model="modelo.fechaDeExpiracion"
 					label="Fecha de expiración"
 					:rules="validadores.fechaDeExpiracion"
-					hint="DD/MM/YYYY"
+					hint="MM/YYYY"
+					type="month"
 					required
 				></v-text-field>
 			</v-form>
@@ -62,6 +64,8 @@ import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
 import { Cliente, ClienteParaModificar } from '../interfaces/cliente.interface';
 import moment from 'moment';
+import { cuatroCaracteres } from '@/helpers/validadores/cuatro-caracteres';
+import { codigoDeSeguridad } from '@/helpers/validadores/codigo-de-seguridad';
 
 @Component
 export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
@@ -108,10 +112,12 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 		codigoDeSeguridad: [
 			requerido( 'Codigo de seguridad' ),
 			textoNoVacio( 'Codigo de seguridad'),
+			cuatroCaracteres( 'Codigo de seguridad' ),
 		],
 		fechaDeExpiracion: [
 			requerido( 'Fecha de expiración' ),
 			textoNoVacio( 'Fecha de expiración'),
+			codigoDeSeguridad( 'Fecha de expiración' )
 		],
 	};
 
@@ -158,14 +164,27 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 	 */
 	public async modificarInfo( ): Promise<void> {
 
-		this.esperandoModificacionDeInfo = true;
-		await this.$store.dispatch( 'modificarPerfil', {
-			idCliente: this.cliente._id,
-			clienteParaModificar: this.modelo,
-		});
-		this.esperandoModificacionDeInfo = false;
-		this.restablecerFormulario( );
-		this.emitirEventoInfoModificada( );
+		const tarjetaInvalida = '2222222222222222';
+
+		if (this.modelo.tarjetaDeCredito === tarjetaInvalida) {
+
+			// Escenario de tarjeta no valida
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: 'La tarjeta no es válida.'
+			});
+
+		} else {
+
+			this.esperandoModificacionDeInfo = true;
+			await this.$store.dispatch( 'modificarPerfil', {
+				idCliente: this.cliente._id,
+				clienteParaModificar: this.modelo,
+			});
+			this.esperandoModificacionDeInfo = false;
+			this.restablecerFormulario( );
+			this.emitirEventoInfoModificada( );
+		}
 	}
 
 	/**
