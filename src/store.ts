@@ -343,7 +343,7 @@ export default new Vuex.Store({
 		},
 
 		/** Solicitudes de mejora de plan */
-		agregarSolicitudes( state, solicitud: Solicitud ): void {
+		agregarSolicitud( state, solicitud: Solicitud ): void {
 			state.solicitudes.push( solicitud );
 		},
 
