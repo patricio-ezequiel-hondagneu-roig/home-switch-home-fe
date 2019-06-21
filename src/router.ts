@@ -10,6 +10,7 @@ import AdministracionDeSuscripciones from './views/AdministracionDeSuscripciones
 import AdministracionDePublicaciones from './views/AdministracionDePublicaciones.vue';
 import AdministracionDeClientes from './views/AdministracionDeClientes.vue';
 import AdministracionDeClientesRegistrados from './views/AdministracionDeClientesRegistrados.vue';
+import AdministracionDeSolicitudes from './views/AdministracionDeSolicitudes.vue';
 import IniciarSesion from './views/IniciarSesion.vue';
 import DatosDeUsuario from './views/DatosDeUsuario.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
@@ -84,6 +85,14 @@ const router = new Router({
 			path: '/administracion/clientes/all',
 			name: 'clientes registrados',
 			component: AdministracionDeClientesRegistrados,
+			meta: {
+				requierePermisosDeAdmin: true,
+			}
+		},
+		{
+			path: '/administracion/solicitudes',
+			name: 'solicitudes',
+			component: AdministracionDeSolicitudes,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}

@@ -9,6 +9,7 @@ import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cl
 import { server } from './utils/helper';
 
 import * as moment from 'moment';
+import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
 
 Vue.use( Vuex );
 
@@ -24,6 +25,7 @@ export default new Vuex.Store({
 		esAdmin: <boolean | null> null,
 		perfil: <Cliente | null> null,
 		clientes: <Cliente[ ]> [ ],
+		solicitudes: <Solicitud[ ]> [ ],
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
@@ -37,12 +39,37 @@ export default new Vuex.Store({
 			return state.esAdmin;
 		},
 
+		perfil: ( state ) => {
+			if ( state.perfil === null ) {
+				const perfilEnLocalStorage = localStorage.getItem( 'perfil' );
+				state.perfil = ( perfilEnLocalStorage !== null )
+					? <Cliente> JSON.parse( perfilEnLocalStorage )
+					: null;
+			}
+
+			return state.perfil;
+		},
+
 		alerta: ( state ) => {
 			return state.alerta;
 		},
 
 		clientes: ( state ) => {
 			return state.clientes;
+		},
+		solicitudes: ( state ) => {
+			return state.solicitudes;
+		},
+		solicitudConId: ( state ) => {
+			return ( idCliente: Solicitud[ 'idCliente' ] ): Solicitud | null => {
+				const solicitud = state.solicitudes.find( ( _solicitud ) => {
+					return _solicitud.idCliente === idCliente;
+				});
+
+				return ( solicitud !== undefined )
+					? solicitud
+					: null;
+			};
 		},
 		residencias: ( state ) => {
 			return state.residencias;
@@ -146,10 +173,6 @@ export default new Vuex.Store({
 			};
 		},
 
-		perfil: ( state ) => {
-			return state.perfil;
-		},
-
 	},
 	mutations: {
 		iniciarSesionComoAdmin( state ) {
@@ -159,7 +182,7 @@ export default new Vuex.Store({
 
 		iniciarSesionComoCliente( state, cliente: Cliente ) {
 			state.perfil = cliente;
-			localStorage.setItem( 'perfil', 'perfil' );
+			localStorage.setItem( 'perfil', JSON.stringify( cliente ) );
 		},
 
 		cerrarSesionComoAdmin( state ) {
@@ -290,6 +313,22 @@ export default new Vuex.Store({
 
 			if ( indiceDeCliente !== -1 ) {
 				state.clientes.splice( indiceDeCliente, 1 );
+			}
+		},
+		/** Solicitudes de mejora de plan */
+		agregarSolicitudes( state, solicitud: Solicitud ): void {
+			state.solicitudes.push( solicitud );
+		},
+		actualizarSolicitudes( state, solicitud: Solicitud[ ] ): void {
+			state.solicitudes = solicitud;
+		},
+		eliminarSolicitud( state, idSolicitud: Solicitud[ '_id' ] ): void {
+			const indiceDeSolicitud = state.solicitudes.findIndex( ( _solicitud ) => {
+				return _solicitud._id === idSolicitud;
+			});
+
+			if ( indiceDeSolicitud !== -1 ) {
+				state.clientes.splice( indiceDeSolicitud, 1 );
 			}
 		},
 	},
@@ -775,6 +814,67 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerClientes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		/** Solicitudes de mejora de plan */
+		async obtenerSolicitudes( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Solicitud[ ]>( `${ server.baseURL }/solicitudes` );
+				const solicitudes = respuesta.data;
+				commit( 'actualizarSolicitudes', solicitudes );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		async crearSolicitud( { commit, dispatch }, solicitudParaCrear: SolicitudParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/solicitudes`;
+				const respuesta = await axios.post<Solicitud>( url, solicitudParaCrear );
+				const solicitudCreada = respuesta.data;
+				commit( 'agregarSolicitud', solicitudCreada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La solicitud esta en espera'
+				});
+
+				await dispatch( 'obtenerSolicitudes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		async eliminarSolicitud( { commit, dispatch }, idSolicitud: Solicitud[ '_id' ] ): Promise<void> {
+			try {
+				const url: string = `${ server.baseURL }/solicitudes/${ idSolicitud }`;
+				await axios.delete( url );
+				commit( 'eliminarSolicitud', idSolicitud );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La solicitud se eliminó con éxito.'
+				});
+
+				await dispatch( 'obtenerSolicitudes' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
