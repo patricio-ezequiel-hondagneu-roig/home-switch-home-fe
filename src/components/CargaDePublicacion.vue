@@ -70,6 +70,7 @@
 	import { server } from '@/utils/helper';
 	import { Publicacion, PublicacionParaCrear } from '../interfaces/publicacion.interface';
 	import { numeroNoNegativo } from '../helpers/validadores/numero-no-negativo';
+	import { fechaDeSemana } from '../helpers/validadores/fecha-de-semana';
 	import { Residencia } from '../interfaces/residencia.interface';
 	import moment from 'moment';
 
@@ -107,7 +108,8 @@
 				numeroNoNegativo( 'Monto inicial de subasta' )
 			],
 			fechaDeInicioDeSemana: [
-				requerido( 'Fecha comienzo de reserva' )
+				requerido( 'Fecha comienzo de reserva' ),
+				fechaDeSemana( 'Fecha comienzo de reserva' )
 			],
 		};
 
