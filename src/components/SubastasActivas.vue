@@ -52,6 +52,7 @@
 													<span class="green--text">$ {{subasta.montoInicial}}</span>
 												</v-flex>
 												<v-flex align-self-end>
+
 													<v-tooltip left open-delay="100" close-delay="0">
 														<template v-slot:activator="{ on }">
 															<v-btn
@@ -66,6 +67,7 @@
 														</template>
 														<span>Detalles</span>
 													</v-tooltip>
+
 													<v-tooltip left open-delay="100" close-delay="0" v-if="perfil !== null">
 														<template v-slot:activator="{ on }">
 															<v-btn
@@ -79,6 +81,21 @@
 															</v-btn>
 														</template>
 														<span>Ofertar</span>
+													</v-tooltip>
+
+													<v-tooltip left open-delay="100" close-delay="0">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																:to="generarRuta( subasta.idResidencia) "
+																v-on="on"
+															>
+															<v-icon>home</v-icon>
+															</v-btn>
+														</template>
+														<span>Informacion completa</span>
 													</v-tooltip>
 												</v-flex>
 											</v-layout>
@@ -142,6 +159,16 @@ export default class SubastasActivas extends Vue{
 		fotos: [ ],
 		montoInicialDeSubasta: 0,
 	};
+
+	public generarRuta( idResidencia: string ): object {
+		return {
+			name: 'residencia con id',
+			params: {
+				idResidencia
+			}
+		};
+	}
+
 	/* ------Al crearse este componente se actualizan los datos que va a actualizar y los obtengo--------*/
 	public created( ): void {
 		this.actualizarSubastas( );
