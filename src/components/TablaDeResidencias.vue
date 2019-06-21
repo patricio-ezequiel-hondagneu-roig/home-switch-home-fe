@@ -36,6 +36,7 @@
 							</template>
 							<span>Editar residencia</span>
 						</v-tooltip>
+
 						<v-tooltip left open-delay="100" close-delay="0">
 							<template v-slot:activator="{ on }">
 								<v-btn
@@ -50,6 +51,7 @@
 							</template>
 							<span>Eliminar residencia</span>
 						</v-tooltip>
+
 						<v-tooltip left open-delay="100" close-delay="0">
 							<template v-slot:activator="{ on }">
 								<v-btn
@@ -62,6 +64,20 @@
 								</v-btn>
 							</template>
 							<span>Detalles de Residencia</span>
+						</v-tooltip>
+
+						<v-tooltip left open-delay="100" close-delay="0">
+							<template v-slot:activator="{ on }">
+								<v-btn
+									flat
+									icon
+									class="secondary--text"
+									:to="generarRuta( props.item._id)"
+								>
+								<v-icon>home</v-icon>
+								</v-btn>
+							</template>
+							<span>Informacion de Residencia Completa</span>
 						</v-tooltip>
 					</v-layout>
 				</td>
@@ -259,6 +275,15 @@
 		public ocultarFormularioDeModificacion( ): void {
 			this.formularioDeModificacionEsVisible = false;
 			this.residenciaParaModificar = null;
+		}
+
+		public generarRuta( idResidencia: string ): object {
+			return {
+				name: 'residencia con id',
+				params: {
+					idResidencia
+				}
+			};
 		}
 	}
 </script>
