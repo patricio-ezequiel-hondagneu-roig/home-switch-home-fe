@@ -119,28 +119,27 @@
 
 						<v-flex mt-1 mb-4>
 							<v-btn
-								v-if="(!enEspera) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Premium')"
+								v-if="(solicitudPorId(perfil._id) === null) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Premium')"
 								color="#FFC21E"
-								@click.stop="enEspera = true"
+								@click.stop=" procesarSolicitud( perfil._id )"
 							>
 								Solicitar promoción
 							</v-btn>
 							<v-btn
-								v-if="(!enEspera) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Regular')"
+								v-if="(solicitudPorId(perfil._id) === null) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Regular')"
 								color="red"
-								@click.stop="enEspera = true"
+								@click.stop="procesarSolicitud( perfil._id )"
 							>
 								Baja de premium
 							</v-btn>
 							<v-btn
-								v-if="(enEspera)"
+								v-if="(solicitudPorId(perfil._id) !== null)"
 								color="green"
 								disabled
 							>
 								Espere confirmación
 							</v-btn>
 						</v-flex>
-
 						<v-flex class="body-1 font-weight-medium">
 							Actualmente esta pagando:
 						</v-flex>
@@ -177,6 +176,7 @@ import ModificarDeTarjetaDeCreditoDeCliente from '@/components/ModificarDeTarjet
 import { Cliente } from '../interfaces/cliente.interface';
 import moment from 'moment';
 import { Suscripcion } from '../interfaces/suscripcion.interface';
+import { SolicitudParaCrear, Solicitud } from '@/interfaces/solicitud.interface';
 @Component({
 	components: {
 		ModificacionDeDatosDeCliente,
@@ -184,16 +184,16 @@ import { Suscripcion } from '../interfaces/suscripcion.interface';
 	}
 })
 export default class DatosDeUsuario extends Vue {
-	/* var mock lista de espera de prom */
-	public enEspera: boolean = false;
 	/* fechas a mostrar */
 	public fechaNac!: String;
 	public fechaExp!: String;
 	/* variable que ayuda a que se muestre o no ventana dialog de modificación */
 	public formularioDeModificacionEsVisible = false;
 	public formularioDeModificacionTarjetaEsVisible = false;
-	/* Cuando se crea instancia de DatosDeUsuario se va a buscar usuario segun su id */
 
+	public created( ) {
+		this.$store.dispatch('obtenerSolicitudes');
+	}
 	/* Muestra formulario de modificación de datos de usuario*/
 	public mostrarFormularioDeModificacion( ): void {
 		this.formularioDeModificacionEsVisible = true;
@@ -234,6 +234,18 @@ export default class DatosDeUsuario extends Vue {
 	}
 	public suscripcionPorId(id: String): Suscripcion {
 		return this.$store.getters.suscripcionConId(id);
+	}
+	public  solicitudPorId(idCliente: String): Solicitud | null {
+		return this.$store.getters.solicitudConId(idCliente);
+	}
+	public async procesarSolicitud( _idCliente: string) {
+		const solicitudParaCrear: SolicitudParaCrear = {
+			idCliente: _idCliente,
+		};
+		await this.$store.dispatch( 'crearSolicitud', solicitudParaCrear );
+	}
+	public get obtenerSolicitudes(): Solicitud[ ] {
+		return this.$store.getters.solicitudes;
 	}
 }
 </script>

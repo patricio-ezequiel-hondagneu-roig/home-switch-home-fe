@@ -2,7 +2,6 @@
 
 	<div>
 		<v-data-table
-			v-if="clientes !== null"
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
 			:items="clientes"
@@ -51,6 +50,7 @@ import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 import router from '@/router';
 import moment from 'moment';
+import { Cliente } from '../interfaces/cliente.interface';
 
 @Component
 export default class TablaDeClientes extends Vue {
@@ -101,9 +101,6 @@ export default class TablaDeClientes extends Vue {
 	public suscripcionPorId(id: String): Suscripcion {
 		return this.$store.getters.suscripcionConId(id);
 	}
-	public get clientes( ) {
-		return this.$store.getters.clientes;
-	}
 
 	/** Elimina cliente segun la id especificada */
 	public eliminarCliente( idCliente: string ): void {
@@ -111,6 +108,10 @@ export default class TablaDeClientes extends Vue {
 	}
 	public formatearFecha(fecha: string): string {
 		return moment(fecha).format('DD/MM/YYYY');
+	}
+	/** obtener clientes */
+	public get clientes(): Cliente[ ] {
+		return this.$store.getters.clientes;
 	}
 }
 </script>
