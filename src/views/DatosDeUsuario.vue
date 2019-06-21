@@ -98,7 +98,7 @@
 					</v-layout>
 				</v-card>
 			</v-flex>
-			<v-flex>
+			<v-flex v-if="suscripcion && perfil">
 				<v-card
 				class="ma-1"
 				width="200"
@@ -109,24 +109,24 @@
 						</v-flex>
 
 						<v-flex align-center mt-1 class="title font-weight-black">
-							<span v-if="suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion === 'Premcium'" color="#FFC21E">
-								{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
+							<span v-if="suscripcion.tipoDeSuscripcion === 'Premcium'" color="#FFC21E">
+								{{suscripcion.tipoDeSuscripcion}}
 							</span>
-							<span v-if="suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion === 'Regular'">
-								{{suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion}}
+							<span v-if="suscripcion.tipoDeSuscripcion === 'Regular'">
+								{{suscripcion.tipoDeSuscripcion}}
 							</span>
 						</v-flex>
 
 						<v-flex mt-1 mb-4>
 							<v-btn
-								v-if="(solicitudPorId(perfil._id) === null) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Premium')"
+								v-if="solicitudPorId(perfil._id) === null && suscripcion.tipoDeSuscripcion !== 'Premium'"
 								color="#FFC21E"
 								@click.stop=" procesarSolicitud( perfil._id )"
 							>
 								Solicitar promoción
 							</v-btn>
 							<v-btn
-								v-if="(solicitudPorId(perfil._id) === null) && (suscripcionPorId(perfil.idSuscripcion).tipoDeSuscripcion !== 'Regular')"
+								v-if="(solicitudPorId(perfil._id) === null) && suscripcion.tipoDeSuscripcion !== 'Regular'"
 								color="red"
 								@click.stop="procesarSolicitud( perfil._id )"
 							>
@@ -144,7 +144,7 @@
 							Actualmente esta pagando:
 						</v-flex>
 						<v-flex align-center mt-1 class="title font-weight-black">
-							$ {{suscripcionPorId(perfil.idSuscripcion).monto}}
+							$ {{suscripcion.monto}}
 						</v-flex>
 						<br>
 					</v-layout>
@@ -191,35 +191,49 @@ export default class DatosDeUsuario extends Vue {
 	public formularioDeModificacionEsVisible = false;
 	public formularioDeModificacionTarjetaEsVisible = false;
 
+	public get suscripcion( ): Suscripcion | null {
+		if ( this.perfil === null ) {
+			return null;
+		}
+		return this.$store.getters.suscripcionConId( this.perfil.idSuscripcion );
+	}
+
 	public created( ) {
 		this.$store.dispatch('obtenerSolicitudes');
-		this.$store.dispatch('obtener');
+		this.$store.dispatch('obtenerSuscripciones');
 	}
+
 	/* Muestra formulario de modificación de datos de usuario*/
 	public mostrarFormularioDeModificacion( ): void {
 		this.formularioDeModificacionEsVisible = true;
 	}
+
 	public mostrarFormularioDeModificacionTarjeta( ): void {
 		this.formularioDeModificacionTarjetaEsVisible = true;
 	}
+
 	/* Oculta formulario de modificación de datos de usuario*/
 	public ocultarFormularioDeModificacion( ): void {
 			this.formularioDeModificacionEsVisible = false;
 	}
+
 	public ocultarFormularioDeModificacionTarjeta( ): void {
 			this.formularioDeModificacionTarjetaEsVisible = false;
 	}
+
 	/* Eventos
 	 * Emitidos por ModificacionDeDatosDeUsuario
 	 * El siguiente es emitido al modificar info de usuario
 	 */
 	@Emit( 'infoModificada' )
-		public emitirEventoInfoModificada( ): void { }
+	public emitirEventoInfoModificada( ): void { }
+
 	/* El siguiente es emitido al tener algun tipo de error, luego se muestra */
 	@Emit( 'error' )
-		public emitirEventoError( error: Error ): Error {
-			return error;
-		}
+	public emitirEventoError( error: Error ): Error {
+		return error;
+	}
+
 	/* metodo que modifica info de Usuario */
 	public modificarInfo( usuario: Cliente ): void {
 		this.emitirEventoInfoModificada( );
@@ -227,24 +241,32 @@ export default class DatosDeUsuario extends Vue {
 		this.ocultarFormularioDeModificacionTarjeta( );
 	}
 
-	public get perfil( ): Cliente {
+	public get perfil( ): Cliente | null {
 		const perfil = this.$store.getters.perfil;
+		if ( perfil === null ) {
+			return null;
+		}
+
 		this.fechaNac = moment(perfil.fechaDeNacimiento).utc().format('DD-MM-YYYY');
 		this.fechaExp = moment(perfil.fechaDeExpiracion).utc().format('DD-MM-YYYY');
 		return perfil;
 	}
+
 	public suscripcionPorId(id: String): Suscripcion {
 		return this.$store.getters.suscripcionConId(id);
 	}
-	public  solicitudPorId(idCliente: String): Solicitud | null {
+
+	public solicitudPorId(idCliente: String): Solicitud | null {
 		return this.$store.getters.solicitudConId(idCliente);
 	}
+
 	public async procesarSolicitud( _idCliente: string) {
 		const solicitudParaCrear: SolicitudParaCrear = {
 			idCliente: _idCliente,
 		};
 		await this.$store.dispatch( 'crearSolicitud', solicitudParaCrear );
 	}
+
 	public get obtenerSolicitudes(): Solicitud[ ] {
 		return this.$store.getters.solicitudes;
 	}

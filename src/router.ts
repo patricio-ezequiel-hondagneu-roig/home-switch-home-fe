@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Inicio from './views/Inicio.vue';
 import Ingreso from './views/Ingreso.vue';
+import Residencia from './views/Residencia.vue';
 import Administracion from './views/Administracion.vue';
 import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue';
 import AdministracionDeSubastas from './views/AdministracionDeSubastas.vue';
@@ -25,6 +26,12 @@ const router = new Router({
 			path: '/',
 			name: 'inicio',
 			component: Inicio
+		},
+		{
+			path: '/residencias/:idResidencia',
+			name: 'residencia con id',
+			component: Residencia,
+			props: true,
 		},
 		{
 			path: '/administracion',
