@@ -6,6 +6,7 @@ import { Residencia, ResidenciaParaModificar, ResidenciaParaCrear } from './inte
 import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/subasta.interface';
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
 import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cliente.interface';
+import { Publicacion, PublicacionParaCrear, PublicacionParaModificar } from './interfaces/publicacion.interface';
 import { server } from './utils/helper';
 
 import * as moment from 'moment';
@@ -29,6 +30,7 @@ export default new Vuex.Store({
 		residencias: <Residencia[ ]> [ ],
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
+		publicaciones: <Publicacion[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -57,9 +59,28 @@ export default new Vuex.Store({
 		clientes: ( state ) => {
 			return state.clientes;
 		},
+
+
+		publicaciones: ( state ) => {
+			return state.publicaciones;
+		},
+
+		publicacionConId: ( state ) => {
+			return ( idPublicacion: Publicacion[ '_id' ] ): Publicacion | null => {
+				const publicacion = state.publicaciones.find( ( _publicacion ) => {
+					return _publicacion._id === idPublicacion;
+				});
+
+				return ( publicacion !== undefined )
+					? publicacion
+					: null;
+			};
+		},
+
 		solicitudes: ( state ) => {
 			return state.solicitudes;
 		},
+
 		solicitudConId: ( state ) => {
 			return ( idCliente: Solicitud[ 'idCliente' ] ): Solicitud | null => {
 				const solicitud = state.solicitudes.find( ( _solicitud ) => {
@@ -71,6 +92,7 @@ export default new Vuex.Store({
 					: null;
 			};
 		},
+
 		residencias: ( state ) => {
 			return state.residencias;
 		},
@@ -140,6 +162,7 @@ export default new Vuex.Store({
 				})
 				.find( ( suscripcion ) => suscripcion.tipoDeSuscripcion === 'Regular' );
 		},
+
 		suscripcionConId: ( state ) => {
 			return ( idSuscripcion: Suscripcion[ '_id' ] ): Suscripcion | null => {
 				const suscripcion = state.suscripciones.find( ( _suscripcion ) => {
@@ -150,6 +173,7 @@ export default new Vuex.Store({
 					? suscripcion : null;
 			};
 		},
+
 		clienteConId: ( state ) => {
 			return ( idCliente: Cliente[ '_id' ] ): Cliente | null => {
 				const cliente = state.clientes.find( ( _cliente ) => {
@@ -303,9 +327,11 @@ export default new Vuex.Store({
 				state.clientes.push( cliente );
 			}
 		},
+
 		modificarPerfil( state, cliente: Cliente ): void {
 			state.perfil = cliente;
 		},
+
 		eliminarCliente( state, idCliente: Cliente[ '_id' ] ): void {
 			const indiceDeCliente = state.clientes.findIndex( ( _cliente ) => {
 				return _cliente._id === idCliente;
@@ -315,13 +341,16 @@ export default new Vuex.Store({
 				state.clientes.splice( indiceDeCliente, 1 );
 			}
 		},
+
 		/** Solicitudes de mejora de plan */
 		agregarSolicitudes( state, solicitud: Solicitud ): void {
 			state.solicitudes.push( solicitud );
 		},
+
 		actualizarSolicitudes( state, solicitud: Solicitud[ ] ): void {
 			state.solicitudes = solicitud;
 		},
+
 		eliminarSolicitud( state, idSolicitud: Solicitud[ '_id' ] ): void {
 			const indiceDeSolicitud = state.solicitudes.findIndex( ( _solicitud ) => {
 				return _solicitud._id === idSolicitud;
@@ -329,6 +358,39 @@ export default new Vuex.Store({
 
 			if ( indiceDeSolicitud !== -1 ) {
 				state.clientes.splice( indiceDeSolicitud, 1 );
+			}
+		},
+
+		// Publicaciones
+		actualizarPublicaciones( state, publicaciones: Publicacion[ ] ): void {
+			state.publicaciones = publicaciones;
+		},
+
+		agregarPublicacion( state, publicacion: Publicacion ): void {
+			state.publicaciones.push( publicacion );
+		},
+
+		modificarPublicacion( state, publicacion: Publicacion ): void {
+			const indiceDePublicacion = state.publicaciones.findIndex( ( _publicacion ) => {
+				return _publicacion._id === publicacion._id;
+			});
+
+			// Reemplaza si la publicacion ya existe, agrega si no existe
+			if ( indiceDePublicacion !== -1 ) {
+				state.publicaciones.splice( indiceDePublicacion, 1, publicacion );
+			}
+			else {
+				state.publicaciones.push( publicacion );
+			}
+		},
+
+		eliminarPublicacion( state, idPublicacion: Publicacion[ '_id' ] ): void {
+			const indiceDePublicacion = state.publicaciones.findIndex( ( _publicacion ) => {
+				return _publicacion._id === idPublicacion;
+			});
+
+			if ( indiceDePublicacion !== -1 ) {
+				state.publicaciones.splice( indiceDePublicacion, 1 );
 			}
 		},
 	},
@@ -344,9 +406,11 @@ export default new Vuex.Store({
 		cerrarSesionComoAdmin( { commit } ) {
 			commit( 'cerrarSesionComoAdmin' );
 		},
+
 		cerrarSesionComoCliente( { commit } ) {
 			commit( 'cerrarSesionComoCliente' );
 		},
+
 		mostrarAlerta( { commit }, informacionDeAlerta: InformacionDeAlerta ) {
 			commit( 'mostrarAlerta', informacionDeAlerta );
 		},
@@ -875,6 +939,126 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerSolicitudes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor la lista de todas las publicaciones existentes y actualiza el store con ellas.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 */
+		async obtenerPublicaciones( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Publicacion[ ]>( `${ server.baseURL }/publicaciones` );
+				const publicaciones = respuesta.data;
+				commit( 'actualizarPublicaciones', publicaciones );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que cree una Publicacion con los parámetros provistos y obtiene la lista de Publicaciones
+		 * actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param publicacionParaCrear objeto que contiene la información necesaria para crear una Publicacion
+		 */
+		async crearPublicacion( { commit, dispatch }, publicacionParaCrear: PublicacionParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/publicaciones`;
+				const respuesta = await axios.post<Publicacion>( url, publicacionParaCrear );
+				const publicacionCreada = respuesta.data;
+				commit( 'agregarPublicacion', publicacionCreada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La Publicacion se cargó con éxito.'
+				});
+
+				await dispatch( 'obtenerPublicaciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que modifique una Publicacion con los parámetros provistos y obtiene la lista de
+		 * Publicaciones actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param argumentos objeto que contiene el ID y los datos de la Publicacion a modificar
+		 */
+		async modificarPublicacion( { commit, dispatch }, argumentos: {
+			_id: Publicacion[ '_id' ],
+			publicacionParaModificar: PublicacionParaModificar
+		}): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/publicaciones/${ argumentos._id }`;
+				const publicacionParaModificar = argumentos.publicacionParaModificar;
+				const respuesta = await axios.put<Publicacion>( url, publicacionParaModificar );
+				const publicacionModificada = respuesta.data;
+				commit( 'modificarPublicacion', publicacionModificada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La publicacion se modificó con éxito.'
+				});
+
+				await dispatch( 'obtenerPublicaciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		/**
+		 * Solicita al servidor que elimine la Publicacion con el ID provisto y obtiene la lista de Publicaciones
+		 * actualizada.
+		 *
+		 * En caso de que la solicitud falle, muestra una alerta informando el error.
+		 *
+		 * @param idPublicacion ID de la Publicaciones a eliminar
+		 */
+		async eliminarPublicacion( { commit, dispatch }, idPublicacion: Publicacion[ '_id' ] ): Promise<void> {
+			try {
+				const url: string = `${ server.baseURL }/publicaciones/${ idPublicacion }`;
+				await axios.delete( url );
+				commit( 'eliminarPublicacion', idPublicacion );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La publicacion se eliminó con éxito.'
+				});
+
+				await dispatch( 'obtenerPublicaciones' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
