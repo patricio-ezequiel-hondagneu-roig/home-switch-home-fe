@@ -193,6 +193,7 @@ export default class DatosDeUsuario extends Vue {
 
 	public created( ) {
 		this.$store.dispatch('obtenerSolicitudes');
+		this.$store.dispatch('obtener');
 	}
 	/* Muestra formulario de modificación de datos de usuario*/
 	public mostrarFormularioDeModificacion( ): void {

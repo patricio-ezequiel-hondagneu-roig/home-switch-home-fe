@@ -65,7 +65,7 @@ import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 import router from '@/router';
 import moment from 'moment';
-import { Cliente } from '../interfaces/cliente.interface';
+import { Cliente, ClienteParaModificar } from '../interfaces/cliente.interface';
 import { Solicitud } from '../interfaces/solicitud.interface';
 
 @Component
@@ -105,14 +105,17 @@ export default class TablaDeSolicitudes extends Vue {
 	public clienteConId( idCliente: string) {
 		return this.$store.getters.clienteConId(idCliente);
 	}
-	public confirmar( solicitud: Solicitud ) {
-		const cliente = this.clienteConId(solicitud.idCliente);
+	public async confirmar( solicitud: Solicitud ) {
+		const cliente: Cliente = this.clienteConId(solicitud.idCliente);
 		if ( this.suscripcionPorId(cliente.idSuscripcion).tipoDeSuscripcion === 'Premium' ) {
 			cliente.idSuscripcion = this.$store.getters.obtenerSuscripcionRegular;
 		} else {
 			cliente.idSuscripcion = this.$store.getters.obtenerSuscripcionPremium;
 		}
-		this.$store.dispatch( 'eliminarSolicitud' , solicitud._id );
+		await this.$store.dispatch( 'modificarCliente' , {
+			_id: cliente._id ,
+			cliente });
+		await this.$store.dispatch( 'eliminarSolicitud' , solicitud._id );
 	}
 	public denegar( solicitud: Solicitud ) {
 		this.$store.dispatch( 'eliminarSolicitud' , solicitud._id );
