@@ -19,7 +19,7 @@
 								width="600"
 								elevation-5
 								>
-									<v-layout row wrap>
+									<v-layout row nowrap>
 										<v-flex shrink>
 											<v-img
 												v-if="obtenerResidenciaConId(subasta.idResidencia).fotos.length > 0"
@@ -34,59 +34,55 @@
 												>
 											</div>
 										</v-flex>
-										<v-flex>
+										<v-layout column class="pa-2">
+											<h1 class="font-weight-bold headline sombra-texto">
+												{{obtenerResidenciaConId(subasta.idResidencia).titulo}}
+											</h1>
+											<p
+												style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+												:title="ubicacionDeResidenciaDeSubasta( subasta )"
+											>
+												{{ ubicacionDeResidenciaDeSubasta( subasta ) }}
+											</p>
+											<p class="subheading ml-3 red--text">
+												Finaliza: {{subasta.fechaDeFin}}
+											</p>
 											<v-layout row>
-												<v-flex class="mt-2 ml-4" wrap>
-													<v-layout column align-start wrap>
-														<v-flex class="font-weight-bold headline sombra-texto">
-															{{obtenerResidenciaConId(subasta.idResidencia).titulo}}
-														</v-flex>
-														<v-flex class="sombra-texto">
-															<v-chip disabled small>
-																{{obtenerResidenciaConId(subasta.idResidencia).pais}} , {{obtenerResidenciaConId(subasta.idResidencia).provincia}} ,
-																{{obtenerResidenciaConId(subasta.idResidencia).localidad}} , {{obtenerResidenciaConId(subasta.idResidencia).domicilio}}
-															</v-chip>
-														</v-flex>
-														<v-flex class="subheading ml-3 red--text">
-															Finaliza: {{subasta.fechaDeFin}}
-														</v-flex>
-														<v-flex font-weight-bold display-1 align-self-end mt-1 mr-2>
-															<span class="green--text">$ {{subasta.montoInicial}}</span>
-														</v-flex>
-														<v-flex align-self-end>
-															<v-tooltip left open-delay="100" close-delay="0">
-																<template v-slot:activator="{ on }">
-																	<v-btn
-																		color="#E0E0E0"
-																		icon
-																		class="secondary--text"
-																		@click.stop="mostrarDetallesResidencia( obtenerResidenciaConId(subasta.idResidencia) )"
-																		v-on="on"
-																	>
-																	<v-icon>info</v-icon>
-																	</v-btn>
-																</template>
-																<span>Detalles</span>
-															</v-tooltip>
-															<v-tooltip left open-delay="100" close-delay="0" v-if="perfil !== null">
-																<template v-slot:activator="{ on }">
-																	<v-btn
-																		color="#E0E0E0"
-																		icon
-																		class="secondary--text"
-																		@click.stop="mostrarOfertar( subasta )"
-																		v-on="on"
-																	>
-																	<v-icon color="green darken-2">attach_money</v-icon>
-																	</v-btn>
-																</template>
-																<span>Ofertar</span>
-															</v-tooltip>
-														</v-flex>
-													</v-layout>
+												<v-flex font-weight-bold display-1 align-self-end mt-1 mr-2>
+													<span class="green--text">$ {{subasta.montoInicial}}</span>
+												</v-flex>
+												<v-flex align-self-end>
+													<v-tooltip left open-delay="100" close-delay="0">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																@click.stop="mostrarDetallesResidencia( obtenerResidenciaConId(subasta.idResidencia) )"
+																v-on="on"
+															>
+															<v-icon>info</v-icon>
+															</v-btn>
+														</template>
+														<span>Detalles</span>
+													</v-tooltip>
+													<v-tooltip left open-delay="100" close-delay="0" v-if="perfil !== null">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																@click.stop="mostrarOfertar( subasta )"
+																v-on="on"
+															>
+															<v-icon color="green darken-2">attach_money</v-icon>
+															</v-btn>
+														</template>
+														<span>Ofertar</span>
+													</v-tooltip>
 												</v-flex>
 											</v-layout>
-										</v-flex>
+										</v-layout>
 									</v-layout>
 								</v-card>
 							</v-layout>
@@ -199,8 +195,19 @@ export default class SubastasActivas extends Vue{
 	public get perfil(): Cliente | null {
 		return this.$store.getters.perfil;
 	}
+
+	public ubicacionDeResidenciaDeSubasta( subasta: Subasta ): string {
+		const residencia = this.obtenerResidenciaConId( subasta.idResidencia );
+
+		if ( residencia === undefined ) {
+			throw new Error( 'No existe una residencia con el id');
+		}
+
+		return `${ residencia.pais }, ${ residencia.provincia }, ${ residencia.localidad }, ${ residencia.domicilio }`;
+	}
 }
 </script>
+
 <style lang="stylus">
 	.sombra-texto {
 		text-shadow: 0 0.025em 0.1em hsla(0, 0%, 25%, 0.25)
