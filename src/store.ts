@@ -37,6 +37,17 @@ export default new Vuex.Store({
 			return state.esAdmin;
 		},
 
+		perfil: ( state ) => {
+			if ( state.perfil === null ) {
+				const perfilEnLocalStorage = localStorage.getItem( 'perfil' );
+				state.perfil = ( perfilEnLocalStorage !== null )
+					? <Cliente> JSON.parse( perfilEnLocalStorage )
+					: null;
+			}
+
+			return state.perfil;
+		},
+
 		alerta: ( state ) => {
 			return state.alerta;
 		},
@@ -146,10 +157,6 @@ export default new Vuex.Store({
 			};
 		},
 
-		perfil: ( state ) => {
-			return state.perfil;
-		},
-
 	},
 	mutations: {
 		iniciarSesionComoAdmin( state ) {
@@ -159,7 +166,7 @@ export default new Vuex.Store({
 
 		iniciarSesionComoCliente( state, cliente: Cliente ) {
 			state.perfil = cliente;
-			localStorage.setItem( 'perfil', 'perfil' );
+			localStorage.setItem( 'perfil', JSON.stringify( cliente ) );
 		},
 
 		cerrarSesionComoAdmin( state ) {
