@@ -30,7 +30,7 @@
 					v-model="modelo.fechaDeExpiracion"
 					label="Fecha de expiración"
 					:rules="validadores.fechaDeExpiracion"
-					hint="MM/YYYY"
+					hint="MM/AAAA"
 					type="month"
 					required
 				></v-text-field>
@@ -177,6 +177,10 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 		} else {
 
 			this.esperandoModificacionDeInfo = true;
+
+			// Transformo las fecha de expiracion con moment js
+			this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
+
 			await this.$store.dispatch( 'modificarPerfil', {
 				idCliente: this.cliente._id,
 				clienteParaModificar: this.modelo,

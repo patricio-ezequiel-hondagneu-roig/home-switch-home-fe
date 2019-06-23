@@ -24,7 +24,8 @@
 					v-model="modelo.fechaDeNacimiento"
 					label="Fecha de nacimiento"
 					:rules="validadores.fechaDeNacimiento"
-					hint="DD/MM/YYYY"
+					hint="DD/MM/AAAA"
+					type="date"
 					required
 				></v-text-field>
 				<v-text-field
@@ -77,6 +78,7 @@ import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { server } from '@/utils/helper';
 import { Cliente, ClienteParaModificar } from '../interfaces/cliente.interface';
 import moment from 'moment';
+import { mayorDeDieciocho } from '../helpers/validadores/mayor-de-dieciocho';
 
 @Component
 export default class ModificacionDeDatosDeCliente extends Vue {
@@ -136,6 +138,10 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 			requerido( 'País' ),
 			textoNoVacio( 'País'),
 		],
+		fechaDeNacimiento: [
+			requerido( 'Fecha de nacimiento' ),
+			mayorDeDieciocho( 'Fecha de nacimiento'),
+		],
 	};
 
 	/**
@@ -182,6 +188,10 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 	public async modificarInfo( ): Promise<void> {
 
 		this.esperandoModificacionDeInfo = true;
+
+		// Transformo las fecha de nacimiento con moment js
+		this.modelo.fechaDeNacimiento = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
+
 		await this.$store.dispatch( 'modificarPerfil', {
 			idCliente: this.cliente._id,
 			clienteParaModificar: this.modelo,

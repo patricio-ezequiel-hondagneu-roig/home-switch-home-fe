@@ -32,6 +32,7 @@
 					label="Fecha de Nacimiento"
 					:rules="validadores.fechaDeNacimiento"
 					required
+					hint="DD/MM/AAAA"
 					type="date"
 				></v-text-field>
 
