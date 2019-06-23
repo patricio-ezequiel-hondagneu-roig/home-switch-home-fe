@@ -1,7 +1,11 @@
 <template>
 	<div>
 		<div v-if="residenciaActual !== null">
-			  <v-carousel style="height: 400px">
+
+			<v-carousel
+			  	style="height: 400px"
+				v-if="residenciaActual.fotos.length > 0">
+
 				<v-carousel-item
 					v-for="(foto,i) in fotos"
 					:key="i"
@@ -11,14 +15,35 @@
 						<img :src="foto">
 					</v-layout>
 				</v-carousel-item>
+
 			</v-carousel>
+
+			<v-carousel
+			  	style="height: 400px"
+				v-else>
+
+				<v-carousel-item
+					v-for="(number,i) in 1"
+					:key="i"
+					style="background-color: #111111; max-height=100vh"
+				>
+					<v-layout row justify-center>
+						<img
+			  				style="height: 400px"
+				  			src="@/assets/images/residenciaSinFoto.jpg"
+						>
+					</v-layout>
+				</v-carousel-item>
+
+			</v-carousel>
+
 			<br>
 			<hr>
 
 			<!-- {{ residenciaActual._id }} -->
 
 
-			<p class="display-4 text-xs-center">
+			<p class="display-3 text-xs-center">
 				{{ residenciaActual.titulo }}
 			</p>
 			<hr>
@@ -26,7 +51,7 @@
 			<v-container>
 				<v-layout column align-center justify-center class="ma-4">
 					<v-card  class="pa-5">
-						<p class="display-2">
+						<p class="display-1">
 							<span class="font-weight-black"> País: </span> {{ residenciaActual.pais }}
 						</p>
 
@@ -34,7 +59,7 @@
 						<hr>
 						<br>
 
-						<p class="display-2">
+						<p class="display-1">
 							<span class="font-weight-black"> Provincia: </span> {{ residenciaActual.provincia }}
 						</p>
 
@@ -42,7 +67,7 @@
 						<hr>
 						<br>
 
-						<p class="display-2">
+						<p class="display-1">
 							<span class="font-weight-black"> Localidad: </span> {{ residenciaActual.localidad }}
 						</p>
 
@@ -50,7 +75,7 @@
 						<hr>
 						<br>
 
-						<p class="display-2">
+						<p class="display-1">
 							<span class="font-weight-black"> Domicilio: </span> {{ residenciaActual.domicilio }}
 						</p>
 
@@ -58,7 +83,7 @@
 						<hr>
 						<br>
 
-						<p class="display-2">
+						<p class="display-1">
 							<span class="font-weight-black"> Monto inicial de subasta: </span> $ {{ residenciaActual.montoInicialDeSubasta }}
 						</p>
 
@@ -66,10 +91,10 @@
 						<hr>
 						<br>
 
-						<p class="display-2 font-weight-black">
+						<p class="display-1 font-weight-black">
 							Descripcion:
 							<br>
-							<p class="display-1">
+							<p class="subheading">
 								{{ residenciaActual.descripcion }}
 							</p>
 						</p>
