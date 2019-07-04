@@ -209,10 +209,27 @@ export default new Vuex.Store({
 			localStorage.setItem( 'perfil', JSON.stringify( cliente ) );
 		},
 
+		// actualizarPerfil( state ) {
+		// 	if (state.perfil === null ){
+		// 		return;
+		// 	} else {
+		// 		const nuevoCliente: Cliente | undefined = state.clientes.find( (_cliente) => {
+		// 			// Dejame de joder tslint
+		// 			if (state.perfil !== null ){
+		// 				return _cliente._id === state.perfil._id;
+		// 			}
+		// 		});
+		// 		if (nuevoCliente !== undefined) {
+		// 			state.perfil = nuevoCliente;
+		// 		}
+		// 	}
+		// },
+
 		cerrarSesionComoAdmin( state ) {
 			state.esAdmin = false;
 			localStorage.removeItem( 'esAdmin' );
 		},
+
 		cerrarSesionComoCliente( state ) {
 			state.perfil = null;
 			localStorage.removeItem( 'perfil' );
@@ -395,6 +412,10 @@ export default new Vuex.Store({
 		},
 	},
 	actions: {
+		// actualizarPerfil( { commit } ) {
+		// 	commit( 'actualizarPerfil' );
+		// },
+
 		iniciarSesionComoAdmin( { commit }, cliente: Cliente ) {
 			commit( 'iniciarSesionComoAdmin', cliente );
 		},
@@ -806,11 +827,11 @@ export default new Vuex.Store({
 		 */
 		async modificarCliente( { commit, dispatch }, argumentos: {
 			_id: Cliente[ '_id' ],
-			clienteParaModificar: ClienteParaModificar
+			cliente: ClienteParaModificar
 		}): Promise<void> {
 			try {
 				const url = `${ server.baseURL }/clientes/${ argumentos._id }`;
-				const clienteParaModificar = argumentos.clienteParaModificar;
+				const clienteParaModificar = argumentos.cliente;
 				const respuesta = await axios.put<Cliente>( url, clienteParaModificar );
 				const clienteModificado = respuesta.data;
 				commit( 'modificarCliente', clienteModificado );

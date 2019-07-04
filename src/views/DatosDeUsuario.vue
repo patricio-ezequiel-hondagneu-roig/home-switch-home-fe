@@ -109,7 +109,7 @@
 						</v-flex>
 
 						<v-flex align-center mt-1 class="title font-weight-black">
-							<span v-if="suscripcion.tipoDeSuscripcion === 'Premcium'" color="#FFC21E">
+							<span v-if="suscripcion.tipoDeSuscripcion === 'Premium'" color="#FFC21E">
 								{{suscripcion.tipoDeSuscripcion}}
 							</span>
 							<span v-if="suscripcion.tipoDeSuscripcion === 'Regular'">

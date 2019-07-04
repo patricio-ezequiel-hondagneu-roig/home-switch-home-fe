@@ -94,29 +94,38 @@ export default class TablaDeSolicitudes extends Vue {
 			sortable: false
 		},
 	];
+
 	/** Devuelve suscripcion segun id para saber de que tipo es la sucripcion del cliente */
 	public suscripcionPorId(id: String): Suscripcion {
 		return this.$store.getters.suscripcionConId(id);
 	}
+
 	/** obtener solicitudes */
 	public get solicitudes(): Solicitud[ ] {
 		return this.$store.getters.solicitudes;
 	}
+
 	public clienteConId( idCliente: string) {
 		return this.$store.getters.clienteConId(idCliente);
 	}
+
 	public async confirmar( solicitud: Solicitud ) {
 		const cliente: Cliente = this.clienteConId(solicitud.idCliente);
+
 		if ( this.suscripcionPorId(cliente.idSuscripcion).tipoDeSuscripcion === 'Premium' ) {
-			cliente.idSuscripcion = this.$store.getters.obtenerSuscripcionRegular;
+			cliente.idSuscripcion = this.$store.getters.obtenerSuscripcionRegular._id;
 		} else {
-			cliente.idSuscripcion = this.$store.getters.obtenerSuscripcionPremium;
+			cliente.idSuscripcion = this.$store.getters.obtenerSuscripcionPremium._id;
 		}
+
 		await this.$store.dispatch( 'modificarCliente' , {
-			_id: cliente._id ,
-			cliente });
+			_id: cliente._id,
+			cliente: { ...cliente, _id: undefined }
+		});
+
 		await this.$store.dispatch( 'eliminarSolicitud' , solicitud._id );
 	}
+
 	public denegar( solicitud: Solicitud ) {
 		this.$store.dispatch( 'eliminarSolicitud' , solicitud._id );
 	}
