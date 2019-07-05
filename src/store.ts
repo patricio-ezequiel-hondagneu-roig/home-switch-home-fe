@@ -77,6 +77,16 @@ export default new Vuex.Store({
 			};
 		},
 
+		publicacionesConIdResidencia: ( state ) => {
+			return ( idResidencia: Publicacion[ 'idResidencia' ] ): Publicacion[ ] => {
+				const publicaciones = state.publicaciones.filter( ( _publicacion ) => {
+					return _publicacion.idResidencia === idResidencia;
+				});
+
+				return publicaciones;
+			};
+		},
+
 		solicitudes: ( state ) => {
 			return state.solicitudes;
 		},

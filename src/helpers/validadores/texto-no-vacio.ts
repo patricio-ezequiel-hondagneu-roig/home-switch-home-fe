@@ -8,7 +8,7 @@
  */
 export const textoNoVacio = ( nombreDelCampo: string ) => ( valor?: unknown ) => {
 	return ( typeof valor !== 'string' )
-		? `El campo "${ nombreDelCampo } no contiene texto`
+		? `El campo "${ nombreDelCampo }" no contiene texto`
 		: ( valor.trim( ) === '' )
 			? `El campo "${ nombreDelCampo }" debe tener contenido`
 			: true;
