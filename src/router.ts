@@ -5,6 +5,7 @@ import Ingreso from './views/Ingreso.vue';
 import Residencia from './views/Residencia.vue';
 import Administracion from './views/Administracion.vue';
 import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue';
+import AdministracionDeReservasDirectas from './views/AdministracionDeReservasDirectas.vue';
 import AdministracionDeSubastas from './views/AdministracionDeSubastas.vue';
 import AdministracionDeSuscripciones from './views/AdministracionDeSuscripciones.vue';
 import AdministracionDePublicaciones from './views/AdministracionDePublicaciones.vue';
@@ -69,6 +70,14 @@ const router = new Router({
 			path: '/administracion/publicaciones',
 			name: 'administracion de publicaciones',
 			component: AdministracionDePublicaciones,
+			meta: {
+				requierePermisosDeAdmin: true,
+			}
+		},
+		{
+			path: '/administracion/publicaciones/reservasDirectas',
+			name: 'administracion de reservas directas',
+			component: AdministracionDeReservasDirectas,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}

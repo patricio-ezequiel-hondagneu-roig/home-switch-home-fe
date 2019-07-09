@@ -12,6 +12,9 @@
 				<hr class="my-4">
 			</v-flex>
 		</v-layout>
+
+		<ReservasDirectasActivas/>
+
 		<v-layout row mt-3 >
 			<!-- Publicaciones activas -->
 			<SubastasActivas/>
@@ -31,6 +34,7 @@
 	import SubastasActivas from '@/components/SubastasActivas.vue';
 	import ReservasDirectasActivas from '@/components/ReservasDirectasActivas.vue';
 	import HotsalesActivas from '@/components/HotsalesActivas.vue';
+
 	@Component({
 		components: {
 			SubastasActivas,
