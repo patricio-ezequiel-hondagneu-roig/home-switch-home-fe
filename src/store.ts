@@ -33,7 +33,6 @@ export default new Vuex.Store({
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
 		publicaciones: <Publicacion[ ]> [ ],
-		adquisiciones: <Adquisicion[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -80,11 +79,6 @@ export default new Vuex.Store({
 
 		publicaciones: ( state ) => {
 			return state.publicaciones;
-		},
-
-
-		adquisiciones: ( state ) => {
-			return state.adquisiciones;
 		},
 
 		reservasDirectas: ( state ) => {
