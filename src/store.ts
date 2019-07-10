@@ -7,9 +7,10 @@ import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/su
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
 import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cliente.interface';
 import { Publicacion, PublicacionParaCrear, PublicacionParaModificar } from './interfaces/publicacion.interface';
+import { Adquisicion } from './interfaces/adquisicion.interface';
 import { server } from './utils/helper';
 
-import * as moment from 'moment';
+import moment from 'moment';
 import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
 
 Vue.use( Vuex );
@@ -31,6 +32,7 @@ export default new Vuex.Store({
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
 		publicaciones: <Publicacion[ ]> [ ],
+		adquisiciones: <Adquisicion[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -60,9 +62,33 @@ export default new Vuex.Store({
 			return state.clientes;
 		},
 
-
 		publicaciones: ( state ) => {
 			return state.publicaciones;
+		},
+
+
+		adquisiciones: ( state ) => {
+			return state.adquisiciones;
+		},
+
+		reservasDirectas: ( state ) => {
+			const meses: number = 6;
+			let reservasDirectas: Publicacion[ ];
+			// Primero quiero saber que faltan más de 6 meses
+			reservasDirectas = state.publicaciones.filter( (publicacion) => {
+				return moment().add(meses, 'M') < moment(publicacion.fechaDeInicioDeSemana);
+			});
+
+			// Segundo me interesa que no este adquirida
+			reservasDirectas = reservasDirectas.filter( (reservaDirecta) => {
+				const _adquisicion = state.adquisiciones.find( (adquisicion) => {
+					return adquisicion.idPublicacion === reservaDirecta._id;
+				});
+
+				return _adquisicion === undefined;
+			});
+
+			return reservasDirectas;
 		},
 
 		publicacionConId: ( state ) => {
