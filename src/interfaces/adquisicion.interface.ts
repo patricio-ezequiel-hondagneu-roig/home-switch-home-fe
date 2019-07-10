@@ -1,13 +1,13 @@
-import { TipoDeAdquisicion } from '@/utils/tipoDeAdquisicion.enum';
 import { RemoverPropiedades } from '@/typings/remover-propiedades';
+import { TipoDeAdquisicion } from '@/enums/tipoDeAdquisicion.enum';
 
 export interface Adquisicion {
-	readonly _id: string;
-	readonly idCliente: string;
-	readonly idPublicacion: string;
-	readonly monto: number;
-	readonly fechaDeCreacion: string;
-	readonly tipoDeAdquisicion: TipoDeAdquisicion;
+	_id: string;
+	idCliente: string;
+	idPublicacion: string;
+	monto: number;
+	fechaDeCreacion: string;
+	tipoDeAdquisicion: TipoDeAdquisicion;
 }
 
-export type AdquisicionWithoutId = RemoverPropiedades<Adquisicion, '_id' >;
+export type AdquisicionParaCrear = RemoverPropiedades<Adquisicion, '_id' >;

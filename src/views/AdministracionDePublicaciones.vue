@@ -11,7 +11,7 @@
 								slot-scope="{ hover }"
 								class="tarjeta-de-enlace"
 								:class="`elevation-${ hover ? 12 : 2 }`"
-								:to="{ name: 'administracion de publicaciones' }"
+								:to="{ name: 'administracion de reservas directas' }"
 							>
 								<v-layout fill-height column>
 									<v-layout justify-center class="primary pa-2">

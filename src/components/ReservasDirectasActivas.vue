@@ -1,92 +1,129 @@
 <template>
 	<div>
-		<v-container v-if="obtenerSubastas.length !== 0">
-			<v-layout>
-				<v-expansion-panel expand light popout toggle disabled>
-					<v-expansion-panel-content>
-						<template v-slot:header>
-							<span class="font-weight-bold headline sombra-texto">Reservas</span>
-						</template>
+		<v-expansion-panel>
+			<v-expansion-panel-content>
+				<template v-slot:header>
+					<div class="font-weight-bold headline sombra-texto">Reservas Directas</div>
+				</template>
+
+				<!-- Contenido del panel de reservas directas -->
+				<v-card>
+
+					<!-- Elementos con una estructura de control FOR -->
 						<v-container wrap>
 							<v-layout
-								v-for="(subasta , index) in obtenerSubastas"
+								v-for="(reservaDirecta , index) in reservasDirectas"
 								:key="index"
 								class="my-2"
 							>
+								<!-- Asigno un tamaño fijo a la v-card -->
 								<v-card
-								height="200"
-								width="500"
-								elevation-5
+									v-if="obtenerResidenciaConId(reservaDirecta.idResidencia) !== null"
+									height="200"
+									width="600"
+									elevation-5
 								>
-									<v-layout row wrap>
+									<v-layout row nowrap>
+
+										<!-- Imagen a mostrar de la residencia (que referencia la reserva directa) -->
 										<v-flex shrink>
+											<!-- Muestro la primera imagen del arreglo de fotos de la residencia en cuestion -->
 											<v-img
-												v-if="obtenerResidenciaConId(subasta.idResidencia).fotos.length > 0"
-												:src="obtenerResidenciaConId(subasta.idResidencia).fotos[0]"
+												v-if="obtenerResidenciaConId(reservaDirecta.idResidencia).fotos.length > 0"
+												:src="obtenerResidenciaConId(reservaDirecta.idResidencia).fotos[0]"
 												height="200"
 												width="200"
 											/>
-											<div v-if="(obtenerResidenciaConId(subasta.idResidencia).fotos.length  === 0)">
+
+											<!-- Si la residencia no tiene imagenes entonces muestro la imagen estandar -->
+											<div v-else>
 												<img src="@/assets/images/residenciaSinFotoIndex.jpg"
 												height="200"
 												width="200"
 												>
 											</div>
 										</v-flex>
-										<v-flex>
+
+										<!-- Datos/Informacion de la reserva directa a mostrar en la v-card -->
+										<v-layout column class="pa-2">
+											<!-- Nombre de la residencia -->
+											<h1 class="font-weight-bold headline sombra-texto">
+												{{obtenerResidenciaConId(reservaDirecta.idResidencia).titulo}}
+											</h1>
+
+											<!-- Ubicacion de la residencia -->
+											<p
+												style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+												:title="ubicacionDeResidencia( reservaDirecta )"
+											>
+												{{ ubicacionDeResidencia( reservaDirecta ) }}
+											</p>
+
+											<!-- Comienzo de semana de la reserva directa -->
+											<p class="subheading ml-3 green--text font-weight-bold">
+												Comienzo de semana: {{ formatearFecha(reservaDirecta.fechaDeInicioDeSemana) }}
+											</p>
+
+											<!-- Botones para interactuar con la reserva directa -->
 											<v-layout row>
-												<v-flex class="mt-2 ml-4">
-													<v-layout column align-start>
-														<v-flex class="font-weight-bold headline sombra-texto">
-															{{obtenerResidenciaConId(subasta.idResidencia).titulo}}
-														</v-flex>
-														<v-flex class="subheading ml-4 sombra-texto">
-															{{obtenerResidenciaConId(subasta.idResidencia).pais}}, {{obtenerResidenciaConId(subasta.idResidencia).provincia}},
-															{{obtenerResidenciaConId(subasta.idResidencia).localidad}}, {{obtenerResidenciaConId(subasta.idResidencia).domicilio}}.
-														</v-flex>
-														<v-flex font-weight-bold display-1 align-self-end mt-5 mr-2>
-															<span class="green--text">$ {{subasta.montoInicial}}</span>
-														</v-flex>
-														<v-flex align-self-end>
-															<v-tooltip left open-delay="100" close-delay="0">
-																<template v-slot:activator="{ on }">
-																	<v-btn
-																		icon
-																		class="secondary--text"
-																		@click.stop="mostrarDetallesResidencia( obtenerResidenciaConId(subasta.idResidencia) )"
-																		v-on="on"
-																	>
-																	<v-icon>info</v-icon>
-																	</v-btn>
-																</template>
-																<span>Detalles</span>
-															</v-tooltip>
-															<v-tooltip left open-delay="100" close-delay="0">
-																<template v-slot:activator="{ on }">
-																	<v-btn
-																		icon
-																		class="secondary--text"
-																		@click.stop="mostrarOfertar( subasta )"
-																		v-on="on"
-																	>
-																	<v-icon color="green darken-2">attach_money</v-icon>
-																	</v-btn>
-																</template>
-																<span>Ofertar</span>
-															</v-tooltip>
-														</v-flex>
-													</v-layout>
+												<v-flex align-self-end>
+
+													<v-tooltip left open-delay="100" close-delay="0">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																@click.stop="mostrarDetallesResidencia( obtenerResidenciaConId(reservaDirecta.idResidencia) )"
+																v-on="on"
+															>
+															<v-icon>info</v-icon>
+															</v-btn>
+														</template>
+														<span>Detalles</span>
+													</v-tooltip>
+
+													<v-tooltip left open-delay="100" close-delay="0" v-if="perfil !== null">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																v-on="on"
+															>
+															<v-icon color="darken-2">monetization_on</v-icon>
+															</v-btn>
+														</template>
+														<span>Comprar</span>
+													</v-tooltip>
+
+													<v-tooltip left open-delay="100" close-delay="0">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																:to="generarRuta( reservaDirecta.idResidencia) "
+																v-on="on"
+															>
+															<v-icon>home</v-icon>
+															</v-btn>
+														</template>
+														<span>Informacion completa</span>
+													</v-tooltip>
+
 												</v-flex>
 											</v-layout>
-										</v-flex>
+										</v-layout>
 									</v-layout>
 								</v-card>
 							</v-layout>
 						</v-container>
-					</v-expansion-panel-content>
-				</v-expansion-panel>
-			</v-layout>
-		</v-container>
+				</v-card>
+			</v-expansion-panel-content>
+		</v-expansion-panel>
+
+		<!-- Dialogo que se muestra al ver el detalle de una residencia -->
 		<v-dialog persistent v-model="detalleDeResidenciaEsVisible" max-width="40rem">
 			<DetalleDeResidencia
 				v-if="residenciaParam !== null"
@@ -94,88 +131,98 @@
 				@ok="ocultarDetalleDeResidencia( )"
 			/>
 		</v-dialog>
-		<v-dialog persistent v-model="ofertarDeSubastaEsVisible" max-width="40rem">
-			<CargaDeOfertaDeSubasta
-				v-if="ofertarDeSubastaEsVisible"
-				:subasta="subastaParam"
-				@ofertaCreada="ocultarOfertarSubasta()"
-				@cancelacion="ocultarOfertarSubasta()"
-			/>
-		</v-dialog>
 	</div>
 </template>
+
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import CargaDeOfertaDeSubasta from '@/components/CargaDeOfertaDeSubasta.vue';
-import DetalleDeResidencia from './DetalleDeResidencia.vue';
-import { Subasta } from '@/interfaces/subasta.interface';
+import { Publicacion } from '@/interfaces/publicacion.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
+import { Cliente } from '@/interfaces/cliente.interface';
+import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+import moment from 'moment';
+import DetalleDeResidencia from './DetalleDeResidencia.vue';
+
 @Component({
 	components: {
-		CargaDeOfertaDeSubasta,
 		DetalleDeResidencia
 	}
 })
-export default class ReservasDirectasActivas extends Vue{
+export default class ReservasDirectasActivas extends Vue {
+
 	public detalleDeResidenciaEsVisible: boolean = false;
-	public ofertarDeSubastaEsVisible: boolean = false;
-	public subastaParam!: Subasta;
-	public residenciaParam!: Residencia;
-	/* ------Al crearse este componente se actualizan los datos que va a actualizar y los obtengo--------*/
+	public residenciaParam: Residencia = {
+		_id: '',
+		titulo: '',
+		pais: '',
+		provincia: '',
+		localidad: '',
+		domicilio: '',
+		descripcion: '',
+		fotos: [ ],
+		montoInicialDeSubasta: 0,
+	};
+
+	public get reservasDirectas( ): Publicacion[ ] {
+		return this.$store.getters.reservasDirectas;
+	}
+
 	public created( ): void {
-		this.actualizarSubastas( );
-		this.actualizarResidencias( );
+		this.actualizarReservasDirectas( );
 	}
-	/* -------Solicita al store que actualice la lista local de residencias------*/
-	public async actualizarResidencias( ): Promise<void> {
-		await this.$store.dispatch( 'obtenerResidencias' );
+
+	public async actualizarReservasDirectas( ): Promise<void> {
+		// Actualizo las publicaciones, ya que son reservas directas
+		await this.$store.dispatch( 'obtenerPublicaciones' );
 	}
-	/* -------Solicita al store que actualice la lista local de subastas------*/
-	public async actualizarSubastas( ): Promise<void> {
-			await this.$store.dispatch( 'obtenerSubastas' );
-	}
-	/**
-	 * Lista de todas las residencias actualmente en el sistema.
-	 */
-	public get obtenerResidencias( ): Residencia[ ] {
-		return this.$store.getters.residencias;
-	}
-	/**
-	 * Lista de todas las subastas actualmente en el sistema.
-	 */
-	public get obtenerSubastas( ): Subasta[ ] {
-		return this.$store.getters.subastas;
-	}
+
 	public obtenerResidenciaConId(_id: String): Residencia | undefined {
-		const residencia = this.$store.getters.residenciaConId( _id );
-		if ( residencia === null ) {
-				throw new Error( `No existe ninguna residencia con ID "${ _id }"` );
-		}
-		return residencia;
+		return this.$store.getters.residenciaConId( _id );
 	}
-	// -----------------------------------------------------Comportamiento de ventana emergente
+
+	public ubicacionDeResidencia( reservaDirecta: Publicacion ): string {
+		const residencia = this.obtenerResidenciaConId( reservaDirecta.idResidencia );
+
+		if ( residencia === undefined ) {
+			throw new Error( 'No existe una residencia con el id');
+		}
+
+		return `${ residencia.pais }, ${ residencia.provincia }, ${ residencia.localidad }, ${ residencia.domicilio }`;
+	}
+
+	public get perfil(): Cliente | null {
+		return this.$store.getters.perfil;
+	}
+
+	public generarRuta( idResidencia: string ): object {
+		return {
+			name: 'residencia con id',
+			params: {
+				idResidencia
+			}
+		};
+	}
+
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('DD/MM/YYYY');
+	}
+
 	public mostrarDetallesResidencia( res: Residencia ): void {
 		this.residenciaParam = res;
 		this.mostrarDetalleDeResidencia();
 	}
-	public mostrarOfertar( subastaParaOfertar: Subasta ): void {
-		this.subastaParam = subastaParaOfertar;
-		this.mostrarOfertarSubasta();
-	}
+
 	public mostrarDetalleDeResidencia( ): void {
 		this.detalleDeResidenciaEsVisible = true;
 	}
+
 	public ocultarDetalleDeResidencia( ): void {
 		this.detalleDeResidenciaEsVisible = false;
 	}
-	public mostrarOfertarSubasta( ): void {
-		this.ofertarDeSubastaEsVisible = true;
-	}
-	public ocultarOfertarSubasta( ): void {
-		this.ofertarDeSubastaEsVisible = false;
-	}
+
 }
 </script>
+
 <style lang="stylus">
 	.sombra-texto {
 		text-shadow: 0 0.025em 0.1em hsla(0, 0%, 25%, 0.25)
