@@ -11,6 +11,7 @@ import { server } from './utils/helper';
 
 import * as moment from 'moment';
 import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
+import { Adquisicion } from './interfaces/adquisicion.interface';
 
 Vue.use( Vuex );
 
@@ -25,6 +26,7 @@ export default new Vuex.Store({
 		alerta: alerta,
 		esAdmin: <boolean | null> null,
 		perfil: <Cliente | null> null,
+		adquisiciones: <Adquisicion[ ]> [ ],
 		clientes: <Cliente[ ]> [ ],
 		solicitudes: <Solicitud[ ]> [ ],
 		residencias: <Residencia[ ]> [ ],
@@ -50,6 +52,21 @@ export default new Vuex.Store({
 			}
 
 			return state.perfil;
+		},
+		adquisiciones: ( state ) => {
+			return state.adquisiciones;
+		},
+
+		adquisicionConId: ( state ) => {
+			return ( idAdquisicion: Adquisicion[ '_id' ] ): Adquisicion | null => {
+				const adquisicion = state.adquisiciones.find( ( _adquisicion ) => {
+					return _adquisicion._id === idAdquisicion;
+				});
+
+				return ( adquisicion !== undefined )
+					? adquisicion
+					: null;
+			};
 		},
 
 		alerta: ( state ) => {
@@ -419,6 +436,10 @@ export default new Vuex.Store({
 			if ( indiceDePublicacion !== -1 ) {
 				state.publicaciones.splice( indiceDePublicacion, 1 );
 			}
+		},
+		// Adquisiciones
+		actualizarAdquisicionesDeCliente( state, adquisiciones: Adquisicion[ ] ): void {
+			state.adquisiciones = adquisiciones;
 		},
 	},
 	actions: {
@@ -1090,6 +1111,22 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerPublicaciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		async adquisicionesDeClienteId( { commit , dispatch },
+			idCliente: string
+		): Promise<void> {
+			try {
+				const respuesta = await axios.get<Adquisicion[ ]>( `${ server.baseURL }/adquisiciones/cliente/${ idCliente }` );
+				commit( 'actualizarAdquisicionesDeCliente', respuesta.data );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {

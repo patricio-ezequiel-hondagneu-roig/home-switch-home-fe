@@ -12,13 +12,7 @@
 				<hr class="my-4">
 			</v-flex>
 		</v-layout>
-		<v-layout row mt-3 >
-			<!-- Publicaciones activas -->
-			<SubastasActivas/>
-			<!-- Si no hay publicaciones que mostrar lo informo al usuario <ReservasDirectasActivas/>
-			<HotsalesActivas/>-->
-			<span v-if="subastas.length === 0 & true" title> No hay publicaciones que mostrar ¡Intentalo mas tarde! </span>
-		</v-layout>
+		<BuscadorDeInicio />
 	</v-layout>
 </template>
 
@@ -31,8 +25,10 @@
 	import SubastasActivas from '@/components/SubastasActivas.vue';
 	import ReservasDirectasActivas from '@/components/ReservasDirectasActivas.vue';
 	import HotsalesActivas from '@/components/HotsalesActivas.vue';
+	import BuscadorDeInicio from '@/components/BuscadorDeInicio.vue';
 	@Component({
 		components: {
+			BuscadorDeInicio,
 			SubastasActivas,
 			ReservasDirectasActivas,
 			HotsalesActivas

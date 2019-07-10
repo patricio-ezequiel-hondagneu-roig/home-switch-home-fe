@@ -98,58 +98,69 @@
 					</v-layout>
 				</v-card>
 			</v-flex>
-			<v-flex v-if="suscripcion && perfil">
-				<v-card
-				class="ma-1"
-				width="200"
-				>
-					<v-layout column align-center>
-						<v-flex align-center mt-5 class="body-1 font-weight-medium">
-							Tipo de cuenta
-						</v-flex>
+			<v-layout column v-if="suscripcion && perfil">
+				<v-flex>
+					<v-card
+					class="ma-1"
+					width="200"
+					>
+						<v-layout column align-center>
+							<v-flex align-center mt-5 class="body-1 font-weight-medium">
+								Tipo de cuenta
+							</v-flex>
 
-						<v-flex align-center mt-1 class="title font-weight-black">
-							<span v-if="suscripcion.tipoDeSuscripcion === 'Premium'" color="#FFC21E">
-								{{suscripcion.tipoDeSuscripcion}}
-							</span>
-							<span v-if="suscripcion.tipoDeSuscripcion === 'Regular'">
-								{{suscripcion.tipoDeSuscripcion}}
-							</span>
-						</v-flex>
+							<v-flex align-center mt-1 class="title font-weight-black">
+								<span v-if="suscripcion.tipoDeSuscripcion === 'Premium'" color="#FFC21E">
+									{{suscripcion.tipoDeSuscripcion}}
+								</span>
+								<span v-if="suscripcion.tipoDeSuscripcion === 'Regular'">
+									{{suscripcion.tipoDeSuscripcion}}
+								</span>
+							</v-flex>
 
-						<v-flex mt-1 mb-4>
-							<v-btn
-								v-if="solicitudPorId(perfil._id) === null && suscripcion.tipoDeSuscripcion !== 'Premium'"
-								color="#FFC21E"
-								@click.stop=" procesarSolicitud( perfil._id )"
-							>
-								Solicitar promoción
-							</v-btn>
-							<v-btn
-								v-if="(solicitudPorId(perfil._id) === null) && suscripcion.tipoDeSuscripcion !== 'Regular'"
-								color="red"
-								@click.stop="procesarSolicitud( perfil._id )"
-							>
-								Baja de premium
-							</v-btn>
-							<v-btn
-								v-if="(solicitudPorId(perfil._id) !== null)"
-								color="green"
-								disabled
-							>
-								Espere confirmación
-							</v-btn>
-						</v-flex>
-						<v-flex class="body-1 font-weight-medium">
-							Actualmente esta pagando:
-						</v-flex>
-						<v-flex align-center mt-1 class="title font-weight-black">
-							$ {{suscripcion.monto}}
-						</v-flex>
-						<br>
-					</v-layout>
-				</v-card>
-			</v-flex>
+							<v-flex mt-1 mb-4>
+								<v-btn
+									v-if="solicitudPorId(perfil._id) === null && suscripcion.tipoDeSuscripcion !== 'Premium'"
+									color="#FFC21E"
+									@click.stop=" procesarSolicitud( perfil._id )"
+								>
+									Solicitar promoción
+								</v-btn>
+								<v-btn
+									v-if="(solicitudPorId(perfil._id) === null) && suscripcion.tipoDeSuscripcion !== 'Regular'"
+									color="red"
+									@click.stop="procesarSolicitud( perfil._id )"
+								>
+									Baja de premium
+								</v-btn>
+								<v-btn
+									v-if="(solicitudPorId(perfil._id) !== null)"
+									color="green"
+									disabled
+								>
+									Espere confirmación
+								</v-btn>
+							</v-flex>
+							<v-flex class="body-1 font-weight-medium">
+								Actualmente esta pagando:
+							</v-flex>
+							<v-flex align-center mt-1 class="title font-weight-black">
+								$ {{suscripcion.monto}}
+							</v-flex>
+							<br>
+						</v-layout>
+					</v-card>
+				</v-flex>
+			</v-layout>
+				<v-layout column>
+					<div class="display-1 ma-5">Tus semanas adquiridas</div>
+					<div>
+						<TablaDeSemanasDeCliente
+							:idCliente="perfil._id"
+							width="25"
+						/>
+					</div>
+				</v-layout>
 		</v-layout>
 		<v-dialog persistent v-model="formularioDeModificacionEsVisible" max-width="40rem">
 			<ModificacionDeDatosDeCliente
@@ -177,10 +188,12 @@ import { Cliente } from '../interfaces/cliente.interface';
 import moment from 'moment';
 import { Suscripcion } from '../interfaces/suscripcion.interface';
 import { SolicitudParaCrear, Solicitud } from '@/interfaces/solicitud.interface';
+import TablaDeSemanasDeCliente from '@/components/TablaDeSemanasDeCliente.vue';
 @Component({
 	components: {
 		ModificacionDeDatosDeCliente,
-		ModificarDeTarjetaDeCreditoDeCliente
+		ModificarDeTarjetaDeCreditoDeCliente,
+		TablaDeSemanasDeCliente
 	}
 })
 export default class DatosDeUsuario extends Vue {
