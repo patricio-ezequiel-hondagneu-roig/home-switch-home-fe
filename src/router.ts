@@ -8,6 +8,7 @@ import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue
 import AdministracionDeReservasDirectas from './views/AdministracionDeReservasDirectas.vue';
 import AdministracionDeSubastas from './views/AdministracionDeSubastas.vue';
 import AdministracionDeSuscripciones from './views/AdministracionDeSuscripciones.vue';
+import AdministracionDeCreditos from './views/AdministracionDeCreditos.vue';
 import AdministracionDePublicaciones from './views/AdministracionDePublicaciones.vue';
 import AdministracionDeClientes from './views/AdministracionDeClientes.vue';
 import AdministracionDeClientesRegistrados from './views/AdministracionDeClientesRegistrados.vue';
@@ -62,6 +63,14 @@ const router = new Router({
 			path: '/administracion/suscripciones',
 			name: 'administracion de suscripciones',
 			component: AdministracionDeSuscripciones,
+			meta: {
+				requierePermisosDeAdmin: true,
+			}
+		},
+		{
+			path: '/administracion/creditos',
+			name: 'administracion de creditos',
+			component: AdministracionDeCreditos,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}

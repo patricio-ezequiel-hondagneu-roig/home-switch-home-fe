@@ -13,6 +13,7 @@
 			</v-flex>
 		</v-layout>
 		<BuscadorDeInicio />
+		<ReservasDirectasActivas />
 	</v-layout>
 </template>
 

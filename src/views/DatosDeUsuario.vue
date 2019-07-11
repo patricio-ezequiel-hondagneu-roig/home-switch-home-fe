@@ -63,7 +63,11 @@
 								</v-btn>
 							</v-flex>
 						</v-layout>
+
 						<hr class="ma-3">
+
+
+						<!-- Información acerca la tarjeta del cliente -->
 						<v-flex subheading  font-weight-black ml-1>
 							Tarjeta de crédito
 						</v-flex>
@@ -95,6 +99,36 @@
 								</v-btn>
 							</v-flex>
 						</v-layout>
+
+
+						<hr class="ma-3">
+
+						<!-- Información acerca los créditos del cliente -->
+						<v-flex subheading  font-weight-black ml-1>
+							Créditos:
+						</v-flex>
+
+						<v-layout row>
+							<v-layout column class="body-1 font-weight-medium" ml-2 mt-1>
+								<v-flex ma-1>
+							En total hay {{ perfil.creditos.length }} crédios vigentes.
+								</v-flex>
+							</v-layout>
+						</v-layout>
+
+						<!-- Botón para comprar más créditos -->
+						<v-layout column align-end>
+							<v-flex ma-1>
+								<v-btn
+									color="primary"
+									@click.stop="mostrarFormularioDeComprarCreditos()"
+								>
+								Comprar créditos
+								</v-btn>
+							</v-flex>
+						</v-layout>
+						<br>
+
 					</v-layout>
 				</v-card>
 			</v-flex>
@@ -162,6 +196,7 @@
 					</div>
 				</v-layout>
 		</v-layout>
+
 		<v-dialog persistent v-model="formularioDeModificacionEsVisible" max-width="40rem">
 			<ModificacionDeDatosDeCliente
 				:cliente="perfil"
@@ -170,6 +205,7 @@
 				@cancelacion="ocultarFormularioDeModificacion( )"
 			/>
 		</v-dialog>
+
 		<v-dialog persistent v-model="formularioDeModificacionTarjetaEsVisible" max-width="40rem">
 			<ModificarDeTarjetaDeCreditoDeCliente
 				:cliente="perfil"
@@ -178,21 +214,35 @@
 				@cancelacion="ocultarFormularioDeModificacionTarjeta( )"
 			/>
 		</v-dialog>
+
+		<v-dialog persistent v-model="formularioDeCompraDeCreditos" max-width="40rem">
+			<CompraDeCreditos
+				:cliente="perfil"
+				@infoModificada="modificarInfo( $event )"
+				@error="emitirEventoError( $event )"
+				@cancelacion="ocultarFormularioDeComprarCreditos( )"
+			/>
+		</v-dialog>
+
 	</v-container>
 </template>
+
 <script lang="ts">
 import { Component, Vue , Emit } from 'vue-property-decorator';
 import ModificacionDeDatosDeCliente from '@/components/ModificacionDeDatosDeCliente.vue';
 import ModificarDeTarjetaDeCreditoDeCliente from '@/components/ModificarDeTarjetaDeCreditoDeCliente.vue';
+import CompraDeCreditos from '@/components/CompraDeCreditos.vue';
 import { Cliente } from '../interfaces/cliente.interface';
 import moment from 'moment';
 import { Suscripcion } from '../interfaces/suscripcion.interface';
 import { SolicitudParaCrear, Solicitud } from '@/interfaces/solicitud.interface';
 import TablaDeSemanasDeCliente from '@/components/TablaDeSemanasDeCliente.vue';
+
 @Component({
 	components: {
 		ModificacionDeDatosDeCliente,
 		ModificarDeTarjetaDeCreditoDeCliente,
+		CompraDeCreditos,
 		TablaDeSemanasDeCliente
 	}
 })
@@ -203,6 +253,8 @@ export default class DatosDeUsuario extends Vue {
 	/* variable que ayuda a que se muestre o no ventana dialog de modificación */
 	public formularioDeModificacionEsVisible = false;
 	public formularioDeModificacionTarjetaEsVisible = false;
+
+	public formularioDeCompraDeCreditos = false;
 
 	public get suscripcion( ): Suscripcion | null {
 		if ( this.perfil === null ) {
@@ -223,6 +275,14 @@ export default class DatosDeUsuario extends Vue {
 
 	public mostrarFormularioDeModificacionTarjeta( ): void {
 		this.formularioDeModificacionTarjetaEsVisible = true;
+	}
+
+	public mostrarFormularioDeComprarCreditos( ): void {
+		this.formularioDeCompraDeCreditos = true;
+	}
+
+	public ocultarFormularioDeComprarCreditos( ): void {
+			this.formularioDeCompraDeCreditos = false;
 	}
 
 	/* Oculta formulario de modificación de datos de usuario*/
@@ -252,6 +312,7 @@ export default class DatosDeUsuario extends Vue {
 		this.emitirEventoInfoModificada( );
 		this.ocultarFormularioDeModificacion( );
 		this.ocultarFormularioDeModificacionTarjeta( );
+		this.ocultarFormularioDeComprarCreditos( );
 	}
 
 	public get perfil( ): Cliente | null {

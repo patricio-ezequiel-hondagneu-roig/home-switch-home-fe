@@ -9,6 +9,7 @@ import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cl
 import { Publicacion, PublicacionParaCrear, PublicacionParaModificar } from './interfaces/publicacion.interface';
 import { Adquisicion } from './interfaces/adquisicion.interface';
 import { server } from './utils/helper';
+import { CreditoBD, CreditoParaCrear } from './interfaces/creditoBD.interface';
 
 import moment from 'moment';
 import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
@@ -33,6 +34,7 @@ export default new Vuex.Store({
 		subastas: <Subasta[ ]> [ ],
 		suscripciones: <Suscripcion[ ]> [ ],
 		publicaciones: <Publicacion[ ]> [ ],
+		creditos: <CreditoBD[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -53,8 +55,30 @@ export default new Vuex.Store({
 
 			return state.perfil;
 		},
+
 		adquisiciones: ( state ) => {
 			return state.adquisiciones;
+		},
+
+		creditos: ( state ) => {
+			return state.creditos;
+		},
+
+		obtenerCreditoActual: ( state ) => {
+			const creditos = [ ...state.creditos ];
+			const credito = creditos
+				.sort( ( a, b ) => {
+					if ( moment(a.fechaDeCreacion) > moment(b.fechaDeCreacion) ) {
+						return -1;
+					}
+					else if ( moment(a.fechaDeCreacion) < moment(b.fechaDeCreacion) ) {
+						return +1;
+					}
+					else {
+						return 0;
+					}
+				});
+			return credito[0];
 		},
 
 		adquisicionConId: ( state ) => {
@@ -368,6 +392,15 @@ export default new Vuex.Store({
 			state.suscripciones.push( suscripcion );
 		},
 
+		// Creditos
+		actualizarCreditos( state, creditos: CreditoBD[ ] ): void {
+			state.creditos = creditos;
+		},
+
+		agregarCredito( state, credito: CreditoBD ): void {
+			state.creditos.push( credito );
+		},
+
 		// Clientes
 		actualizarClientes( state, clientes: Cliente[ ] ): void {
 			state.clientes = clientes;
@@ -462,10 +495,6 @@ export default new Vuex.Store({
 		},
 	},
 	actions: {
-		// actualizarPerfil( { commit } ) {
-		// 	commit( 'actualizarPerfil' );
-		// },
-
 		iniciarSesionComoAdmin( { commit }, cliente: Cliente ) {
 			commit( 'iniciarSesionComoAdmin', cliente );
 		},
@@ -488,6 +517,22 @@ export default new Vuex.Store({
 
 		ocultarAlerta( { commit } ) {
 			commit( 'ocultarAlerta' );
+		},
+
+		async obtenerCreditos( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<CreditoBD[ ]>( `${ server.baseURL }/creditos` );
+				const creditos = respuesta.data;
+				commit( 'actualizarCreditos', creditos );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
 		},
 
 		/**
@@ -959,6 +1004,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
+
 		/** Solicitudes de mejora de plan */
 		async obtenerSolicitudes( { commit, dispatch } ): Promise<void> {
 			try {
@@ -975,6 +1021,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
+
 		async crearSolicitud( { commit, dispatch }, solicitudParaCrear: SolicitudParaCrear ): Promise<void> {
 			try {
 				const url = `${ server.baseURL }/solicitudes`;
@@ -998,6 +1045,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
+
 		async eliminarSolicitud( { commit, dispatch }, idSolicitud: Solicitud[ '_id' ] ): Promise<void> {
 			try {
 				const url: string = `${ server.baseURL }/solicitudes/${ idSolicitud }`;
@@ -1140,12 +1188,37 @@ export default new Vuex.Store({
 				});
 			}
 		},
+
 		async adquisicionesDeClienteId( { commit , dispatch },
 			idCliente: string
 		): Promise<void> {
 			try {
 				const respuesta = await axios.get<Adquisicion[ ]>( `${ server.baseURL }/adquisiciones/cliente/${ idCliente }` );
 				commit( 'actualizarAdquisicionesDeCliente', respuesta.data );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async crearCredito( { commit, dispatch }, creditoParaCrear: CreditoParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/creditos`;
+				const respuesta = await axios.post<CreditoBD>( url, creditoParaCrear );
+				const creditoCreado = respuesta.data;
+				commit( 'agregarCredito', creditoCreado );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'El crédito se cargó con éxito.'
+				});
+
+				await dispatch( 'obtenerCreditos' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
