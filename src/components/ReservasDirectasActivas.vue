@@ -83,7 +83,7 @@
 														<span>Detalles</span>
 													</v-tooltip>
 
-													<v-tooltip left open-delay="100" close-delay="0" v-if="perfil !== null">
+													<v-tooltip left open-delay="100" close-delay="0" v-if="perfilPremiumValido">
 														<template v-slot:activator="{ on }">
 															<v-btn
 																color="#E0E0E0"
@@ -218,6 +218,21 @@ export default class ReservasDirectasActivas extends Vue {
 
 	public ocultarDetalleDeResidencia( ): void {
 		this.detalleDeResidenciaEsVisible = false;
+	}
+
+	public get perfilPremiumValido( ): boolean {
+		if (this.$store.getters.perfil !== null) {
+			const tipoDeSuscripcion: string = this.$store.getters
+				.suscripcionConId(this.$store.getters.perfil.idSuscripcion)
+				.tipoDeSuscripcion;
+			if ( tipoDeSuscripcion === 'Premium') {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 
 }
