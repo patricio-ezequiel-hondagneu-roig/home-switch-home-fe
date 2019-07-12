@@ -89,6 +89,7 @@
 																color="#E0E0E0"
 																icon
 																class="secondary--text"
+																@click.stop="adquirirReservaDirecta( reservaDirecta.idResidencia )"
 																v-on="on"
 															>
 															<v-icon color="darken-2">monetization_on</v-icon>
@@ -139,6 +140,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { Publicacion } from '@/interfaces/publicacion.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
 import { Cliente } from '@/interfaces/cliente.interface';
+import { Credito } from '@/interfaces/credito.interface';
 import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 import moment from 'moment';
 import DetalleDeResidencia from './DetalleDeResidencia.vue';
@@ -232,6 +234,34 @@ export default class ReservasDirectasActivas extends Vue {
 			}
 		} else {
 			return false;
+		}
+	}
+
+	public async adquirirReservaDirecta( ) {
+		if (this.$store.getters.perfil.creditos.length > 0) {
+
+			const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
+			const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
+				const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
+				return _credito.activo && expiracion;
+			}).length;
+
+			if (cantidadDeCreditosVigentes > 0) {
+				await this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'Hay creditos suficientes, falta hacer la lógica xddd'
+				});
+			} else {
+				await this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: 'No posee créditos suficientes para realizar esta acción'
+				});
+			}
+		} else {
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: 'No posee créditos suficientes para realizar esta acción'
+			});
 		}
 	}
 

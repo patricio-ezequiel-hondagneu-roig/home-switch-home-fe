@@ -1,5 +1,8 @@
 <template>
-	<v-container grid-list-{xs through xl}>
+	<v-container
+		grid-list-{xs through xl}
+		v-if="perfil !== null"
+	>
 		<v-layout row wrap>
 			<v-flex>
 				<v-card
@@ -111,7 +114,7 @@
 						<v-layout row>
 							<v-layout column class="body-1 font-weight-medium" ml-2 mt-1>
 								<v-flex ma-1>
-							En total hay {{ perfil.creditos.length }} crédios vigentes.
+							En total hay {{ creditosVigentes }} créditos vigentes.
 								</v-flex>
 							</v-layout>
 						</v-layout>
@@ -233,6 +236,7 @@ import ModificacionDeDatosDeCliente from '@/components/ModificacionDeDatosDeClie
 import ModificarDeTarjetaDeCreditoDeCliente from '@/components/ModificarDeTarjetaDeCreditoDeCliente.vue';
 import CompraDeCreditos from '@/components/CompraDeCreditos.vue';
 import { Cliente } from '../interfaces/cliente.interface';
+import { Credito } from '../interfaces/credito.interface';
 import moment from 'moment';
 import { Suscripcion } from '../interfaces/suscripcion.interface';
 import { SolicitudParaCrear, Solicitud } from '@/interfaces/solicitud.interface';
@@ -343,6 +347,15 @@ export default class DatosDeUsuario extends Vue {
 
 	public get obtenerSolicitudes(): Solicitud[ ] {
 		return this.$store.getters.solicitudes;
+	}
+
+	public get creditosVigentes(): number {
+		const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
+		const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
+			const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
+			return _credito.activo && expiracion;
+		}).length;
+		return cantidadDeCreditosVigentes;
 	}
 }
 </script>

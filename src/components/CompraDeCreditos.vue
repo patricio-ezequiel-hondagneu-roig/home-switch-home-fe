@@ -192,7 +192,7 @@ export default class CompraDeCreditos extends Vue {
 
 		let i: number = 0;
 		for (; i < this.cantidad; i++) {
-			this.$store.getters.perfil.creditos.push({
+			this.modelo.creditos.push({
 				fechaDeCreacion: moment().utc().toISOString(),
 				activo: true
 			});
