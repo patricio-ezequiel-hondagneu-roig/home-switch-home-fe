@@ -224,10 +224,10 @@ export default class ReservasDirectasActivas extends Vue {
 
 	public get perfilPremiumValido( ): boolean {
 		if (this.$store.getters.perfil !== null) {
-			const tipoDeSuscripcion: string = this.$store.getters
-				.suscripcionConId(this.$store.getters.perfil.idSuscripcion)
-				.tipoDeSuscripcion;
-			if ( tipoDeSuscripcion === 'Premium') {
+			const idSuscripcion: string = this.$store.getters.perfil.idSuscripcion;
+			const suscripcion = this.$store.getters.suscripcionConId(idSuscripcion);
+
+			if ( (suscripcion !== null) && (suscripcion.tipoDeSuscripcion === 'Premium')) {
 				return true;
 			} else {
 				return false;

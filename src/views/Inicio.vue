@@ -12,8 +12,17 @@
 				<hr class="my-4">
 			</v-flex>
 		</v-layout>
+
 		<BuscadorDeInicio />
+
 		<ReservasDirectasActivas />
+
+		<br>
+
+		<SubastasActivas />
+
+		<br>
+
 	</v-layout>
 </template>
 
@@ -23,24 +32,41 @@
 	import { Residencia } from '@/interfaces/residencia.interface';
 	import { Subasta } from '@/interfaces/subasta.interface';
 	import { server } from '@/utils/helper';
-	import SubastasActivas from '@/components/SubastasActivas.vue';
+	import SubastasActivasViejo from '@/components/SubastasActivasViejo.vue';
 	import ReservasDirectasActivas from '@/components/ReservasDirectasActivas.vue';
+	import SubastasActivas from '@/components/SubastasActivas.vue';
 	import HotsalesActivas from '@/components/HotsalesActivas.vue';
 	import BuscadorDeInicio from '@/components/BuscadorDeInicio.vue';
+
 	@Component({
 		components: {
 			BuscadorDeInicio,
+			SubastasActivasViejo,
 			SubastasActivas,
 			ReservasDirectasActivas,
 			HotsalesActivas
 		},
 	})
+
 	export default class Inicio extends Vue {
-		/**
-		 * Lista de todas las subastas actualmente en el sistema.
-		 */
-		public get subastas( ): Subasta[ ] {
-			return this.$store.getters.subastas;
+
+		public created( ): void {
+			this.actualizarPublicaciones( );
+			this.actualizarResidencias( );
+			this.actualizarSuscripciones( );
 		}
+
+		public async actualizarPublicaciones( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerPublicaciones' );
+		}
+
+		public async actualizarResidencias( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerResidencias' );
+		}
+
+		public async actualizarSuscripciones( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerSuscripciones' );
+		}
+
 	}
 </script>

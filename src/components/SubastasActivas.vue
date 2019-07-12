@@ -1,83 +1,88 @@
 <template>
 	<div>
-		<v-container>
-			<v-layout>
-				<v-expansion-panel light focusable>
-					<v-expansion-panel-content lazy ripple>
-						<template v-slot:header>
-							<span class="font-weight-bold headline sombra-texto">Subastas</span>
-						</template>
+		<v-expansion-panel>
+			<v-expansion-panel-content>
+				<template v-slot:header>
+					<div class="font-weight-bold headline sombra-texto">Subastas activas</div>
+				</template>
+
+				<!-- Contenido del panel de subastas -->
+				<v-card>
+
+					<!-- Elementos con una estructura de control FOR -->
 						<v-container wrap>
 							<v-layout
-								v-for="(subasta , index) in obtenerSubastas"
+								v-for="(subastaActiva, index) in subastasActivas"
 								:key="index"
 								class="my-2"
 							>
+								<!-- Asigno un tamaño fijo a la v-card -->
 								<v-card
-								v-if="obtenerResidenciaConId(subasta.idResidencia) !== null"
-								height="200"
-								width="600"
-								elevation-5
+									v-if="obtenerResidenciaConId(subastaActiva.idResidencia) !== null"
+									height="200"
+									width="600"
+									elevation-5
 								>
 									<v-layout row nowrap>
+
+										<!-- Imagen a mostrar de la residencia (que referencia la subasta) -->
 										<v-flex shrink>
+											<!-- Muestro la primera imagen del arreglo de fotos de la residencia en cuestion -->
 											<v-img
-												v-if="obtenerResidenciaConId(subasta.idResidencia).fotos.length > 0"
-												:src="obtenerResidenciaConId(subasta.idResidencia).fotos[0]"
+												v-if="obtenerResidenciaConId(subastaActiva.idResidencia).fotos.length > 0"
+												:src="obtenerResidenciaConId(subastaActiva.idResidencia).fotos[0]"
 												height="200"
 												width="200"
 											/>
-											<div v-if="(obtenerResidenciaConId(subasta.idResidencia).fotos.length  === 0)">
+
+											<!-- Si la residencia no tiene imagenes entonces muestro la imagen estandar -->
+											<div v-else>
 												<img src="@/assets/images/residenciaSinFotoIndex.jpg"
 												height="200"
 												width="200"
 												>
 											</div>
 										</v-flex>
+
+										<!-- Datos/Informacion de la subasta a mostrar en la v-card -->
 										<v-layout column class="pa-2">
+											<!-- Nombre de la residencia -->
 											<h1 class="font-weight-bold headline sombra-texto">
-												{{obtenerResidenciaConId(subasta.idResidencia).titulo}}
+												{{obtenerResidenciaConId(subastaActiva.idResidencia).titulo}}
 											</h1>
+
+											<!-- Ubicacion de la residencia -->
 											<p
 												style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
-												:title="ubicacionDeResidenciaDeSubasta( subasta )"
+												:title="ubicacionDeResidencia( subastaActiva )"
 											>
-												{{ ubicacionDeResidenciaDeSubasta( subasta ) }}
+												{{ ubicacionDeResidencia( subastaActiva ) }}
 											</p>
-											<p class="subheading ml-3 red--text">
-												Finaliza: {{subasta.fechaDeFin}}
+
+											<!-- Comienzo de semana de la subasta -->
+											<p class="subheading ml-3 green--text font-weight-bold">
+												Comienzo de semana: {{ formatearFecha(subastaActiva.fechaDeInicioDeSemana) }}
 											</p>
+
+											<!-- Botones para interactuar con la subasta -->
 											<v-layout row>
-												<v-flex font-weight-bold display-1 align-self-end mt-1 mr-2>
-													<span class="green--text">$ {{subasta.montoInicial}}</span>
+												<!-- Texto antes de los botones -->
+												<v-flex font-weight-bold align-self-end mt-1 mr-2>
+													<span>Precio minimo: ${{ subastaActiva.montoInicialDeSubasta }}</span>
 												</v-flex>
+
 												<v-flex align-self-end>
 
-													<v-tooltip left open-delay="100" close-delay="0">
+													<v-tooltip left open-delay="100" close-delay="0" v-if="perfilValido">
 														<template v-slot:activator="{ on }">
 															<v-btn
 																color="#E0E0E0"
 																icon
 																class="secondary--text"
-																@click.stop="mostrarDetallesResidencia( obtenerResidenciaConId(subasta.idResidencia) )"
+																@click.stop="ofertar( subastaActiva.idResidencia )"
 																v-on="on"
 															>
-															<v-icon>info</v-icon>
-															</v-btn>
-														</template>
-														<span>Detalles</span>
-													</v-tooltip>
-
-													<v-tooltip left open-delay="100" close-delay="0" v-if="perfil !== null">
-														<template v-slot:activator="{ on }">
-															<v-btn
-																color="#E0E0E0"
-																icon
-																class="secondary--text"
-																@click.stop="mostrarOfertar( subasta )"
-																v-on="on"
-															>
-															<v-icon color="green darken-2">attach_money</v-icon>
+															<v-icon color="darken-2">attach_money</v-icon>
 															</v-btn>
 														</template>
 														<span>Ofertar</span>
@@ -89,7 +94,22 @@
 																color="#E0E0E0"
 																icon
 																class="secondary--text"
-																:to="generarRuta( subasta.idResidencia) "
+																@click.stop="mostrarDetallesResidencia( obtenerResidenciaConId(subastaActiva.idResidencia) )"
+																v-on="on"
+															>
+															<v-icon>info</v-icon>
+															</v-btn>
+														</template>
+														<span>Detalles</span>
+													</v-tooltip>
+
+													<v-tooltip left open-delay="100" close-delay="0">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																:to="generarRutaDeResidencia( subastaActiva.idResidencia) "
 																v-on="on"
 															>
 															<v-icon>home</v-icon>
@@ -97,6 +117,22 @@
 														</template>
 														<span>Informacion completa</span>
 													</v-tooltip>
+
+													<v-tooltip left open-delay="100" close-delay="0">
+														<template v-slot:activator="{ on }">
+															<v-btn
+																color="#E0E0E0"
+																icon
+																class="secondary--text"
+																:to="generarRutaDePublicacion( subastaActiva._id)"
+																v-on="on"
+															>
+															<v-icon>forward</v-icon>
+															</v-btn>
+														</template>
+														<span>Detalles de subasta</span>
+													</v-tooltip>
+
 												</v-flex>
 											</v-layout>
 										</v-layout>
@@ -104,10 +140,11 @@
 								</v-card>
 							</v-layout>
 						</v-container>
-					</v-expansion-panel-content>
-				</v-expansion-panel>
-			</v-layout>
-		</v-container>
+				</v-card>
+			</v-expansion-panel-content>
+		</v-expansion-panel>
+
+		<!-- Dialogo que se muestra al ver el detalle de una residencia -->
 		<v-dialog persistent v-model="detalleDeResidenciaEsVisible" max-width="40rem">
 			<DetalleDeResidencia
 				v-if="residenciaParam !== null"
@@ -115,39 +152,27 @@
 				@ok="ocultarDetalleDeResidencia( )"
 			/>
 		</v-dialog>
-		<v-dialog persistent v-model="ofertarDeSubastaEsVisible" max-width="40rem">
-			<CargaDeOfertaDeSubasta
-				v-if="ofertarDeSubastaEsVisible"
-				:subasta="subastaParam"
-				@ofertaCreada="ocultarOfertarSubasta()"
-				@cancelacion="ocultarOfertarSubasta()"
-			/>
-		</v-dialog>
 	</div>
 </template>
+
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import CargaDeOfertaDeSubasta from '@/components/CargaDeOfertaDeSubasta.vue';
-import DetalleDeResidencia from './DetalleDeResidencia.vue';
-import { Subasta } from '@/interfaces/subasta.interface';
+import { Publicacion } from '@/interfaces/publicacion.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
 import { Cliente } from '@/interfaces/cliente.interface';
+import { Credito } from '@/interfaces/credito.interface';
+import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+import moment from 'moment';
+import DetalleDeResidencia from './DetalleDeResidencia.vue';
+
 @Component({
 	components: {
-		CargaDeOfertaDeSubasta,
 		DetalleDeResidencia
 	}
 })
-export default class SubastasActivas extends Vue{
+export default class SubastasActivas extends Vue {
+
 	public detalleDeResidenciaEsVisible: boolean = false;
-	public ofertarDeSubastaEsVisible: boolean = false;
-	public subastaParam: Subasta = {
-		_id: '',
-		idResidencia: '',
-		montoInicial: 0,
-		fechaDeInicio: '',
-		fechaDeFin: '',
-	};
 	public residenciaParam: Residencia = {
 		_id: '',
 		titulo: '',
@@ -160,7 +185,38 @@ export default class SubastasActivas extends Vue{
 		montoInicialDeSubasta: 0,
 	};
 
-	public generarRuta( idResidencia: string ): object {
+	public get subastasActivas( ): Publicacion[ ] {
+		return this.$store.getters.subastasActivas;
+	}
+
+	public created( ): void {
+		this.actualizarSubastasActivas( );
+	}
+
+	public async actualizarSubastasActivas( ): Promise<void> {
+		// Actualizo las publicaciones, ya que son publicaciones en estado de subasta
+		await this.$store.dispatch( 'obtenerPublicaciones' );
+	}
+
+	public obtenerResidenciaConId(_id: String): Residencia | undefined {
+		return this.$store.getters.residenciaConId( _id );
+	}
+
+	public ubicacionDeResidencia( subastaActiva: Publicacion ): string {
+		const residencia = this.obtenerResidenciaConId( subastaActiva.idResidencia );
+
+		if ( residencia === undefined ) {
+			throw new Error( 'No existe una residencia con el id');
+		}
+
+		return `${ residencia.pais }, ${ residencia.provincia }, ${ residencia.localidad }, ${ residencia.domicilio }`;
+	}
+
+	public get perfil(): Cliente | null {
+		return this.$store.getters.perfil;
+	}
+
+	public generarRutaDeResidencia( idResidencia: string ): object {
 		return {
 			name: 'residencia con id',
 			params: {
@@ -169,69 +225,64 @@ export default class SubastasActivas extends Vue{
 		};
 	}
 
-	/* ------Al crearse este componente se actualizan los datos que va a actualizar y los obtengo--------*/
-	public created( ): void {
-		this.actualizarSubastas( );
-		this.actualizarResidencias( );
+	public generarRutaDePublicacion( idPublicacion: string ): object {
+		return {
+			name: 'publicacion con id',
+			params: {
+				idPublicacion
+			}
+		};
 	}
-	/* -------Solicita al store que actualice la lista local de residencias------*/
-	public async actualizarResidencias( ): Promise<void> {
-		await this.$store.dispatch( 'obtenerResidencias' );
+
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('DD/MM/YYYY');
 	}
-	/* -------Solicita al store que actualice la lista local de subastas------*/
-	public async actualizarSubastas( ): Promise<void> {
-			await this.$store.dispatch( 'obtenerSubastas' );
-	}
-	/**
-	 * Lista de todas las residencias actualmente en el sistema.
-	 */
-	public get obtenerResidencias( ): Residencia[ ] {
-		return this.$store.getters.residencias;
-	}
-	/**
-	 * Lista de todas las subastas actualmente en el sistema.
-	 */
-	public get obtenerSubastas( ): Subasta[ ] {
-		return this.$store.getters.subastas;
-	}
-	public obtenerResidenciaConId(_id: String): Residencia | undefined {
-		return this.$store.getters.residenciaConId( _id );
-	}
-	// -----------------------------------------------------Comportamiento de ventana emergente
+
 	public mostrarDetallesResidencia( res: Residencia ): void {
 		this.residenciaParam = res;
 		this.mostrarDetalleDeResidencia();
 	}
-	public mostrarOfertar( subastaParaOfertar: Subasta ): void {
-		this.subastaParam = subastaParaOfertar;
-		this.mostrarOfertarSubasta();
-	}
+
 	public mostrarDetalleDeResidencia( ): void {
 		this.detalleDeResidenciaEsVisible = true;
 	}
+
 	public ocultarDetalleDeResidencia( ): void {
 		this.detalleDeResidenciaEsVisible = false;
 	}
-	public mostrarOfertarSubasta( ): void {
-		this.ofertarDeSubastaEsVisible = true;
-	}
-	public ocultarOfertarSubasta( ): void {
-		this.ofertarDeSubastaEsVisible = false;
-	}
-	// me traigo perfil para saber si esta logeado un cliente
-	public get perfil(): Cliente | null {
-		return this.$store.getters.perfil;
+
+	public get perfilValido( ): boolean {
+		return this.$store.getters.perfil !== null;
 	}
 
-	public ubicacionDeResidenciaDeSubasta( subasta: Subasta ): string {
-		const residencia = this.obtenerResidenciaConId( subasta.idResidencia );
+	public async ofertar( ) {
+		if (this.$store.getters.perfil.creditos.length > 0) {
 
-		if ( residencia === undefined ) {
-			throw new Error( 'No existe una residencia con el id');
+			const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
+			const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
+				const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
+				return _credito.activo && expiracion;
+			}).length;
+
+			if (cantidadDeCreditosVigentes > 0) {
+				await this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'Hay creditos suficientes, falta hacer la lógica xddd'
+				});
+			} else {
+				await this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: 'No posee créditos suficientes para realizar esta acción'
+				});
+			}
+		} else {
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: 'No posee créditos suficientes para realizar esta acción'
+			});
 		}
-
-		return `${ residencia.pais }, ${ residencia.provincia }, ${ residencia.localidad }, ${ residencia.domicilio }`;
 	}
+
 }
 </script>
 

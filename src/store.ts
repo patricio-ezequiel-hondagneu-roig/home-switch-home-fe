@@ -125,6 +125,26 @@ export default new Vuex.Store({
 			return reservasDirectas;
 		},
 
+		subastasActivas: ( state ) => {
+			const meses: number = 6;
+			let subastasActivas: Publicacion[ ];
+
+			// Quiero saber que faltan 6 meses o menos
+			subastasActivas = state.publicaciones.filter( (publicacion) => {
+				// 1° No esta cerrada
+				const noCerroSubasta: boolean = !(publicacion.cerroSubasta);
+				// 2° Faltan más de 6 meses
+				const faltanMenosDeSeisMeses = moment(publicacion.fechaDeInicioDeSemana).subtract(meses, 'M') <= moment();
+				// 3° Faltan
+				// ?° No hay ganador, pero supongo que si hay ganador no esta cerrada
+				// ?????
+
+				return noCerroSubasta && faltanMenosDeSeisMeses;
+			});
+
+			return subastasActivas;
+		},
+
 		publicacionConId: ( state ) => {
 			return ( idPublicacion: Publicacion[ '_id' ] ): Publicacion | null => {
 				const publicacion = state.publicaciones.find( ( _publicacion ) => {

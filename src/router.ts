@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Inicio from './views/Inicio.vue';
 import Ingreso from './views/Ingreso.vue';
 import Residencia from './views/Residencia.vue';
+import Publicacion from './views/Publicacion.vue';
 import Administracion from './views/Administracion.vue';
 import AdministracionDeResidencias from './views/AdministracionDeResidencias.vue';
 import AdministracionDeReservasDirectas from './views/AdministracionDeReservasDirectas.vue';
@@ -33,6 +34,12 @@ const router = new Router({
 			path: '/residencias/:idResidencia',
 			name: 'residencia con id',
 			component: Residencia,
+			props: true,
+		},
+		{
+			path: '/publicaciones/:idPublicacion',
+			name: 'publicacion con id',
+			component: Publicacion,
 			props: true,
 		},
 		{
