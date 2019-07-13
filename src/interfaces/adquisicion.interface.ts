@@ -11,3 +11,5 @@ export interface Adquisicion {
 }
 
 export type AdquisicionParaCrear = RemoverPropiedades<Adquisicion, '_id' >;
+export type AdquisicionParaModificar =
+	RemoverPropiedades<Adquisicion, '_id' | 'idCliente' | 'fechaDeCreacion' | 'idPublicacion' | 'tipoDeAdquisicion' >;
