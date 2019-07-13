@@ -482,6 +482,10 @@ export default new Vuex.Store({
 			}
 		},
 
+		actualizarAdquisiciones( state, adquisiciones: Adquisicion[ ] ): void {
+			state.adquisiciones = adquisiciones;
+		},
+
 		// Publicaciones
 		actualizarPublicaciones( state, publicaciones: Publicacion[ ] ): void {
 			state.publicaciones = publicaciones;
@@ -1083,6 +1087,22 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerSolicitudes' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async obtenerAdquisiciones( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Adquisicion[ ]>( `${ server.baseURL }/adquisiciones` );
+				const adquisiciones = respuesta.data;
+				commit( 'actualizarAdquisiciones', adquisiciones );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
