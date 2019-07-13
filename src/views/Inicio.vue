@@ -12,17 +12,7 @@
 				<hr class="my-4">
 			</v-flex>
 		</v-layout>
-
 		<BuscadorDeInicio />
-
-		<ReservasDirectasActivas />
-
-		<br>
-
-		<SubastasActivas />
-
-		<br>
-
 	</v-layout>
 </template>
 

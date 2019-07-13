@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div v-if="subastasActivas !== undefined">
 		<v-expansion-panel>
 			<v-expansion-panel-content>
 				<template v-slot:header>
@@ -156,7 +156,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Publicacion } from '@/interfaces/publicacion.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
 import { Cliente } from '@/interfaces/cliente.interface';
@@ -171,6 +171,8 @@ import DetalleDeResidencia from './DetalleDeResidencia.vue';
 	}
 })
 export default class SubastasActivas extends Vue {
+	@Prop( )
+	public readonly subastasActivas!: Publicacion[ ];
 
 	public detalleDeResidenciaEsVisible: boolean = false;
 	public residenciaParam: Residencia = {
@@ -184,19 +186,6 @@ export default class SubastasActivas extends Vue {
 		fotos: [ ],
 		montoInicialDeSubasta: 0,
 	};
-
-	public get subastasActivas( ): Publicacion[ ] {
-		return this.$store.getters.subastasActivas;
-	}
-
-	public created( ): void {
-		this.actualizarSubastasActivas( );
-	}
-
-	public async actualizarSubastasActivas( ): Promise<void> {
-		// Actualizo las publicaciones, ya que son publicaciones en estado de subasta
-		await this.$store.dispatch( 'obtenerPublicaciones' );
-	}
 
 	public obtenerResidenciaConId(_id: String): Residencia | undefined {
 		return this.$store.getters.residenciaConId( _id );

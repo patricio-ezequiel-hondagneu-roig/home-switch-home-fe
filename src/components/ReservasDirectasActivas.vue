@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div v-if="reservasDirectas !== undefined">
 		<v-expansion-panel>
 			<v-expansion-panel-content>
 				<template v-slot:header>
@@ -136,7 +136,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Publicacion } from '@/interfaces/publicacion.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
 import { Cliente } from '@/interfaces/cliente.interface';
@@ -151,6 +151,8 @@ import DetalleDeResidencia from './DetalleDeResidencia.vue';
 	}
 })
 export default class ReservasDirectasActivas extends Vue {
+	@Prop( )
+	public readonly reservasDirectas!: Publicacion[ ];
 
 	public detalleDeResidenciaEsVisible: boolean = false;
 	public residenciaParam: Residencia = {
@@ -164,19 +166,6 @@ export default class ReservasDirectasActivas extends Vue {
 		fotos: [ ],
 		montoInicialDeSubasta: 0,
 	};
-
-	public get reservasDirectas( ): Publicacion[ ] {
-		return this.$store.getters.reservasDirectas;
-	}
-
-	public created( ): void {
-		this.actualizarReservasDirectas( );
-	}
-
-	public async actualizarReservasDirectas( ): Promise<void> {
-		// Actualizo las publicaciones, ya que son reservas directas
-		await this.$store.dispatch( 'obtenerPublicaciones' );
-	}
 
 	public obtenerResidenciaConId(_id: String): Residencia | undefined {
 		return this.$store.getters.residenciaConId( _id );

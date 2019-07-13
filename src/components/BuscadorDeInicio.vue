@@ -63,15 +63,9 @@
 		<v-container class="pa-3"
 		v-if="mostrarPublicaciones && publicaciones !== null"
 		>
-			<v-data-table
-			:items="publicaciones"
-			:rows-per-page-items="[5]"
-			no-data-text="No hay publicaciones para mostrar, vuelve más tarde!"
-			>
-				<template #items="props">
-					<td>{{ props.item }}</td>
-				</template>
-			</v-data-table>
+			<ReservasDirectasActivas :reservasDirectas="separarReservasDirectas( publicaciones )" />
+			<br>
+			<SubastasActivas :subastasActivas="separarSubastas( publicaciones )"></SubastasActivas>
 		</v-container>
 	</v-layout>
 </template>
@@ -84,11 +78,21 @@ import { fechaEsPosteriorQue } from '@/helpers/validadores/fecha-es-posterior-qu
 import moment from 'moment';
 import { Publicacion } from '@/interfaces/publicacion.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
+import ReservasDirectasActivas from '@/components/ReservasDirectasActivas.vue';
+import SubastasActivas from '@/components/SubastasActivas.vue';
+import HotsalesActivas from '@/components/HotsalesActivas.vue';
 
-@Component
+@Component({
+		components: {
+			SubastasActivas,
+			ReservasDirectasActivas,
+			HotsalesActivas
+		},
+	})
 export default class BuscadorDeInicio extends Vue {
 	public esperandoPublicaciones: boolean = false;
 	public publicaciones: Publicacion[ ] = [ ];
+	public subastas: Publicacion[ ] = [ ];
 	public mostrarPublicaciones: boolean = false;
 	public camposBusqueda: Busqueda = {
 		ubicacion: '',
@@ -106,7 +110,9 @@ export default class BuscadorDeInicio extends Vue {
 				fechaEsPosteriorQue( 'Fecha de fin de la semana' , this.camposBusqueda.desde ),
 			],
 	};
-
+	public async created( ) {
+		await this.$store.dispatch( 'obtenerPublicaciones' );
+	}
 	public buscarPublicaciones( busqueda: Busqueda ) {
 		this.esperandoPublicaciones = true;
 		this.mostrarPublicaciones = false;
@@ -137,6 +143,49 @@ export default class BuscadorDeInicio extends Vue {
 		this.publicaciones = publicacionesBuscadas;
 		this.esperandoPublicaciones = false;
 		this.mostrarPublicaciones = true;
+	}
+	// verifica que sea una subasta activa
+	public esUnaSubastaActiva( publicacion: Publicacion ): boolean {
+		// 1° No esta cerrada
+		const noCerroSubasta: boolean = !( publicacion.cerroSubasta );
+
+		// 2° Me fijo el intervalo de fechas de una subasta
+		const dias: number = 3;
+		const meses: number = 6;
+
+		const comienzoDeSubasta = moment( publicacion.fechaDeInicioDeSemana ).subtract( meses, 'M' );
+		const finDeSubasta = moment( publicacion.fechaDeInicioDeSemana ).subtract( meses, 'M' ).add( dias, 'days' );
+
+		const fechaDeSubastaValida = moment( ).isBetween( comienzoDeSubasta, finDeSubasta );
+
+		// 3° No hay ganador, pero supongo que si hay ganador no esta cerrada
+		// ?????
+
+		return noCerroSubasta && fechaDeSubastaValida;
+	}
+	// verifica que sea una reserva directa
+	public esUnaReservaDirecta( publicacion: Publicacion ): boolean {
+		// número de meses antes de que termine la reserva directa
+		const meses: number = 6;
+
+		const finDeReservaDirecta = moment( publicacion.fechaDeInicioDeSemana ).subtract( meses, 'M' );
+
+		const aunNoEsSubasta: boolean = moment( ).isBefore( finDeReservaDirecta );
+
+		return aunNoEsSubasta;
+	}
+	// separa las subastas de las publicaciones
+	public separarSubastas( publicaciones: Publicacion[ ] ): Publicacion[ ] {
+		const subastas = publicaciones.filter( (_publicacion) => {
+			return this.esUnaSubastaActiva( _publicacion );
+		});
+		return subastas;
+	}
+	public separarReservasDirectas( publicaciones: Publicacion[ ] ): Publicacion[ ] {
+		const reservasDirectas = publicaciones.filter( (_publicacion) => {
+			return this.esUnaReservaDirecta( _publicacion );
+		});
+		return reservasDirectas;
 	}
 }
 </script>
