@@ -150,13 +150,20 @@ export default class Publicacion extends Vue {
 	public get esUnaSubastaActiva( ) {
 		// 1° No esta cerrada
 		const noCerroSubasta: boolean = !(this.publicacion.cerroSubasta);
-		// 2° Faltan más de 6 meses
+
+		// 2° Me fijo el intervalo de fechas de una subasta
+		const dias: number = 3;
 		const meses: number = 6;
-		const faltanMenosDeSeisMeses = moment(this.publicacion.fechaDeInicioDeSemana).subtract(meses, 'M') <= moment();
+
+		const comienzoDeSubasta = moment(this.publicacion.fechaDeInicioDeSemana).subtract(meses, 'M');
+		const finDeSubasta = moment(this.publicacion.fechaDeInicioDeSemana).subtract(meses, 'M').add(dias, 'days');
+
+		const fechaDeSubastaValida = moment( moment( ) ).isBetween(comienzoDeSubasta, finDeSubasta);
+
 		// 3° No hay ganador, pero supongo que si hay ganador no esta cerrada
 		// ?????
 
-		return noCerroSubasta && faltanMenosDeSeisMeses;
+		return noCerroSubasta && fechaDeSubastaValida;
 	}
 
 	public get fotos( ) {
