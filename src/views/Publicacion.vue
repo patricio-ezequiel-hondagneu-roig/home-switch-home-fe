@@ -388,7 +388,9 @@
 			const adquisicionesDePublicacion: Adquisicion[ ] = this.$store.getters.adquisiciones;
 
 			return adquisicionesDePublicacion.filter( (adquisicion) => {
-				return adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.Subasta;
+				const igualPublicacion: boolean = adquisicion.idPublicacion === this.idPublicacion;
+				const esSubasta: boolean = adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.Subasta;
+				return igualPublicacion && esSubasta;
 			});
 		}
 
