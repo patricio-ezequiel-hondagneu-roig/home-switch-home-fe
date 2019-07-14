@@ -57,10 +57,10 @@
 								slot-scope="{ hover }"
 								class="tarjeta-de-enlace"
 								:class="`elevation-${ hover ? 12 : 2 }`"
-								:to="{ name: 'administracion de publicaciones' }"
+								:to="{ name: 'administracion de posibles hot sales' }"
 							>
 							<v-layout fill-height column>
-								<v-layout justify-center class="grey pa-2">
+								<v-layout justify-center class="primary pa-2">
 									<v-icon class="icono-grande">alarm_add</v-icon>
 								</v-layout>
 								<v-layout column class="verticalmente-desbordable">
@@ -68,7 +68,7 @@
 										<h1 class="headline mb-0">Posibles Hot Sales</h1>
 									</v-card-title>
 									<v-card-text>
-										Ver, aprobar, modificar y eliminar posibles hot sales.
+										Ver, aprobar y eliminar posibles hot sales.
 									</v-card-text>
 								</v-layout>
 							</v-layout>

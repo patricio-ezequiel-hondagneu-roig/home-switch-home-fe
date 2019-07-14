@@ -125,6 +125,29 @@ export default new Vuex.Store({
 			return reservasDirectas;
 		},
 
+		posiblesHotSales: ( state ) => {
+			const meses: number = 6;
+			const dias: number = 3;
+			let posiblesHotSales: Publicacion[ ];
+
+			posiblesHotSales = state.publicaciones.filter( (publicacion) => {
+				const finDeSubasta = moment(publicacion.fechaDeInicioDeSemana).subtract(meses, 'months').add(dias, 'days');
+				const comienzoDeSemana = moment(publicacion.fechaDeInicioDeSemana);
+				return moment( moment() ).isBetween(finDeSubasta, comienzoDeSemana);
+			});
+
+			// Me interesa que no este adquirida, ya que si lo esta no es posible hot sale
+			posiblesHotSales = posiblesHotSales.filter( (posibleHotSale) => {
+				const _adquisicion = state.adquisiciones.find( (adquisicion) => {
+					return adquisicion.idPublicacion === posibleHotSale._id;
+				});
+
+				return _adquisicion === undefined;
+			});
+
+			return posiblesHotSales;
+		},
+
 		subastasActivas: ( state ) => {
 			const meses: number = 6;
 			const dias: number = 3;
