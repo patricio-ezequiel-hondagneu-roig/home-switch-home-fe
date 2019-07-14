@@ -14,6 +14,7 @@ import AdministracionDePublicaciones from './views/AdministracionDePublicaciones
 import AdministracionDeClientes from './views/AdministracionDeClientes.vue';
 import AdministracionDeClientesRegistrados from './views/AdministracionDeClientesRegistrados.vue';
 import AdministracionDeSolicitudes from './views/AdministracionDeSolicitudes.vue';
+import AdministracionDePosiblesHotSales from './views/AdministracionDePosiblesHotSales.vue';
 import IniciarSesion from './views/IniciarSesion.vue';
 import DatosDeUsuario from './views/DatosDeUsuario.vue';
 import PaginaNoEncontrada from './views/PaginaNoEncontrada.vue';
@@ -94,6 +95,14 @@ const router = new Router({
 			path: '/administracion/publicaciones/reservasDirectas',
 			name: 'administracion de reservas directas',
 			component: AdministracionDeReservasDirectas,
+			meta: {
+				requierePermisosDeAdmin: true,
+			}
+		},
+		{
+			path: '/administracion/publicaciones/posiblesHotSales',
+			name: 'administracion de posibles hot sales',
+			component: AdministracionDePosiblesHotSales,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}

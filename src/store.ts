@@ -7,7 +7,11 @@ import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/su
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
 import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cliente.interface';
 import { Publicacion, PublicacionParaCrear, PublicacionParaModificar } from './interfaces/publicacion.interface';
+<<<<<<< HEAD
 import { Adquisicion, AdquisicionParaCrear } from './interfaces/adquisicion.interface';
+=======
+import { Adquisicion, AdquisicionParaCrear, AdquisicionParaModificar } from './interfaces/adquisicion.interface';
+>>>>>>> 047111fcd98eb14fcba06075cab83ddf3d457f70
 import { server } from './utils/helper';
 import { CreditoBD, CreditoParaCrear } from './interfaces/creditoBD.interface';
 
@@ -124,6 +128,29 @@ export default new Vuex.Store({
 			});
 
 			return reservasDirectas;
+		},
+
+		posiblesHotSales: ( state ) => {
+			const meses: number = 6;
+			const dias: number = 3;
+			let posiblesHotSales: Publicacion[ ];
+
+			posiblesHotSales = state.publicaciones.filter( (publicacion) => {
+				const finDeSubasta = moment(publicacion.fechaDeInicioDeSemana).subtract(meses, 'months').add(dias, 'days');
+				const comienzoDeSemana = moment(publicacion.fechaDeInicioDeSemana);
+				return moment( moment() ).isBetween(finDeSubasta, comienzoDeSemana);
+			});
+
+			// Me interesa que no este adquirida, ya que si lo esta no es posible hot sale
+			posiblesHotSales = posiblesHotSales.filter( (posibleHotSale) => {
+				const _adquisicion = state.adquisiciones.find( (adquisicion) => {
+					return adquisicion.idPublicacion === posibleHotSale._id;
+				});
+
+				return _adquisicion === undefined;
+			});
+
+			return posiblesHotSales;
 		},
 
 		subastasActivas: ( state ) => {
@@ -485,6 +512,23 @@ export default new Vuex.Store({
 
 		actualizarAdquisiciones( state, adquisiciones: Adquisicion[ ] ): void {
 			state.adquisiciones = adquisiciones;
+		},
+
+		agregarAdquisicion( state, adquisicion: Adquisicion ): void {
+			state.adquisiciones.push( adquisicion );
+		},
+
+		modificarAdquisicion( state, adquisicion: Adquisicion ): void {
+			const indiceDeAdquisicion = state.adquisiciones.findIndex( ( _adquisicion ) => {
+				return _adquisicion._id === adquisicion._id;
+			});
+
+			if ( indiceDeAdquisicion !== -1 ) {
+				state.adquisiciones.splice( indiceDeAdquisicion, 1, adquisicion );
+			}
+			else {
+				state.adquisiciones.push( adquisicion );
+			}
 		},
 
 		// Publicaciones
@@ -1300,6 +1344,58 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerCreditos' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async crearAdquisicion( { commit, dispatch }, adquisicionParaCrear: AdquisicionParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/adquisiciones`;
+				const respuesta = await axios.post<Adquisicion>( url, adquisicionParaCrear );
+				const adquisicionCreada = respuesta.data;
+				commit( 'agregarAdquisicion', adquisicionCreada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La Adquisicion se cargó con éxito.'
+				});
+
+				await dispatch( 'obtenerAdquisiciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async modificarAdquisicion( { commit, dispatch }, argumentos: {
+			_id: Adquisicion[ '_id' ],
+			adquisicionParaModificar: AdquisicionParaModificar
+		}): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/adquisiciones/${ argumentos._id }`;
+				const adquisicionParaModificar = argumentos.adquisicionParaModificar;
+				const respuesta = await axios.put<Adquisicion>( url, adquisicionParaModificar );
+				const adquisicionModificada = respuesta.data;
+				commit( 'modificarAdquisicion', adquisicionModificada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La adquisicion se modificó con éxito.'
+				});
+
+				await dispatch( 'obtenerAdquisiciones' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {

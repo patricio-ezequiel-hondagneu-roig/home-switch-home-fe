@@ -22,7 +22,7 @@ export const numeroNoMenorQue = ( nombreDelCampo: string, numeroMinimo: number )
 
 	return ( isNaN( valorNumerico ) )
 		? `El campo "${ nombreDelCampo }" no es un número`
-		: ( valorNumerico < numeroMinimo )
-			? `El campo "${ nombreDelCampo }" no puede ser menor que ${ numeroMinimo }`
+		: ( valorNumerico <= numeroMinimo )
+			? `El campo "${ nombreDelCampo }" no puede ser menor o igual que ${ numeroMinimo }`
 			: true;
 };

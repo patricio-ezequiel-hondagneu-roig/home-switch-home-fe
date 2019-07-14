@@ -121,11 +121,13 @@
 				</h1>
 				<v-data-table
 					:headers="encabezadosDeTabla"
-					:items="arregloVacio"
+					:items="adquisicionesDePublicacion"
 					class="elevation-1"
+					no-data-text="No hay ofertas."
 				>
 					<template v-slot:items="props">
-							<td> {{ props.item }} </td>
+							<td> {{ props.item.monto }} </td>
+							<td> {{ formatearFecha(props.item.fechaDeCreacion) }} </td>
 					</template>
 				</v-data-table>
 				<br>
@@ -139,6 +141,46 @@
 		<div v-else>
 			La publicación en cuestión no se puede visualizar en este momento.
 		</div>
+
+		<v-dialog v-model="formularioDeOferta" persistent max-width="40rem">
+			<v-card	class="pa-3">
+				<span style="font-weight:bold">Monto minimo de oferta :</span>
+				$ {{ this.ofertaMaxima }}
+				<br>
+
+				<v-card-title>
+					<h5 class="headline">Ingrese el monto a ofertar</h5>
+				</v-card-title>
+
+				<v-card-text>
+					<v-form ref="formulario">
+						<v-text-field
+							:value="montoDeOferta"
+							@input="montoDeOferta = extraerNumero( $event, montoDeOferta )"
+							label="Monto de oferta"
+							:rules="validadores.montoDeOferta"
+							hint="No puede ser negativo"
+							required
+						></v-text-field>
+					</v-form>
+				</v-card-text>
+
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn flat @click.stop="cancelarCarga( )">
+						Cancelar
+					</v-btn>
+					<v-btn
+						color="#ed9702"
+						:disabled="!formularioDeOferta"
+						@click.stop="realizarOferta( )"
+					>
+						Ofertar
+					</v-btn>
+				</v-card-actions>
+
+			</v-card>
+		</v-dialog>
 	</div>
 </template>
 
@@ -150,10 +192,39 @@
 	import { Residencia } from '@/interfaces/residencia.interface';
 	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 	import { Credito } from '@/interfaces/credito.interface';
-	import { Adquisicion } from '@/interfaces/adquisicion.interface';
+	import { Adquisicion, AdquisicionParaCrear, AdquisicionParaModificar } from '@/interfaces/adquisicion.interface';
+	import { requerido } from '@/helpers/validadores/requerido';
+	import { numeroNoNegativo } from '@/helpers/validadores/numero-no-negativo';
+	import { numeroNoMenorQue } from '@/helpers/validadores/numero-no-menor-que';
+	import { TipoDeAdquisicion } from '@/enums/tipoDeAdquisicion.enum';
 
 	@Component
 	export default class Publicacion extends Vue {
+
+		// Variables para manejar el formulario ---------------------------------
+		public formularioDeOferta: boolean = false;
+		public montoDeOferta: number = 0;
+
+		public validadores = {
+			montoDeOferta: [
+				requerido( 'Monto de oferta' ),
+				numeroNoNegativo( 'Monto de oferta' ),
+				numeroNoMenorQue( 'Monto de oferta', (this.ofertaMaxima) )
+			]
+		};
+
+		public modeloDeAdquisicion: AdquisicionParaCrear = {
+			idCliente: '',
+			idPublicacion: '',
+			monto: 0,
+			fechaDeCreacion: '',
+			tipoDeAdquisicion: TipoDeAdquisicion.Subasta,
+		};
+
+		public modeloParaModificar: AdquisicionParaModificar = {
+			monto: 0,
+		};
+		// ----------------------------------------------------------------------
 
 		public get publicacion( ) {
 			return this.$store.getters.publicacionConId(this.idPublicacion);
@@ -204,8 +275,6 @@
 			},
 		];
 
-		public arregloVacio: number[ ] = [ ];
-
 		public created( ) {
 			this.$store.dispatch( 'obtenerResidencias' );
 			this.$store.dispatch( 'obtenerPublicaciones' );
@@ -228,7 +297,6 @@
 		public async ofertar( idPublicacion: string ) {
 			const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null);
 			if (perfilValido && this.$store.getters.perfil.creditos.length > 0) {
-
 				const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
 				const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
 					const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
@@ -236,16 +304,12 @@
 				}).length;
 
 				if (cantidadDeCreditosVigentes > 0) {
-					await this.$store.dispatch( 'mostrarAlerta', {
-						tipo: 'success',
-						texto: 'Hay creditos suficientes, falta hacer la lógica xddd'
-					});
-
 					// Pido un monto para crear la adquisicion, si es menor al maximo no hago nada
 					// Tengo que sacar el credito más viejo
 					// Tengo que modificar el perfil luego de gastar el credito
 					// Tengo que crear la adquisicion con el monto nuevo
 
+					this.formularioDeOferta = true;
 				} else {
 					await this.$store.dispatch( 'mostrarAlerta', {
 						tipo: 'error',
@@ -262,6 +326,28 @@
 
 		public get adquisiciones( ) {
 			return this.$store.getters.adquisiciones;
+		}
+
+		public get adquisicionesDePerfil( ): Adquisicion[ ] {
+			const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null);
+
+			if (perfilValido) {
+				const adquisiciones: Adquisicion[ ] = this.adquisiciones;
+
+				const adquisicionesDelPerfil = adquisiciones.filter( (adquisicion) => {
+
+					const igualPublicacion: boolean = (adquisicion.idPublicacion === this.idPublicacion);
+					const igualCliente: boolean = (adquisicion.idCliente === this.$store.getters.perfil._id);
+
+					return (igualPublicacion && igualCliente);
+				});
+
+				return adquisicionesDelPerfil;
+
+			} else {
+				const arregloDeAdquisicionesVacio: Adquisicion[ ] = [ ];
+				return arregloDeAdquisicionesVacio;
+			}
 		}
 
 		public get ofertaMaxima( ): number {
@@ -282,10 +368,10 @@
 			if (ofertasDeSubasta.length > 0) {
 				const maximo = ofertasDeSubasta
 					.sort( ( a, b ) => {
-						if ( moment(a.fechaDeCreacion) > moment(b.fechaDeCreacion) ) {
+						if ( moment(a.monto) > moment(b.monto) ) {
 							return -1;
 						}
-						else if ( moment(a.fechaDeCreacion) < moment(b.fechaDeCreacion) ) {
+						else if ( moment(a.monto) < moment(b.monto) ) {
 							return +1;
 						}
 						else {
@@ -296,6 +382,71 @@
 			} else {
 				return this.publicacion.montoInicialDeSubasta;
 			}
+		}
+
+		public get adquisicionesDePublicacion( ): Adquisicion[ ] {
+			const adquisicionesDePublicacion: Adquisicion[ ] = this.$store.getters.adquisiciones;
+
+			return adquisicionesDePublicacion.filter( (adquisicion) => {
+				const igualPublicacion: boolean = adquisicion.idPublicacion === this.idPublicacion;
+				const esSubasta: boolean = adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.Subasta;
+				return igualPublicacion && esSubasta;
+			});
+		}
+
+		public formatearFecha(fecha: string): string {
+			return moment(fecha).format('DD/MM/YYYY');
+		}
+
+		/*
+		* +-----------------------------------------------------------------+
+		* |	Desde aca va todo lo relacionado con el formulario de ofertar	|
+		* +-----------------------------------------------------------------+
+		*/
+
+		public extraerNumero( texto: string, predeterminado: number ): number {
+			const valorNumerico: number = Number.parseFloat( texto );
+
+			return ( isNaN( valorNumerico ) )
+				? predeterminado
+				: valorNumerico;
+		}
+
+		public cancelarCarga( ): void {
+			this.restablecerFormulario( );
+		}
+
+		public restablecerFormulario( ): void {
+			this.montoDeOferta = 0;
+			this.formularioDeOferta = false;
+		}
+
+		public async realizarOferta( ) {
+			// Creo la adquisicion cargando los datos del modelo
+			this.modeloDeAdquisicion.idCliente = this.$store.getters.perfil._id;
+			this.modeloDeAdquisicion.idPublicacion = this.idPublicacion;
+			this.modeloDeAdquisicion.monto = this.montoDeOferta;
+			this.modeloDeAdquisicion.fechaDeCreacion = moment( moment() ).utc().toISOString();
+			// this.modeloDeAdquisicion.tipoDeAdquisicion no es necesario el tipo, ya que esta en el modelo
+
+			// Me fijo si ya había ofertado anteriormente, en caso de que si busco la adquisicion y la modifico
+			if (this.adquisicionesDePerfil.length > 0) {
+				// Hay ofertas, modifico la nueva
+				this.modeloParaModificar.monto = this.montoDeOferta;
+
+				await this.$store.dispatch( 'modificarAdquisicion', {
+					_id: this.adquisicionesDePerfil[0]._id,
+					adquisicionParaModificar: this.modeloParaModificar,
+				});
+			} else {
+				// No hay ofertas, cargo una nueva
+				await this.$store.dispatch( 'crearAdquisicion', this.modeloDeAdquisicion );
+			}
+
+			// Para terminar oculto el formulario
+			this.formularioDeOferta = false;
+			// Vuelvo a tener las adquisiciones
+			this.$store.dispatch( 'obtenerAdquisiciones' );
 		}
 	}
 </script>

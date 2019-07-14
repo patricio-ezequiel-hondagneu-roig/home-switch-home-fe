@@ -11,7 +11,7 @@
 				<td class="text-xs-right">{{ props.item._id }}</td>
 				<td class="text-xs-right">{{ props.item.idResidencia }}</td>
 				<td class="text-xs-right">{{ formatearFecha(props.item.fechaDeInicioDeSemana) }}</td>
-				<td class="text-xs-right">{{ adquirida(props.item.fechaDeInicioDeSemana) }}</td>
+				<td class="text-xs-right">{{ adquirida(props.item._id) }}</td>
 
 				<td>
 					<v-layout row>
