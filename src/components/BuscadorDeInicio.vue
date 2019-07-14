@@ -81,6 +81,7 @@ import { Residencia } from '@/interfaces/residencia.interface';
 import ReservasDirectasActivas from '@/components/ReservasDirectasActivas.vue';
 import SubastasActivas from '@/components/SubastasActivas.vue';
 import HotsalesActivas from '@/components/HotsalesActivas.vue';
+import { Adquisicion } from '../interfaces/adquisicion.interface';
 
 @Component({
 		components: {
@@ -112,6 +113,7 @@ export default class BuscadorDeInicio extends Vue {
 	};
 	public async created( ) {
 		await this.$store.dispatch( 'obtenerPublicaciones' );
+		await this.$store.dispatch( 'obtenerAdquisiciones' );
 	}
 	public buscarPublicaciones( busqueda: Busqueda ) {
 		this.esperandoPublicaciones = true;
@@ -164,7 +166,7 @@ export default class BuscadorDeInicio extends Vue {
 		return noCerroSubasta && fechaDeSubastaValida;
 	}
 	// verifica que sea una reserva directa
-	public esUnaReservaDirecta( publicacion: Publicacion ): boolean {
+	public esUnaReservaDirectaActiva( publicacion: Publicacion ): boolean {
 		// número de meses antes de que termine la reserva directa
 		const meses: number = 6;
 
@@ -172,7 +174,12 @@ export default class BuscadorDeInicio extends Vue {
 
 		const aunNoEsSubasta: boolean = moment( ).isBefore( finDeReservaDirecta );
 
-		return aunNoEsSubasta;
+		// verifico que no este adquirida
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+		const noEsAdquirida = !adquisiciones.some( ( _adquisicion ) => {
+			return _adquisicion.idPublicacion === publicacion._id;
+		});
+		return aunNoEsSubasta && noEsAdquirida;
 	}
 	// separa las subastas de las publicaciones
 	public separarSubastas( publicaciones: Publicacion[ ] ): Publicacion[ ] {
@@ -183,7 +190,7 @@ export default class BuscadorDeInicio extends Vue {
 	}
 	public separarReservasDirectas( publicaciones: Publicacion[ ] ): Publicacion[ ] {
 		const reservasDirectas = publicaciones.filter( (_publicacion) => {
-			return this.esUnaReservaDirecta( _publicacion );
+			return this.esUnaReservaDirectaActiva( _publicacion );
 		});
 		return reservasDirectas;
 	}

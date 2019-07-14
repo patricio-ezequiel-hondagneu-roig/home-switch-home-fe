@@ -89,7 +89,7 @@
 																color="#E0E0E0"
 																icon
 																class="secondary--text"
-																@click.stop="adquirirReservaDirecta( reservaDirecta.idResidencia )"
+																@click.stop="adquirirReservaDirecta( reservaDirecta._id )"
 																v-on="on"
 															>
 															<v-icon color="darken-2">monetization_on</v-icon>
@@ -144,6 +144,7 @@ import { Credito } from '@/interfaces/credito.interface';
 import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 import moment from 'moment';
 import DetalleDeResidencia from './DetalleDeResidencia.vue';
+import { TipoDeAdquisicion } from '@/utils/tipoDeAdquisicion.enum';
 
 @Component({
 	components: {
@@ -226,7 +227,7 @@ export default class ReservasDirectasActivas extends Vue {
 		}
 	}
 
-	public async adquirirReservaDirecta( ) {
+	public async adquirirReservaDirecta( _idPublicacion: string ) {
 		if (this.$store.getters.perfil.creditos.length > 0) {
 
 			const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
@@ -236,9 +237,25 @@ export default class ReservasDirectasActivas extends Vue {
 			}).length;
 
 			if (cantidadDeCreditosVigentes > 0) {
+				// se me descuenta un crédito
+				await this.$store.dispatch('pagarConCredito',
+					{
+						idCliente: this.$store.getters.perfil._id,
+						clienteParaModificar: this.$store.getters.perfil
+					}
+				);
+				// adquiero la semana en reserva directa
+				await this.$store.dispatch( 'crearAdquisicion' , {
+					idCliente: this.$store.getters.perfil._id,
+					idPublicacion: _idPublicacion,
+					monto: 0,
+					fechaDeCreacion: moment( ).utc( ),
+					tipoDeAdquisicion: TipoDeAdquisicion.ReservaDirecta,
+				});
+				// muestro notificación en pantalla
 				await this.$store.dispatch( 'mostrarAlerta', {
 					tipo: 'success',
-					texto: 'Hay creditos suficientes, falta hacer la lógica xddd'
+					texto: '¡Gracias por su compra! Puede ver su semana recien adquirida en su seccion de cuenta'
 				});
 			} else {
 				await this.$store.dispatch( 'mostrarAlerta', {

@@ -7,12 +7,13 @@ import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/su
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
 import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cliente.interface';
 import { Publicacion, PublicacionParaCrear, PublicacionParaModificar } from './interfaces/publicacion.interface';
-import { Adquisicion } from './interfaces/adquisicion.interface';
+import { Adquisicion, AdquisicionParaCrear } from './interfaces/adquisicion.interface';
 import { server } from './utils/helper';
 import { CreditoBD, CreditoParaCrear } from './interfaces/creditoBD.interface';
 
 import moment from 'moment';
 import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
+import { Credito } from './interfaces/credito.interface';
 
 Vue.use( Vuex );
 
@@ -522,6 +523,9 @@ export default new Vuex.Store({
 		actualizarAdquisicionesDeCliente( state, adquisiciones: Adquisicion[ ] ): void {
 			state.adquisiciones = adquisiciones;
 		},
+		agregarAdquisicion( state, adquisicion: Adquisicion ): void {
+			state.adquisiciones.push( adquisicion );
+		},
 	},
 	actions: {
 		iniciarSesionComoAdmin( { commit }, cliente: Cliente ) {
@@ -976,6 +980,22 @@ export default new Vuex.Store({
 				});
 			}
 		},
+		async pagarConCredito( { commit, dispatch }, argumentos: {
+			idCliente: Cliente[ '_id' ],
+			clienteParaModificar: ClienteParaModificar
+		}): Promise<void> {
+			const nuevosCreditos = argumentos.clienteParaModificar.creditos.sort( );
+			const indexCreditoABorrar = nuevosCreditos.findIndex( ( credito ) => {
+				return credito.activo;
+			});
+			if ( indexCreditoABorrar !== 0 ) {
+				const elementCero = nuevosCreditos[ 0 ];
+				nuevosCreditos[ indexCreditoABorrar ] = elementCero;
+			}
+			nuevosCreditos.shift();
+			argumentos.clienteParaModificar.creditos = nuevosCreditos;
+			await dispatch('modificarPerfil', argumentos);
+		},
 		async modificarPerfil( { commit, dispatch }, argumentos: {
 			idCliente: Cliente[ '_id' ],
 			clienteParaModificar: ClienteParaModificar
@@ -1097,7 +1117,23 @@ export default new Vuex.Store({
 				});
 			}
 		},
-
+		async crearAdquisicion( { commit, dispatch }, adquisicionParaCrear: AdquisicionParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/adquisiciones`;
+				const respuesta = await axios.post<Adquisicion>( url, adquisicionParaCrear );
+				const adquisicionCreada = respuesta.data;
+				commit( 'agregarAdquisicion', adquisicionCreada );
+				await dispatch( 'obtenerAdquisiciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
 		async obtenerAdquisiciones( { commit, dispatch } ): Promise<void> {
 			try {
 				const respuesta = await axios.get<Adquisicion[ ]>( `${ server.baseURL }/adquisiciones` );

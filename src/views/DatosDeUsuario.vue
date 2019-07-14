@@ -194,7 +194,6 @@
 					<div>
 						<TablaDeSemanasDeCliente
 							:idCliente="perfil._id"
-							width="25"
 						/>
 					</div>
 				</v-layout>

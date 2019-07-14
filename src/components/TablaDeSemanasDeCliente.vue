@@ -1,6 +1,5 @@
 <template>
-	<v-card
-	>
+	<v-card>
 		<v-data-table
 			id="tabla"
 			class="elevation-1"
@@ -157,7 +156,7 @@ export default class TablaDeSemanasDeCliente extends Vue {
 		return this.$store.getters.publicacionConId( idPublicacion );
 	}
 	// obtiene residencia de una idPublicacion que posee idResidencia
-	public obtenerResidenciaConPublicacionId( idPublicacion: string ): Residencia | null {
+	public obtenerResidenciaConPublicacionId( idPublicacion: string ): Residencia {
 		const publicacion = this.publicacionId( idPublicacion );
 		return this.$store.getters.residenciaConId(publicacion.idResidencia);
 	}
