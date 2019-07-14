@@ -7,11 +7,7 @@ import { Subasta, SubastaParaCrear, SubastaParaModificar } from './interfaces/su
 import { Suscripcion, SuscripcionParaCrear } from './interfaces/suscripcion.interface';
 import { Cliente, ClienteParaCrear, ClienteParaModificar } from './interfaces/cliente.interface';
 import { Publicacion, PublicacionParaCrear, PublicacionParaModificar } from './interfaces/publicacion.interface';
-<<<<<<< HEAD
-import { Adquisicion, AdquisicionParaCrear } from './interfaces/adquisicion.interface';
-=======
 import { Adquisicion, AdquisicionParaCrear, AdquisicionParaModificar } from './interfaces/adquisicion.interface';
->>>>>>> 047111fcd98eb14fcba06075cab83ddf3d457f70
 import { server } from './utils/helper';
 import { CreditoBD, CreditoParaCrear } from './interfaces/creditoBD.interface';
 
@@ -567,9 +563,7 @@ export default new Vuex.Store({
 		actualizarAdquisicionesDeCliente( state, adquisiciones: Adquisicion[ ] ): void {
 			state.adquisiciones = adquisiciones;
 		},
-		agregarAdquisicion( state, adquisicion: Adquisicion ): void {
-			state.adquisiciones.push( adquisicion );
-		},
+
 	},
 	actions: {
 		iniciarSesionComoAdmin( { commit }, cliente: Cliente ) {
@@ -1161,23 +1155,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
-		async crearAdquisicion( { commit, dispatch }, adquisicionParaCrear: AdquisicionParaCrear ): Promise<void> {
-			try {
-				const url = `${ server.baseURL }/adquisiciones`;
-				const respuesta = await axios.post<Adquisicion>( url, adquisicionParaCrear );
-				const adquisicionCreada = respuesta.data;
-				commit( 'agregarAdquisicion', adquisicionCreada );
-				await dispatch( 'obtenerAdquisiciones' );
-			}
-			catch ( error ) {
-				dispatch( 'mostrarAlerta', {
-					tipo: 'error',
-					texto: ( error.response !== undefined )
-						? error.response.data.message
-						: 'Ocurrió un error al conectarse al servidor'
-				});
-			}
-		},
+
 		async obtenerAdquisiciones( { commit, dispatch } ): Promise<void> {
 			try {
 				const respuesta = await axios.get<Adquisicion[ ]>( `${ server.baseURL }/adquisiciones` );
