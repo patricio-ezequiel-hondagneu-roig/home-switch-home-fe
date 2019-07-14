@@ -4,8 +4,8 @@
 			id="tabla"
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
-			:items="adquisicionesDePerfil"
-			:rows-per-page-items="[3]"
+			:items="adquisiciones"
+			:rows-per-page-items="[8]"
 			no-data-text="No has adquirido semanas aún"
 		>
 			<template #items="props">
@@ -28,7 +28,7 @@
 						</v-tooltip>
 					</td>
 					<td class="text-xs-right">{{ fechaDeSemanaDePublicacionId(props.item.idPublicacion) }}</td>
-					<td class="text-xs-right">{{ (props.item.fechaDeCreacion) }}</td>
+					<td class="text-xs-right">{{ (formatearFecha(props.item.fechaDeCreacion)) }}</td>
 					<td class="text-xs-right">{{ (props.item.tipoDeAdquisicion) }}</td>
 					<td class="text-xs-right">{{ (props.item.monto) }}</td>
 					<td>
@@ -112,12 +112,12 @@ export default class TablaDeSemanasDeCliente extends Vue {
 		},
 		{
 			text: 'Inicia el',
-			value: 'fecha',
+			value: 'fechaSemana',
 			align: 'right'
 		},
 		{
 			text: 'Adquirida el',
-			value: 'fecha',
+			value: 'fechaAdquisicion',
 			align: 'right'
 		},
 		{
@@ -128,7 +128,8 @@ export default class TablaDeSemanasDeCliente extends Vue {
 		{
 			text: 'Pagaste',
 			value: 'pagado',
-			align: 'right'
+			align: 'right',
+			sortable: false
 		},
 		{
 			text: '',
@@ -203,22 +204,5 @@ export default class TablaDeSemanasDeCliente extends Vue {
 		}
 	}
 	// the end is nigh
-	public get adquisicionesDePerfil( ): Adquisicion[ ] {
-			const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null);
-
-			if (perfilValido) {
-				const adquisiciones: Adquisicion[ ] = this.adquisiciones;
-
-				const adquisicionesDelPerfil = adquisiciones.filter( (adquisicion) => {
-					return (adquisicion.idCliente === this.$store.getters.perfil._id);
-				});
-
-				return adquisicionesDelPerfil;
-
-			} else {
-				const arregloDeAdquisicionesVacio: Adquisicion[ ] = [ ];
-				return arregloDeAdquisicionesVacio;
-			}
-		}
 }
 </script>

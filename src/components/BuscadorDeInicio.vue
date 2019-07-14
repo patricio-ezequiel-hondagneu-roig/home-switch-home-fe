@@ -97,7 +97,7 @@ export default class BuscadorDeInicio extends Vue {
 	public mostrarPublicaciones: boolean = false;
 	public camposBusqueda: Busqueda = {
 		ubicacion: '',
-		desde: `${ moment().add( 1 , 'day').format('YYYY-MM-DD') }`,
+		desde: `${ moment().format('YYYY-MM-DD') }`,
 		hasta: ''
 	};
 
@@ -134,12 +134,14 @@ export default class BuscadorDeInicio extends Vue {
 		}
 		if ( busqueda.desde !== '' ) {
 			publicacionesBuscadas = publicacionesBuscadas.filter( ( _publicacion ) => {
-					return ( moment( _publicacion.fechaDeInicioDeSemana ).isAfter( busqueda.desde ) );
+					const fechaDesde = moment(busqueda.desde).subtract( 1, 'day' );
+					return ( moment( _publicacion.fechaDeInicioDeSemana ).isAfter( fechaDesde ) );
 			});
 		}
 		if ( busqueda.hasta !== '' ) {
 			publicacionesBuscadas = publicacionesBuscadas.filter( ( _publicacion ) => {
-					return ( moment( _publicacion.fechaDeInicioDeSemana ).isBefore( busqueda.hasta ) );
+					const fechaHasta = moment(busqueda.hasta).add( 1, 'day' );
+					return ( moment( _publicacion.fechaDeInicioDeSemana ).isBefore( fechaHasta ) );
 			});
 		}
 		this.publicaciones = publicacionesBuscadas;
