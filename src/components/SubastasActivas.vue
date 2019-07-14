@@ -73,21 +73,6 @@
 
 												<v-flex align-self-end>
 
-													<v-tooltip left open-delay="100" close-delay="0" v-if="perfilValido">
-														<template v-slot:activator="{ on }">
-															<v-btn
-																color="#E0E0E0"
-																icon
-																class="secondary--text"
-																@click.stop="ofertar( subastaActiva.idResidencia )"
-																v-on="on"
-															>
-															<v-icon color="darken-2">attach_money</v-icon>
-															</v-btn>
-														</template>
-														<span>Ofertar</span>
-													</v-tooltip>
-
 													<v-tooltip left open-delay="100" close-delay="0">
 														<template v-slot:activator="{ on }">
 															<v-btn
@@ -242,34 +227,6 @@ export default class SubastasActivas extends Vue {
 
 	public get perfilValido( ): boolean {
 		return this.$store.getters.perfil !== null;
-	}
-
-	public async ofertar( ) {
-		if (this.$store.getters.perfil.creditos.length > 0) {
-
-			const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
-			const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
-				const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
-				return _credito.activo && expiracion;
-			}).length;
-
-			if (cantidadDeCreditosVigentes > 0) {
-				await this.$store.dispatch( 'mostrarAlerta', {
-					tipo: 'success',
-					texto: 'Hay creditos suficientes, falta hacer la lógica xddd'
-				});
-			} else {
-				await this.$store.dispatch( 'mostrarAlerta', {
-					tipo: 'error',
-					texto: 'No posee créditos suficientes para realizar esta acción'
-				});
-			}
-		} else {
-			await this.$store.dispatch( 'mostrarAlerta', {
-				tipo: 'error',
-				texto: 'No posee créditos suficientes para realizar esta acción'
-			});
-		}
 	}
 
 }
