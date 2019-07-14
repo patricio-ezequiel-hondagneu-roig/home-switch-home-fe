@@ -510,10 +510,6 @@ export default new Vuex.Store({
 			state.adquisiciones = adquisiciones;
 		},
 
-		agregarAdquisicion( state, adquisicion: Adquisicion ): void {
-			state.adquisiciones.push( adquisicion );
-		},
-
 		modificarAdquisicion( state, adquisicion: Adquisicion ): void {
 			const indiceDeAdquisicion = state.adquisiciones.findIndex( ( _adquisicion ) => {
 				return _adquisicion._id === adquisicion._id;
@@ -1322,30 +1318,6 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerCreditos' );
-			}
-			catch ( error ) {
-				dispatch( 'mostrarAlerta', {
-					tipo: 'error',
-					texto: ( error.response !== undefined )
-						? error.response.data.message
-						: 'Ocurrió un error al conectarse al servidor'
-				});
-			}
-		},
-
-		async crearAdquisicion( { commit, dispatch }, adquisicionParaCrear: AdquisicionParaCrear ): Promise<void> {
-			try {
-				const url = `${ server.baseURL }/adquisiciones`;
-				const respuesta = await axios.post<Adquisicion>( url, adquisicionParaCrear );
-				const adquisicionCreada = respuesta.data;
-				commit( 'agregarAdquisicion', adquisicionCreada );
-
-				dispatch( 'mostrarAlerta', {
-					tipo: 'success',
-					texto: 'La Adquisicion se cargó con éxito.'
-				});
-
-				await dispatch( 'obtenerAdquisiciones' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
