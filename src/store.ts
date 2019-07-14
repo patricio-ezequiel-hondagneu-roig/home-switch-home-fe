@@ -14,6 +14,7 @@ import { CreditoBD, CreditoParaCrear } from './interfaces/creditoBD.interface';
 import moment from 'moment';
 import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
 import { Credito } from './interfaces/credito.interface';
+import { Hotsale, HotsaleParaCrear } from './interfaces/hotsale.interface';
 
 Vue.use( Vuex );
 
@@ -36,6 +37,7 @@ export default new Vuex.Store({
 		suscripciones: <Suscripcion[ ]> [ ],
 		publicaciones: <Publicacion[ ]> [ ],
 		creditos: <CreditoBD[ ]> [ ],
+		hotsales: <Hotsale[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -100,6 +102,10 @@ export default new Vuex.Store({
 
 		clientes: ( state ) => {
 			return state.clientes;
+		},
+
+		hotsales: ( state ) => {
+			return state.hotsales;
 		},
 
 		publicaciones: ( state ) => {
@@ -366,6 +372,10 @@ export default new Vuex.Store({
 			state.alerta.esVisible = false;
 		},
 
+		agregarHotsale( state, hotsale: Hotsale ): void {
+			state.hotsales.push( hotsale );
+		},
+
 		// Residencias
 		actualizarResidencias( state, residencias: Residencia[ ] ): void {
 			state.residencias = residencias;
@@ -508,6 +518,10 @@ export default new Vuex.Store({
 
 		actualizarAdquisiciones( state, adquisiciones: Adquisicion[ ] ): void {
 			state.adquisiciones = adquisiciones;
+		},
+
+		actualizarHotsales( state, hotsales: Hotsale[ ] ): void {
+			state.hotsales = hotsales;
 		},
 
 		modificarAdquisicion( state, adquisicion: Adquisicion ): void {
@@ -1168,6 +1182,22 @@ export default new Vuex.Store({
 			}
 		},
 
+		async obtenerHotsales( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Hotsale[ ]>( `${ server.baseURL }/hotsales` );
+				const hotsales = respuesta.data;
+				commit( 'actualizarHotsales', hotsales );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
 		/**
 		 * Solicita al servidor la lista de todas las publicaciones existentes y actualiza el store con ellas.
 		 *
@@ -1346,6 +1376,30 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerAdquisiciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async crearHotsale( { commit, dispatch }, hotsaleParaCrear: HotsaleParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/hotsales`;
+				const respuesta = await axios.post<Hotsale>( url, hotsaleParaCrear );
+				const hotsaleCreado = respuesta.data;
+				commit( 'agregarHotsale', hotsaleCreado );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'El hotsale se cargó con éxito.'
+				});
+
+				await dispatch( 'obtenerHotsales' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
