@@ -4,7 +4,7 @@
 			id="tabla"
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
-			:items="adquisiciones"
+			:items="adquisicionesDePerfil"
 			:rows-per-page-items="[3]"
 			no-data-text="No has adquirido semanas aún"
 		>
@@ -203,5 +203,22 @@ export default class TablaDeSemanasDeCliente extends Vue {
 		}
 	}
 	// the end is nigh
+	public get adquisicionesDePerfil( ): Adquisicion[ ] {
+			const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null);
+
+			if (perfilValido) {
+				const adquisiciones: Adquisicion[ ] = this.adquisiciones;
+
+				const adquisicionesDelPerfil = adquisiciones.filter( (adquisicion) => {
+					return (adquisicion.idCliente === this.$store.getters.perfil._id);
+				});
+
+				return adquisicionesDelPerfil;
+
+			} else {
+				const arregloDeAdquisicionesVacio: Adquisicion[ ] = [ ];
+				return arregloDeAdquisicionesVacio;
+			}
+		}
 }
 </script>
