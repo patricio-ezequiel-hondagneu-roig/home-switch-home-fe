@@ -1,80 +1,464 @@
 <template>
-	<v-container fluid fill-height>
-		<v-layout align-center row wrap>
-			<v-flex align-center justify-center>
-				<v-btn flat class="primary" @click.stop="mostrarFormularioDeCarga( )">
-					Cargar subasta
-				</v-btn>
-				<v-dialog persistent v-model="formularioDeCargaEsVisible" max-width="40rem">
-					<CargaDeSubasta
-						@subastaCreada="ocultarFormularioDeCarga( )"
-						@cancelacion="ocultarFormularioDeCarga( )"
-					/>
-				</v-dialog>
-			</v-flex>
-			<v-flex xs12>
-				<TablaDeSubastas :subastas="subastas"></TablaDeSubastas>
-			</v-flex>
-		</v-layout>
-	</v-container>
+	<div>
+		<v-container fluid fill-height>
+			<v-layout align-center justify-center row wrap>
+
+				<v-flex align-center>
+					<v-layout align-center justify-center>
+						<p class="display-1">
+							<span class="font-weight-black"> Subastas: </span>
+						</p>
+					</v-layout>
+
+					<hr>
+					<br>
+				</v-flex>
+
+				<v-flex xs12>
+
+					<v-data-table
+						class="elevation-1"
+						:headers="encabezadosDeTabla"
+						:items="publicaciones"
+						no-data-text="No hay posibles hot sales por el momento."
+					>
+						<template #items="props">
+							<td class="text-xs-right">{{ props.item._id }}</td>
+							<td class="text-xs-right">{{ ofertaMaximaDeSubasta(props.item._id) }}</td>
+							<td class="text-xs-right">{{ ganador(props.item._id) }}</td>
+							<td class="text-xs-right">{{ cantidadDeOfertas(props.item._id) }}</td>
+							<td class="text-xs-right">{{ residenciaConId(props.item.idResidencia).titulo }}</td>
+							<td class="text-xs-right">{{ formatearFecha(props.item.fechaDeInicioDeSemana) }}</td>
+
+							<td>
+								<v-layout row>
+									<v-tooltip left open-delay="100" close-delay="0">
+										<template v-slot:activator="{ on }">
+											<v-btn
+												v-on="on"
+												flat
+												icon
+												class="secondary--text"
+												:to="generarRuta( props.item.idResidencia )"
+											>
+											<v-icon>home</v-icon>
+											</v-btn>
+										</template>
+										<span>Informacion de Residencia Completa</span>
+									</v-tooltip>
+
+									<v-tooltip left open-delay="100" close-delay="0">
+										<template v-slot:activator="{ on }">
+											<v-btn
+												v-on="on"
+												flat
+												icon
+												class="secondary--text"
+												@click.stop="crearHotSale( props.item._id, props.item.fechaDeInicioDeSemana)"
+											>
+											<v-icon>whatshot</v-icon>
+											</v-btn>
+										</template>
+										<span>Crear hot sale</span>
+									</v-tooltip>
+
+									<v-tooltip left open-delay="100" close-delay="0">
+										<template v-slot:activator="{ on }">
+											<v-btn
+												color="#E0E0E0"
+												icon
+												class="secondary--text"
+												:to="generarRutaDePublicacion( props.item._id)"
+												v-on="on"
+											>
+											<v-icon>forward</v-icon>
+											</v-btn>
+										</template>
+										<span>Detalles de subasta</span>
+									</v-tooltip>
+								</v-layout>
+							</td>
+						</template>
+					</v-data-table>
+
+				</v-flex>
+			</v-layout>
+		</v-container>
+
+		<div>
+			<v-dialog v-model="formularioDeCrearHotSale" persistent max-width="40rem">
+				<v-card	class="pa-3">
+					<v-card-title>
+						<h5 class="headline">Ingrese el precio del hot sale</h5>
+					</v-card-title>
+
+					<v-card-text>
+						<v-form ref="formulario">
+							<v-text-field
+								:value="modeloDeHotSale.monto"
+								@input="modeloDeHotSale.monto = extraerNumero( $event, modeloDeHotSale.monto )"
+								label="Precio de hot sale"
+								:rules="validadores.precioDeHotSale"
+								hint="No puede ser negativo"
+								required
+								type="number"
+							></v-text-field>
+
+							<v-text-field
+								v-model="modeloDeHotSale.fechaDeInicio"
+								label="Fecha de Inicio"
+								:rules="validadores.fechaDeInicio"
+								required
+								hint="DD/MM/AAAA"
+								type="date"
+							></v-text-field>
+
+							<v-text-field
+								v-model="modeloDeHotSale.fechaDeFin"
+								label="Fecha de Fin"
+								:rules="validadores.fechaDeFin"
+								required
+								hint="DD/MM/AAAA"
+								type="date"
+							></v-text-field>
+						</v-form>
+					</v-card-text>
+
+					<v-card-text>
+						Comienzo de semana:
+						<span class="red--text">
+							{{ formatearFecha(fechaDeInisioDeSemanaDeLaPublicaccion) }}
+						</span>
+					</v-card-text>
+
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn flat @click.stop="cancelarCarga( )">
+							Cancelar
+						</v-btn>
+						<v-btn
+							color="primary"
+							:disabled="!formularioDeCrearHotSale"
+							@click.stop="cargarHotSale( )"
+						>
+							Crear
+						</v-btn>
+					</v-card-actions>
+
+				</v-card>
+			</v-dialog>
+		</div>
+	</div>
 </template>
 
 <script lang="ts">
-	import axios from 'axios';
-	import { Component, Vue } from 'vue-property-decorator';
-	import CargaDeSubasta from '@/components/CargaDeSubasta.vue';
-	import TablaDeSubastas from '@/components/TablaDeSubastas.vue';
-	import { server } from '@/utils/helper';
-	import { Subasta } from '@/interfaces/subasta.interface';
-	import { VuetifyThemeOptionName } from '@/typings/vuetify-theme-option-name.d';
+import axios from 'axios';
+import { Component, Vue } from 'vue-property-decorator';
+import TablaDeReservasDirectas from '@/components/TablaDeReservasDirectas.vue';
+import { server } from '@/utils/helper';
+import { Publicacion } from '@/interfaces/publicacion.interface';
+import { Residencia } from '@/interfaces/residencia.interface';
+import { Adquisicion } from '@/interfaces/adquisicion.interface';
+import { Cliente } from '@/interfaces/cliente.interface';
+import { VuetifyThemeOptionName } from '@/typings/vuetify-theme-option-name.d';
+import { Hotsale, HotsaleParaCrear } from '@/interfaces/hotsale.interface';
+import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+import moment from 'moment';
+import { requerido } from '@/helpers/validadores/requerido';
+import { numeroNoNegativo } from '@/helpers/validadores/numero-no-negativo';
+import { fechaEsFutura } from '@/helpers/validadores/fecha-es-futura';
 
-	@Component({
-		components: {
-			CargaDeSubasta,
-			TablaDeSubastas
+@Component
+export default class AdministracionDeSubastasNuevo extends Vue {
+
+
+	// Variables para manejar el formulario ---------------------------------
+	public formularioDeCrearHotSale: boolean = false;
+	public fechaDeInicio!: string;
+	public fechaDeFin!: string;
+	public idDePublicacionSeleccionada: string | undefined;
+	public fechaDeInisioDeSemanaDeLaPublicaccion: string = '';
+
+	public modeloDeHotSale: HotsaleParaCrear = {
+		idPublicacion: '',
+		fechaDeInicio: '',
+		fechaDeFin: '',
+		monto: 0,
+	};
+
+	public validadores = {
+		precioDeHotSale: [
+			requerido( 'Precio de hot sale' ),
+			numeroNoNegativo( 'Precio de hot sale' )
+		],
+		fechaDeInicio: [
+			requerido( 'Fecha de Inicio' ),
+			fechaEsFutura( 'Fecha de Inicio' )
+		],
+		fechaDeFin: [
+			requerido( 'Fecha de Fin' ),
+			fechaEsFutura( 'Fecha de Fin' )
+		]
+	};
+	// ----------------------------------------------------------------------
+
+	/**
+	 * Lista de todas las publicaciones actualmente en el sistema.
+	 */
+	public get publicaciones( ): Publicacion[ ] {
+		return this.$store.getters.subastasActivas;
+	}
+
+	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+		{
+			text: 'Id',
+			value: '_id',
+			align: 'right'
 		},
-	})
-	export default class AdministracionDeSubastas extends Vue {
-		/**
-		 * Flag que indica si se debe o no mostrar el formulario de carga.
-		 */
-		public formularioDeCargaEsVisible: boolean = false;
+		{
+			text: 'Precio',
+			value: '',
+			align: 'right'
+		},
+		{
+			text: 'Titular de la oferta más grande',
+			value: '',
+			align: 'right'
+		},
+		{
+			text: 'Ofertas',
+			value: '',
+			align: 'right'
+		},
+		{
+			text: 'Titulo',
+			value: 'titulo',
+			align: 'right'
+		},
+		{
+			text: 'Fecha de inicio de semana',
+			value: 'fechaDeInicioDeSemana',
+			align: 'right'
+		},
+		{
+			text: '',
+			value: '',
+			align: 'right',
+			sortable: false
+		},
+	];
 
-		/**
-		 * Lista de todas las subastas actualmente en el sistema.
-		 */
-		public get subastas( ): Subasta[ ] {
-			return this.$store.getters.subastas;
-		}
+	public generarRuta( idResidencia: string ): object {
+		return {
+			name: 'residencia con id',
+			params: {
+				idResidencia
+			}
+		};
+	}
 
-		/**
-		 * Hook de ciclo de vida.
-		 *
-		 * Carga las subastas actualmente en el sistema al instanciar el componente.
-		 */
-		public created( ): void {
-			this.obtenerSubastas( );
-		}
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('DD/MM/YYYY');
+	}
 
-		/**
-		 * Solicita al store que actualice la lista local de subastas.
-		 */
-		public obtenerSubastas( ): void {
-			this.$store.dispatch( 'obtenerSubastas' );
-		}
+	public created( ) {
+		this.$store.dispatch( 'obtenerResidencias' );
+		this.$store.dispatch( 'obtenerPublicaciones' );
+		this.$store.dispatch( 'obtenerAdquisiciones' );
+		this.$store.dispatch( 'obtenerClientes' );
+	}
 
-		/**
-		 * Muestra el formulario de carga de subastas.
-		 */
-		public mostrarFormularioDeCarga( ): void {
-			this.formularioDeCargaEsVisible = true;
-		}
+	public residenciaConId( idResidencia: string): Residencia {
+		return this.$store.getters.residenciaConId( idResidencia );
+	}
 
-		/**
-		 * Oculta el formulario de carga de subastas.
-		 */
-		public ocultarFormularioDeCarga( ): void {
-			this.formularioDeCargaEsVisible = false;
+	public get hotsales( ): Hotsale[ ] {
+		return this.$store.getters.hotsales;
+	}
+
+	/*
+	* +-------------------------------------------------------------------------+
+	* |	Desde aca va todo lo relacionado con el formulario de crear hot sale	|
+	* +-------------------------------------------------------------------------+
+	*/
+
+	public crearHotSale( idPublicacion: string, fechaDeInicioDeSemana: string ) {
+		this.idDePublicacionSeleccionada = idPublicacion;
+		this.fechaDeInisioDeSemanaDeLaPublicaccion = fechaDeInicioDeSemana;
+		this.formularioDeCrearHotSale = true;
+	}
+
+	public cancelarCarga( ): void {
+		this.idDePublicacionSeleccionada = undefined;
+		this.restablecerFormulario( );
+	}
+
+	public restablecerFormulario( ): void {
+		this.modeloDeHotSale.idPublicacion = '';
+		this.modeloDeHotSale.fechaDeInicio = '';
+		this.modeloDeHotSale.fechaDeFin = '';
+		this.modeloDeHotSale.monto = 0;
+
+		this.formularioDeCrearHotSale = false;
+	}
+
+	public async cargarHotSale( ) {
+		// Asigno la id de la publicacion y transformo las fechas
+		if ( this.idDePublicacionSeleccionada !== undefined ) {
+			this.modeloDeHotSale.idPublicacion = this.idDePublicacionSeleccionada;
+			this.modeloDeHotSale.fechaDeInicio = moment( this.modeloDeHotSale.fechaDeInicio ).utc().toISOString();
+			this.modeloDeHotSale.fechaDeFin = moment( this.modeloDeHotSale.fechaDeFin ).utc().toISOString();
+
+			// Me fijo que no haya un hot sale que referencie a la misma id de publicacion
+			const hayHotsaleQueReferenciaEstaPublicacion = this.hotsales.filter ( (hotsale) => {
+				return hotsale.idPublicacion === this.idDePublicacionSeleccionada;
+			});
+
+			// Me fijo si ya había ofertado anteriormente, en caso de que si busco la adquisicion y la modifico
+			if (hayHotsaleQueReferenciaEstaPublicacion.length > 0) {
+				// Hay un hotsale, aviso que se tiene que eliminar
+				await this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: 'Ya hay un hot sale para esta publicacion, eliminelo si quiere crear uno nuevo'
+				});
+			} else {
+				// No existe un hot sale para esta publicacion, cargo uno nuevo. Antes me fijo que esten bien las fechas
+				const publicacionQueSeReferencia = this.$store.getters.publicacionConId(this.modeloDeHotSale.idPublicacion);
+				const inicioDeSemana = moment(publicacionQueSeReferencia.fechaDeInicioDeSemana);
+				const fechaDeInicioValida: boolean = inicioDeSemana > moment(this.modeloDeHotSale.fechaDeInicio);
+				const fechaDeFinValida: boolean = inicioDeSemana > moment(this.modeloDeHotSale.fechaDeFin);
+				const fechasValidas: boolean = fechaDeInicioValida && fechaDeFinValida;
+				if (fechasValidas) {
+					await this.$store.dispatch( 'crearHotsale', this.modeloDeHotSale );
+				} else {
+					await this.$store.dispatch( 'mostrarAlerta', {
+						tipo: 'error',
+						texto: 'Alguna de las fechas ingresadas es mayor a la fecha de comienzo de la semana'
+					});
+				}
+			}
+
+			// Vuelvo a tener las adquisiciones
+			this.$store.dispatch( 'obtenerHotsales' );
+
+			this.idDePublicacionSeleccionada = undefined;
+			this.formularioDeCrearHotSale = false;
 		}
 	}
+
+	public extraerNumero( texto: string, predeterminado: number ): number {
+		const valorNumerico: number = Number.parseFloat( texto );
+
+		return ( isNaN( valorNumerico ) )
+			? predeterminado
+			: valorNumerico;
+	}
+
+	public ofertaMaximaDeSubasta( idPublicacion: string ): number {
+		// Junto todas las adquisiciones
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+
+		// Junto todas las adquisiciones que referencian a esta publicacion
+		const adquisicionesDeSubasta = adquisiciones.filter( (adquisicion) => {
+			return adquisicion.idPublicacion === idPublicacion;
+		});
+
+		// Junto todas las ofertas de esta publicacion, igual es poco necesario este paso ...
+		// ... ya que se sabe que es una subasta
+		const ofertasDeSubasta = adquisicionesDeSubasta.filter( (adquisicion) => {
+			return adquisicion.tipoDeAdquisicion === 'subasta';
+		});
+
+		// Pregunto si hay adquisiciones de tipo subasta, osea ofertas, utilizando el tamaño del arreglo
+		if (ofertasDeSubasta.length > 0) {
+			const maximo = ofertasDeSubasta
+				.sort( ( a, b ) => {
+					if ( a.monto > b.monto ) {
+						return -1;
+					}
+					else if ( a.monto < b.monto ) {
+						return +1;
+					}
+					else {
+						return 0;
+					}
+				});
+			return maximo[0].monto;
+		} else {
+			return this.$store.getters.publicacionConId(idPublicacion).montoInicialDeSubasta;
+		}
+	}
+
+	public ganador( idPublicacion: string ): string {
+		// Junto todas las adquisiciones
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+
+		// Junto todas las adquisiciones que referencian a esta publicacion
+		const adquisicionesDeSubasta = adquisiciones.filter( (adquisicion) => {
+			return adquisicion.idPublicacion === idPublicacion;
+		});
+
+		// Junto todas las ofertas de esta publicacion, igual es poco necesario este paso ...
+		// ... ya que se sabe que es una subasta
+		const ofertasDeSubasta = adquisicionesDeSubasta.filter( (adquisicion) => {
+			return adquisicion.tipoDeAdquisicion === 'subasta';
+		});
+
+		// Pregunto si hay adquisiciones de tipo subasta, osea ofertas, utilizando el tamaño del arreglo
+		if (ofertasDeSubasta.length > 0) {
+			const maximo = ofertasDeSubasta
+				.sort( ( a, b ) => {
+					if ( a.monto > b.monto ) {
+						return -1;
+					}
+					else if ( a.monto < b.monto ) {
+						return +1;
+					}
+					else {
+						return 0;
+					}
+				});
+			const cliente: Cliente = this.$store.getters.clienteConId(maximo[0].idCliente);
+			if ( cliente !== null ) {
+				return cliente.email;
+			} else {
+				return 'Error en la carga, ir a AdministracionDeSubastasNuevo linea 404';
+			}
+		} else {
+			return 'No hay ofertas';
+		}
+	}
+
+	public cantidadDeOfertas( idPublicacion: string ): number {
+		// Junto todas las adquisiciones
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+
+		// Junto todas las adquisiciones que referencian a esta publicacion
+		const adquisicionesDeSubasta = adquisiciones.filter( (adquisicion) => {
+			return adquisicion.idPublicacion === idPublicacion;
+		});
+
+		// Junto todas las ofertas de esta publicacion, igual es poco necesario este paso ...
+		// ... ya que se sabe que es una subasta
+		const ofertasDeSubasta = adquisicionesDeSubasta.filter( (adquisicion) => {
+			return adquisicion.tipoDeAdquisicion === 'subasta';
+		});
+
+		// Pregunto si hay adquisiciones de tipo subasta, osea ofertas, utilizando el tamaño del arreglo
+		if (ofertasDeSubasta.length > 0) {
+			return ofertasDeSubasta.length;
+		} else {
+			return 0;
+		}
+	}
+
+	public generarRutaDePublicacion( idPublicacion: string ): object {
+		return {
+			name: 'publicacion con id',
+			params: {
+				idPublicacion
+			}
+		};
+	}
+}
 </script>
