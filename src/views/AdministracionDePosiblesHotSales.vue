@@ -51,7 +51,7 @@
 												flat
 												icon
 												class="secondary--text"
-												@click.stop="crearHotSale( props.item._id )"
+												@click.stop="crearHotSale( props.item._id, props.item.fechaDeInicioDeSemana)"
 											>
 											<v-icon>whatshot</v-icon>
 											</v-btn>
@@ -106,6 +106,13 @@
 						</v-form>
 					</v-card-text>
 
+					<v-card-text>
+						Comienzo de semana:
+						<span class="red--text">
+							{{ formatearFecha(fechaDeInisioDeSemanaDeLaPublicaccion) }}
+						</span>
+					</v-card-text>
+
 					<v-card-actions>
 						<v-spacer></v-spacer>
 						<v-btn flat @click.stop="cancelarCarga( )">
@@ -150,6 +157,14 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 	public fechaDeInicio!: string;
 	public fechaDeFin!: string;
 	public idDePublicacionSeleccionada: string | undefined;
+	public fechaDeInisioDeSemanaDeLaPublicaccion: string = '';
+
+	public modeloDeHotSale: HotsaleParaCrear = {
+		idPublicacion: '',
+		fechaDeInicio: '',
+		fechaDeFin: '',
+		monto: 0,
+	};
 
 	public validadores = {
 		precioDeHotSale: [
@@ -164,13 +179,6 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 			requerido( 'Fecha de Fin' ),
 			fechaEsFutura( 'Fecha de Fin' )
 		]
-	};
-
-	public modeloDeHotSale: HotsaleParaCrear = {
-		idPublicacion: '',
-		fechaDeInicio: '',
-		fechaDeFin: '',
-		monto: 0,
 	};
 	// ----------------------------------------------------------------------
 
@@ -238,8 +246,9 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 	* +-------------------------------------------------------------------------+
 	*/
 
-	public crearHotSale( idPublicacion: string ) {
+	public crearHotSale( idPublicacion: string, fechaDeInicioDeSemana: string ) {
 		this.idDePublicacionSeleccionada = idPublicacion;
+		this.fechaDeInisioDeSemanaDeLaPublicaccion = fechaDeInicioDeSemana;
 		this.formularioDeCrearHotSale = true;
 	}
 
@@ -258,16 +267,13 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 	}
 
 	public async cargarHotSale( ) {
-		// A partir de los datos del formulario creo un nuevo hot sale
-		// Elimino la publicacion que esta en estado de posible hot sale
-
 		// Asigno la id de la publicacion y transformo las fechas
 		if ( this.idDePublicacionSeleccionada !== undefined ) {
 			this.modeloDeHotSale.idPublicacion = this.idDePublicacionSeleccionada;
-			this.modeloDeHotSale.fechaDeInicio = moment( this.fechaDeInicio ).utc().toISOString();
-			this.modeloDeHotSale.fechaDeFin = moment( this.fechaDeFin ).utc().toISOString();
+			this.modeloDeHotSale.fechaDeInicio = moment( this.modeloDeHotSale.fechaDeInicio ).utc().toISOString();
+			this.modeloDeHotSale.fechaDeFin = moment( this.modeloDeHotSale.fechaDeFin ).utc().toISOString();
 
-			// Me fijo que no hayan un hot sale que referencie a la misma id de publicacion
+			// Me fijo que no haya un hot sale que referencie a la misma id de publicacion
 			const hayHotsaleQueReferenciaEstaPublicacion = this.hotsales.filter ( (hotsale) => {
 				return hotsale.idPublicacion === this.idDePublicacionSeleccionada;
 			});
@@ -280,8 +286,20 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 					texto: 'Ya hay un hot sale para esta publicacion, eliminelo si quiere crear uno nuevo'
 				});
 			} else {
-				// No existe un hot sale para esta publicacion, cargo uno nuevo
-				await this.$store.dispatch( 'crearHotsale', this.modeloDeHotSale );
+				// No existe un hot sale para esta publicacion, cargo uno nuevo. Antes me fijo que esten bien las fechas
+				const publicacionQueSeReferencia = this.$store.getters.publicacionConId(this.modeloDeHotSale.idPublicacion);
+				const inicioDeSemana = moment(publicacionQueSeReferencia.fechaDeInicioDeSemana);
+				const fechaDeInicioValida: boolean = inicioDeSemana > moment(this.modeloDeHotSale.fechaDeInicio);
+				const fechaDeFinValida: boolean = inicioDeSemana > moment(this.modeloDeHotSale.fechaDeFin);
+				const fechasValidas: boolean = fechaDeInicioValida && fechaDeFinValida;
+				if (fechasValidas) {
+					await this.$store.dispatch( 'crearHotsale', this.modeloDeHotSale );
+				} else {
+					await this.$store.dispatch( 'mostrarAlerta', {
+						tipo: 'error',
+						texto: 'Alguna de las fechas ingresadas es mayor a la fecha de comienzo de la semana'
+					});
+				}
 			}
 
 			// Vuelvo a tener las adquisiciones
