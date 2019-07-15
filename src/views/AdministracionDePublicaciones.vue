@@ -22,7 +22,7 @@
 											<h1 class="headline mb-0">Reservas Directas</h1>
 										</v-card-title>
 										<v-card-text>
-											Ver, crear, modificar y eliminar reservas directas.
+											Ver las reservas directas en el sistema.
 										</v-card-text>
 									</v-layout>
 								</v-layout>
@@ -45,7 +45,7 @@
 										<h1 class="headline mb-0">Subastas</h1>
 									</v-card-title>
 									<v-card-text>
-										Ver, crear, modificar y eliminar subastas.
+										Ver las subastas.
 									</v-card-text>
 								</v-layout>
 							</v-layout>
@@ -68,7 +68,7 @@
 										<h1 class="headline mb-0">Posibles Hot Sales</h1>
 									</v-card-title>
 									<v-card-text>
-										Ver, aprobar y eliminar posibles hot sales.
+										Ver y crear posibles hot sales.
 									</v-card-text>
 								</v-layout>
 							</v-layout>
