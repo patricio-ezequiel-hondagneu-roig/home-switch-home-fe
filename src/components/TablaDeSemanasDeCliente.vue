@@ -73,6 +73,7 @@ import moment from 'moment';
 import DetalleDeResidencia from './DetalleDeResidencia.vue';
 import { Residencia } from '@/interfaces/residencia.interface';
 import { Publicacion } from '../interfaces/publicacion.interface';
+import { Cliente, ClienteParaModificar } from '@/interfaces/cliente.interface';
 
 @Component({
 	components: {
@@ -98,6 +99,24 @@ export default class TablaDeSemanasDeCliente extends Vue {
 		fotos: [ ],
 		montoInicialDeSubasta: 0
 	};
+
+	// La unica razon por la que hay un modelo de ClienteParaModificar es porque en la reserva directa ...
+	// ... al cancelarla te devuelve un credito
+	public modelo: ClienteParaModificar = {
+		idSuscripcion: this.cliente.idSuscripcion ,
+		nombre: this.cliente.nombre ,
+		apellido: this.cliente.apellido ,
+		email: this.cliente.email ,
+		contraseña: this.cliente.contraseña ,
+		fechaDeNacimiento: this.cliente.fechaDeNacimiento ,
+		celular: this.cliente.celular ,
+		pais: this.cliente.pais ,
+		tarjetaDeCredito: this.cliente.tarjetaDeCredito ,
+		codigoDeSeguridad: this.cliente.codigoDeSeguridad,
+		fechaDeExpiracion: this.cliente.fechaDeExpiracion,
+		creditos: this.cliente.creditos
+	};
+
 	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 		{
 			text: 'Residencia',
@@ -138,29 +157,35 @@ export default class TablaDeSemanasDeCliente extends Vue {
 			sortable: false
 		},
 	];
+
 	// al crearse componente se actualizan todos los arreglos a utilizar
 	public created( ) {
 		this.$store.dispatch('adquisicionesDeClienteId', this.idCliente);
 		this.$store.dispatch('obtenerPublicaciones');
 		this.$store.dispatch('obtenerResidencias');
 	}
+
 	// formatea fecha para poder ser mostrada
 	public formatearFecha(fecha: string): string {
 		return moment(fecha).format('DD/MM/YYYY');
 	}
+
 	/** obtener adquisiciones del cliente logeado */
 	public get adquisiciones(): Adquisicion[ ] {
 		return this.$store.getters.adquisiciones;
 	}
+
 	// obtiene publicacion por idPublicacion
 	public publicacionId( idPublicacion: string ): Publicacion {
 		return this.$store.getters.publicacionConId( idPublicacion );
 	}
+
 	// obtiene residencia de una idPublicacion que posee idResidencia
 	public obtenerResidenciaConPublicacionId( idPublicacion: string ): Residencia {
 		const publicacion = this.publicacionId( idPublicacion );
 		return this.$store.getters.residenciaConId(publicacion.idResidencia);
 	}
+
 	// obtiene nombre de residencia dada un idPublicacion
 	public nombreDeResidenciaDePublicacionId( idPublicacion: string ): string | undefined {
 		const residencia = this.obtenerResidenciaConPublicacionId( idPublicacion );
@@ -168,25 +193,48 @@ export default class TablaDeSemanasDeCliente extends Vue {
 			return residencia.titulo;
 		}
 	}
+
 	// obtiene fecha de semana de publicacion dada un idPublicacion
 	public fechaDeSemanaDePublicacionId( idPublicacion: string ): string {
 		const publicacion = this.publicacionId( idPublicacion );
 		return this.formatearFecha(publicacion.fechaDeInicioDeSemana);
 	}
+
 	// sistema de ocultamiento de detalle de residencia
 	public mostrarDetallesResidencia( residencia: Residencia ): void {
 		this.residenciaParaMostrar = residencia;
 		this.detalleDeResidenciaEsVisible = true;
 	}
+
 	public ocultarDetalleDeResidencia( ): void {
 		this.detalleDeResidenciaEsVisible = false;
 	}
+
 	// cancelacion de adquisicion segun idAdquisicion
-	public cancelarAdquisicion( idAdquisicion: string ): void {
+	public async cancelarAdquisicion( idAdquisicion: string ) {
 		const adquisicion = this.$store.getters.adquisicionConId(idAdquisicion);
 		switch ( adquisicion.tipoDeAdquisicion ) {
 			case 'reserva directa': {
-				// statements;
+				// Primero elimino la reserva directa
+				await this.$store.dispatch( 'eliminarAdquisicion', adquisicion._id );
+				// Segundo me fijo el comienzo de la semana ya.
+				// En el caso que ya paso la semana no devuelvo un credito.
+				// En el caso de que se cancele una reserva directa y no haya ...
+				// ... comenzado la semana se devuelve un credito.
+				const publicacion: Publicacion = this.$store.getters.publicacionConId( adquisicion.idPublicacion );
+				if ( moment(publicacion.fechaDeInicioDeSemana).isAfter( moment() ) ) {
+					// Agrego el credito a retornar por la cancelacion de la reserva directa
+					this.modelo.creditos.push({
+						fechaDeCreacion: moment().utc().toISOString(),
+						activo: true
+					});
+
+					await this.$store.dispatch( 'modificarPerfil', {
+						idCliente: this.cliente._id,
+						clienteParaModificar: this.modelo,
+					});
+				}
+
 				break;
 			}
 			case 'hot sale': {
@@ -204,5 +252,9 @@ export default class TablaDeSemanasDeCliente extends Vue {
 		}
 	}
 	// the end is nigh
+
+	public get cliente(): Cliente {
+		return this.$store.getters.perfil;
+	}
 }
 </script>
