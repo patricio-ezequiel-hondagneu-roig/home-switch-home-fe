@@ -1089,24 +1089,34 @@ export default new Vuex.Store({
 		 * @param idCliente ID del cliente a eliminar
 		 */
 		async eliminarCliente( { commit, dispatch }, idCliente: Cliente[ '_id' ] ): Promise<void> {
-			try {
-				const url: string = `${ server.baseURL }/clientes/${ idCliente }`;
-				await axios.delete( url );
-				commit( 'eliminarCliente', idCliente );
+			await dispatch('adquisicionesDeClienteId' , idCliente);
+			// tslint:disable-next-line: no-invalid-this
+			const adquisiciones = this.getters.adquisiciones;
+			if ( adquisiciones.length === 0 ) {
+				try {
+					const url: string = `${ server.baseURL }/clientes/${ idCliente }`;
+					await axios.delete( url );
+					commit( 'eliminarCliente', idCliente );
 
-				dispatch( 'mostrarAlerta', {
-					tipo: 'success',
-					texto: 'El cliente se eliminó con éxito.'
-				});
+					dispatch( 'mostrarAlerta', {
+						tipo: 'success',
+						texto: 'El cliente se eliminó con éxito.'
+					});
 
-				await dispatch( 'obtenerClientes' );
-			}
-			catch ( error ) {
+					await dispatch( 'obtenerClientes' );
+				}
+				catch ( error ) {
+					dispatch( 'mostrarAlerta', {
+						tipo: 'error',
+						texto: ( error.response !== undefined )
+							? error.response.data.message
+							: 'Ocurrió un error al conectarse al servidor'
+					});
+				}
+			} else {
 				dispatch( 'mostrarAlerta', {
 					tipo: 'error',
-					texto: ( error.response !== undefined )
-						? error.response.data.message
-						: 'Ocurrió un error al conectarse al servidor'
+					texto: 'El usuario que desea borrar posee publicaciones'
 				});
 			}
 		},
