@@ -37,7 +37,6 @@
 				<v-text-field
 					v-model="modelo.celular"
 					label="Celular"
-					counter="11"
 					:rules="validadores.celular"
 					hint="Cod.Area + Número "
 					required
