@@ -410,7 +410,6 @@ export default new Vuex.Store({
 				state.residencias.splice( indiceDeResidencia, 1 );
 			}
 		},
-
 		// Subastas
 		actualizarSubastas( state, subastas: Subasta[ ] ): void {
 			state.subastas = subastas;
@@ -514,7 +513,7 @@ export default new Vuex.Store({
 			});
 
 			if ( indiceDeSolicitud !== -1 ) {
-				state.clientes.splice( indiceDeSolicitud, 1 );
+				state.solicitudes.splice( indiceDeSolicitud, 1 );
 			}
 		},
 
@@ -525,7 +524,15 @@ export default new Vuex.Store({
 		actualizarHotsales( state, hotsales: Hotsale[ ] ): void {
 			state.hotsales = hotsales;
 		},
+		eliminarHotsale( state, idHotsale: Hotsale[ '_id' ] ): void {
+			const indiceDeHotsale = state.hotsales.findIndex( ( _hotsale ) => {
+				return _hotsale._id === idHotsale;
+			});
 
+			if ( indiceDeHotsale !== -1 ) {
+				state.hotsales.splice( indiceDeHotsale, 1 );
+			}
+		},
 		modificarAdquisicion( state, adquisicion: Adquisicion ): void {
 			const indiceDeAdquisicion = state.adquisiciones.findIndex( ( _adquisicion ) => {
 				return _adquisicion._id === adquisicion._id;
@@ -1199,7 +1206,28 @@ export default new Vuex.Store({
 				});
 			}
 		},
+		async eliminarHotsale( { commit, dispatch }, idHotsale: Hotsale[ '_id' ] ): Promise<void> {
+			try {
+				const url: string = `${ server.baseURL }/hotsales/${ idHotsale }`;
+				await axios.delete( url );
+				commit( 'eliminarHotsale', idHotsale );
 
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'El hotsale termino con éxito.'
+				});
+
+				await dispatch( 'obtenerHotsales' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
 		/**
 		 * Solicita al servidor la lista de todas las publicaciones existentes y actualiza el store con ellas.
 		 *

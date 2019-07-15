@@ -4,9 +4,8 @@
 			id="tabla"
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
-			:items="adquisiciones"
-			:rows-per-page-items="[8]"
-			no-data-text="No has adquirido semanas aún"
+			:items="hotsales"
+			no-data-text="No hay nada que mostrar :("
 		>
 			<template #items="props">
 				<template>
@@ -28,8 +27,8 @@
 						</v-tooltip>
 					</td>
 					<td class="text-xs-right">{{ fechaDeSemanaDePublicacionId(props.item.idPublicacion) }}</td>
-					<td class="text-xs-right">{{ (formatearFecha(props.item.fechaDeCreacion)) }}</td>
-					<td class="text-xs-right">{{ (props.item.tipoDeAdquisicion) }}</td>
+					<td class="text-xs-right">{{ (formatearFecha(props.item.fechaDeInicio)) }}</td>
+					<td class="text-xs-right">{{ (formatearFecha(props.item.fechaDeFin)) }}</td>
 					<td class="text-xs-right">{{ (props.item.monto) }}</td>
 					<td>
 						<v-layout row>
@@ -39,13 +38,13 @@
 										flat
 										icon
 										class="secondary--text"
-										@click.stop="cancelarAdquisicion( props.item._id )"
+										@click.stop="terminarHotsale( props.item._id )"
 										v-on="on"
 									>
 										<v-icon>delete</v-icon>
 									</v-btn>
 								</template>
-								<span>Cancelar adquisicion</span>
+								<span>Terminar hotsale</span>
 							</v-tooltip>
 						</v-layout>
 					</td>
@@ -65,25 +64,21 @@
 
 <script lang="ts">
 import axios from 'axios';
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { Adquisicion } from '@/interfaces/adquisicion.interface';
+import { Component, Vue } from 'vue-property-decorator';
 import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 import moment from 'moment';
 import DetalleDeResidencia from './DetalleDeResidencia.vue';
 import { Residencia } from '@/interfaces/residencia.interface';
 import { Publicacion } from '../interfaces/publicacion.interface';
+import { Hotsale } from '@/interfaces/hotsale.interface';
 
 @Component({
 	components: {
 		DetalleDeResidencia
 	}
 })
-export default class TablaDeSemanasDeCliente extends Vue {
-	// prop necesario para el funcionamiento del componente
-	// hace referencia a la idCliente del cliente logeado actualmente
-	@Prop()
-	public readonly idCliente!: string;
+export default class TablaDeHotsales extends Vue {
 	// se activa cuando alguien desea ver el detalle de una residencia
 	public detalleDeResidenciaEsVisible: boolean = false;
 	// utilizado para la comunicacion con el componente detalleDeResidencia
@@ -116,18 +111,18 @@ export default class TablaDeSemanasDeCliente extends Vue {
 			align: 'right'
 		},
 		{
-			text: 'Fecha de adquisición',
-			value: 'fechaAdquisicion',
+			text: 'Fecha de comienzo',
+			value: 'fechaComienzo',
 			align: 'right'
 		},
 		{
-			text: 'Tipo',
-			value: 'tipo',
+			text: 'Fecha de fin',
+			value: 'fechaFin',
 			align: 'right'
 		},
 		{
-			text: 'Pagaste',
-			value: 'pagado',
+			text: 'Precio',
+			value: 'precio',
 			align: 'right',
 			sortable: false
 		},
@@ -140,17 +135,17 @@ export default class TablaDeSemanasDeCliente extends Vue {
 	];
 	// al crearse componente se actualizan todos los arreglos a utilizar
 	public created( ) {
-		this.$store.dispatch('adquisicionesDeClienteId', this.idCliente);
 		this.$store.dispatch('obtenerPublicaciones');
 		this.$store.dispatch('obtenerResidencias');
+		this.$store.dispatch('obtenerHotsales');
 	}
 	// formatea fecha para poder ser mostrada
 	public formatearFecha(fecha: string): string {
 		return moment(fecha).format('DD/MM/YYYY');
 	}
 	/** obtener adquisiciones del cliente logeado */
-	public get adquisiciones(): Adquisicion[ ] {
-		return this.$store.getters.adquisiciones;
+	public get hotsales(): Hotsale[ ] {
+		return this.$store.getters.hotsales;
 	}
 	// obtiene publicacion por idPublicacion
 	public publicacionId( idPublicacion: string ): Publicacion {
@@ -181,27 +176,9 @@ export default class TablaDeSemanasDeCliente extends Vue {
 	public ocultarDetalleDeResidencia( ): void {
 		this.detalleDeResidenciaEsVisible = false;
 	}
-	// cancelacion de adquisicion segun idAdquisicion
-	public cancelarAdquisicion( idAdquisicion: string ): void {
-		const adquisicion = this.$store.getters.adquisicionConId(idAdquisicion);
-		switch ( adquisicion.tipoDeAdquisicion ) {
-			case 'reserva directa': {
-				// statements;
-				break;
-			}
-			case 'hot sale': {
-				// statements;
-				break;
-			}
-			case 'subasta': {
-				// statements;
-				break;
-			}
-			default: {
-				// statements;
-				break;
-			}
-		}
+	// borrar hotsale
+	public terminarHotsale( hotsaleId: string ) {
+		this.$store.dispatch( 'eliminarHotsale' , hotsaleId );
 	}
 	// the end is nigh
 }

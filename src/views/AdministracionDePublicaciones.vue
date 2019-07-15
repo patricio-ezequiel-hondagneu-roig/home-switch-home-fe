@@ -80,10 +80,10 @@
 								slot-scope="{ hover }"
 								class="tarjeta-de-enlace"
 								:class="`elevation-${ hover ? 12 : 2 }`"
-								:to="{ name: 'administracion de publicaciones' }"
+								:to="{ name: 'administracion de hot sales' }"
 							>
 							<v-layout fill-height column>
-								<v-layout justify-center class="grey pa-2">
+								<v-layout justify-center class="primary pa-2">
 									<v-icon class="icono-grande">whatshot</v-icon>
 								</v-layout>
 								<v-layout column class="verticalmente-desbordable">
