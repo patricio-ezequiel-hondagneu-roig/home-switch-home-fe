@@ -38,73 +38,88 @@
 
 
 <script lang="ts">
-	import axios from 'axios';
-	import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
-	import { Publicacion } from '@/interfaces/publicacion.interface';
-	import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
-	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
-	import { server } from '@/utils/helper';
-	import moment from 'moment';
+import axios from 'axios';
+import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
+import { Publicacion } from '@/interfaces/publicacion.interface';
+import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
+import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+import { server } from '@/utils/helper';
+import moment from 'moment';
+import { Adquisicion } from '../interfaces/adquisicion.interface';
 
-	@Component
-	export default class TablaDeReservasDirectas extends Vue {
+@Component
+export default class TablaDeReservasDirectas extends Vue {
+
+	/**
+	 * Lista de todas las publicaciones actualmente en el sistema.
+	 */
+	public get publicaciones( ): Publicacion[ ] {
+		return this.$store.getters.publicaciones;
+	}
+
+	/**
+	 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
+	 */
+	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+		{
+			text: 'Id',
+			value: '_id',
+			align: 'right'
+		},
+		{
+			text: 'idResidencia',
+			value: 'idResidencia',
+			align: 'right'
+		},
+		{
+			text: 'Fecha de inicio de semana',
+			value: 'fechaDeInicioDeSemana',
+			align: 'right'
+		},
+		{
+			text: 'Esta adquirida',
+			value: '',
+			align: 'right'
+		},
+		{
+			text: '',
+			value: '',
+			align: 'right',
+			sortable: false
+		},
+	];
 
 
-		/**
-		 * Lista de todas las publicaciones actualmente en el sistema.
-		 */
-		public get publicaciones( ): Publicacion[ ] {
-			return this.$store.getters.publicaciones;
-		}
+	public created( ) {
+		this.$store.dispatch( 'obtenerResidencias' );
+		this.$store.dispatch( 'obtenerPublicaciones' );
+		this.$store.dispatch( 'obtenerAdquisiciones' );
+	}
 
-		/**
-		 * Lista con los encabezados a mostrar en la tabla, indicado la etiqueta y el nombre del campo a mostrar
-		 */
-		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
-			{
-				text: 'Id',
-				value: '_id',
-				align: 'right'
-			},
-			{
-				text: 'idResidencia',
-				value: 'idResidencia',
-				align: 'right'
-			},
-			{
-				text: 'Fecha de inicio de semana',
-				value: 'fechaDeInicioDeSemana',
-				align: 'right'
-			},
-			{
-				text: 'Esta adquirida',
-				value: '',
-				align: 'right'
-			},
-			{
-				text: '',
-				value: '',
-				align: 'right',
-				sortable: false
-			},
-		];
+	public generarRuta( idResidencia: string ): object {
+		return {
+			name: 'residencia con id',
+			params: {
+				idResidencia
+			}
+		};
+	}
 
-		public generarRuta( idResidencia: string ): object {
-			return {
-				name: 'residencia con id',
-				params: {
-					idResidencia
-				}
-			};
-		}
+	public adquirida( idPublicacion: string): string {
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+		const hayAdquisiciones = adquisiciones.filter( (adquisicion) => {
+			return adquisicion.idPublicacion === idPublicacion;
+		});
 
-		public adquirida( idPublicacion: string): string {
-			// Fijarse si esta adquirida la publicacion o no
+		if (hayAdquisiciones.length > 0) {
+			return 'Si';
+		} else {
 			return 'No';
 		}
-
-		public formatearFecha(fecha: string): string {
-			return moment(fecha).format('DD/MM/YYYY');
-		}
 	}
+
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('DD/MM/YYYY');
+	}
+}
 </script>
