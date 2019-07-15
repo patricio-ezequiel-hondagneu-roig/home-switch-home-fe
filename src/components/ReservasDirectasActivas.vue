@@ -245,7 +245,8 @@ export default class ReservasDirectasActivas extends Vue {
 					}
 				);
 				// adquiero la semana en reserva directa
-				await this.$store.dispatch( 'crearAdquisicion' , {
+				await this.$store.dispatch( 'crearAdquisicion',
+				{
 					idCliente: this.$store.getters.perfil._id,
 					idPublicacion: _idPublicacion,
 					monto: 0,

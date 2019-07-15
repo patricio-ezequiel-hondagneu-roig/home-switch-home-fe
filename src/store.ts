@@ -375,7 +375,9 @@ export default new Vuex.Store({
 		agregarHotsale( state, hotsale: Hotsale ): void {
 			state.hotsales.push( hotsale );
 		},
-
+		agregarAdquisicion( state, adquisicion: Adquisicion ): void {
+			state.adquisiciones.push( adquisicion );
+		},
 		// Residencias
 		actualizarResidencias( state, residencias: Residencia[ ] ): void {
 			state.residencias = residencias;
@@ -1358,7 +1360,30 @@ export default new Vuex.Store({
 				});
 			}
 		},
+		async crearAdquisicion( { commit, dispatch },
+			adquisicionParaCrear: AdquisicionParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/adquisiciones`;
+				const respuesta = await axios.post<Adquisicion>( url, adquisicionParaCrear );
+				const adquisicionCreada = respuesta.data;
+				commit( 'agregarAdquisicion', adquisicionCreada );
 
+				dispatch( 'mostrarAlerta', {
+					tipo:   'success',
+					texto:   `¡Adquisicion exitosa!`
+				});
+
+				await dispatch( 'obtenerAdquisiciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
 		async modificarAdquisicion( { commit, dispatch }, argumentos: {
 			_id: Adquisicion[ '_id' ],
 			adquisicionParaModificar: AdquisicionParaModificar
@@ -1371,8 +1396,8 @@ export default new Vuex.Store({
 				commit( 'modificarAdquisicion', adquisicionModificada );
 
 				dispatch( 'mostrarAlerta', {
-					tipo: 'success',
-					texto: 'La adquisicion se modificó con éxito.'
+					tipo:  'success',
+					texto:  'La adquisicion se modificó con éxito.'
 				});
 
 				await dispatch( 'obtenerAdquisiciones' );
@@ -1387,7 +1412,7 @@ export default new Vuex.Store({
 			}
 		},
 
-		async crearHotsale( { commit, dispatch }, hotsaleParaCrear: HotsaleParaCrear ): Promise<void> {
+		async crearHotsale( { commit, dispatch }, hotsaleParaCrear: HotsaleParaCrear ): Promise < void > {
 			try {
 				const url = `${ server.baseURL }/hotsales`;
 				const respuesta = await axios.post<Hotsale>( url, hotsaleParaCrear );
@@ -1395,8 +1420,8 @@ export default new Vuex.Store({
 				commit( 'agregarHotsale', hotsaleCreado );
 
 				dispatch( 'mostrarAlerta', {
-					tipo: 'success',
-					texto: 'El hotsale se cargó con éxito.'
+					tipo:  'success',
+					texto:  'El hotsale se cargó con éxito.'
 				});
 
 				await dispatch( 'obtenerHotsales' );
