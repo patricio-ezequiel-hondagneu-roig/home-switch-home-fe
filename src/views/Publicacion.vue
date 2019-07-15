@@ -186,117 +186,118 @@
 
 
 <script lang="ts">
-	import { Component, Vue, Prop } from 'vue-property-decorator';
-	import VueRouter, { Route } from 'vue-router';
-	import moment from 'moment';
-	import { Residencia } from '@/interfaces/residencia.interface';
-	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
-	import { Credito } from '@/interfaces/credito.interface';
-	import { Adquisicion, AdquisicionParaCrear, AdquisicionParaModificar } from '@/interfaces/adquisicion.interface';
-	import { requerido } from '@/helpers/validadores/requerido';
-	import { numeroNoNegativo } from '@/helpers/validadores/numero-no-negativo';
-	import { numeroNoMenorQue } from '@/helpers/validadores/numero-no-menor-que';
-	import { TipoDeAdquisicion } from '@/enums/tipoDeAdquisicion.enum';
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import VueRouter, { Route } from 'vue-router';
+import moment from 'moment';
+import { Residencia } from '@/interfaces/residencia.interface';
+import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
+import { Credito } from '@/interfaces/credito.interface';
+import { Adquisicion, AdquisicionParaCrear, AdquisicionParaModificar } from '@/interfaces/adquisicion.interface';
+import { requerido } from '@/helpers/validadores/requerido';
+import { numeroNoNegativo } from '@/helpers/validadores/numero-no-negativo';
+import { numeroNoMenorQue } from '@/helpers/validadores/numero-no-menor-que';
+import { TipoDeAdquisicion } from '@/enums/tipoDeAdquisicion.enum';
 
-	@Component
-	export default class Publicacion extends Vue {
+@Component
+export default class Publicacion extends Vue {
 
-		// Variables para manejar el formulario ---------------------------------
-		public formularioDeOferta: boolean = false;
-		public montoDeOferta: number = 0;
+	// Variables para manejar el formulario ---------------------------------
+	public formularioDeOferta: boolean = false;
+	public montoDeOferta: number = 0;
 
-		public validadores = {
-			montoDeOferta: [
-				requerido( 'Monto de oferta' ),
-				numeroNoNegativo( 'Monto de oferta' ),
-				numeroNoMenorQue( 'Monto de oferta', (this.ofertaMaxima) )
-			]
-		};
+	public validadores = {
+		montoDeOferta: [
+			requerido( 'Monto de oferta' ),
+			numeroNoNegativo( 'Monto de oferta' ),
+			numeroNoMenorQue( 'Monto de oferta', (this.ofertaMaxima) )
+		]
+	};
 
-		public modeloDeAdquisicion: AdquisicionParaCrear = {
-			idCliente: '',
-			idPublicacion: '',
-			monto: 0,
-			fechaDeCreacion: '',
-			tipoDeAdquisicion: TipoDeAdquisicion.Subasta,
-		};
+	public modeloDeAdquisicion: AdquisicionParaCrear = {
+		idCliente: '',
+		idPublicacion: '',
+		monto: 0,
+		fechaDeCreacion: '',
+		tipoDeAdquisicion: TipoDeAdquisicion.Subasta,
+	};
 
-		public modeloParaModificar: AdquisicionParaModificar = {
-			monto: 0,
-		};
-		// ----------------------------------------------------------------------
+	public modeloParaModificar: AdquisicionParaModificar = {
+		monto: 0,
+	};
+	// ----------------------------------------------------------------------
 
-		public get publicacion( ) {
-			return this.$store.getters.publicacionConId(this.idPublicacion);
+	public get publicacion( ) {
+		return this.$store.getters.publicacionConId(this.idPublicacion);
+	}
+
+	public get residencia( ): Residencia | undefined {
+		return this.obtenerResidenciaConId(this.publicacion.idResidencia);
+	}
+
+	public get esUnaSubastaActiva( ) {
+		// 1° No esta cerrada
+		const noCerroSubasta: boolean = !(this.publicacion.cerroSubasta);
+
+		// 2° Me fijo el intervalo de fechas de una subasta
+		const dias: number = 3;
+		const meses: number = 6;
+
+		const comienzoDeSubasta = moment(this.publicacion.fechaDeInicioDeSemana).subtract(meses, 'M');
+		const finDeSubasta = moment(this.publicacion.fechaDeInicioDeSemana).subtract(meses, 'M').add(dias, 'days');
+
+		const fechaDeSubastaValida = moment( moment( ) ).isBetween(comienzoDeSubasta, finDeSubasta);
+
+		// 3° No hay ganador, pero supongo que si hay ganador no esta cerrada
+		// ?????
+
+		return noCerroSubasta && fechaDeSubastaValida;
+	}
+
+	public get fotos( ) {
+		if (this.residencia !== undefined) {
+			return this.residencia.fotos;
 		}
+	}
 
-		public get residencia( ): Residencia | undefined {
-			return this.obtenerResidenciaConId(this.publicacion.idResidencia);
-		}
+	@Prop({ default: undefined })
+	public idPublicacion!: string;
 
-		public get esUnaSubastaActiva( ) {
-			// 1° No esta cerrada
-			const noCerroSubasta: boolean = !(this.publicacion.cerroSubasta);
+	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+		{
+			text: 'Monto de oferta',
+			value: 'monto',
+			align: 'right'
+		},
+		{
+			text: 'Día que se oferto',
+			value: 'fechaDeCreacion',
+			align: 'right'
+		},
+	];
 
-			// 2° Me fijo el intervalo de fechas de una subasta
-			const dias: number = 3;
-			const meses: number = 6;
+	public created( ) {
+		this.$store.dispatch( 'obtenerResidencias' );
+		this.$store.dispatch( 'obtenerPublicaciones' );
+		this.$store.dispatch( 'obtenerAdquisiciones' );
+	}
 
-			const comienzoDeSubasta = moment(this.publicacion.fechaDeInicioDeSemana).subtract(meses, 'M');
-			const finDeSubasta = moment(this.publicacion.fechaDeInicioDeSemana).subtract(meses, 'M').add(dias, 'days');
+	public obtenerResidenciaConId( idResidencia: String ): Residencia | undefined {
+		return this.$store.getters.residenciaConId( idResidencia );
+	}
 
-			const fechaDeSubastaValida = moment( moment( ) ).isBetween(comienzoDeSubasta, finDeSubasta);
-
-			// 3° No hay ganador, pero supongo que si hay ganador no esta cerrada
-			// ?????
-
-			return noCerroSubasta && fechaDeSubastaValida;
-		}
-
-		public get fotos( ) {
-			if (this.residencia !== undefined) {
-				return this.residencia.fotos;
+	public generarRutaDeResidencia( idResidencia: string ): object {
+		return {
+			name: 'residencia con id',
+			params: {
+				idResidencia
 			}
-		}
+		};
+	}
 
-		@Prop({ default: undefined })
-		public idPublicacion!: string;
-
-		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
-			{
-				text: 'Monto de oferta',
-				value: 'monto',
-				align: 'right'
-			},
-			{
-				text: 'Día que se oferto',
-				value: 'fechaDeCreacion',
-				align: 'right'
-			},
-		];
-
-		public created( ) {
-			this.$store.dispatch( 'obtenerResidencias' );
-			this.$store.dispatch( 'obtenerPublicaciones' );
-			this.$store.dispatch( 'obtenerAdquisiciones' );
-		}
-
-		public obtenerResidenciaConId( idResidencia: String ): Residencia | undefined {
-			return this.$store.getters.residenciaConId( idResidencia );
-		}
-
-		public generarRutaDeResidencia( idResidencia: string ): object {
-			return {
-				name: 'residencia con id',
-				params: {
-					idResidencia
-				}
-			};
-		}
-
-		public async ofertar( idPublicacion: string ) {
-			const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null);
-			if (perfilValido && this.$store.getters.perfil.creditos.length > 0) {
+	public async ofertar( idPublicacion: string ) {
+		const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null );
+		if (perfilValido && this.$store.getters.perfil.creditos.length > 0) {
+			if ( this.$store.getters.perfil.tarjetaDeCredito !== '9999 - 9999 - 9999 - 9999' ) {
 				const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
 				const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
 					const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
@@ -318,135 +319,141 @@
 				}
 			} else {
 				await this.$store.dispatch( 'mostrarAlerta', {
-					tipo: 'error',
-					texto: 'Debe iniciar sesión para poder particiar en la subasta'
-				});
-			}
-		}
-
-		public get adquisiciones( ) {
-			return this.$store.getters.adquisiciones;
-		}
-
-		public get adquisicionesDePerfil( ): Adquisicion[ ] {
-			const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null);
-
-			if (perfilValido) {
-				const adquisiciones: Adquisicion[ ] = this.adquisiciones;
-
-				const adquisicionesDelPerfil = adquisiciones.filter( (adquisicion) => {
-
-					const igualPublicacion: boolean = (adquisicion.idPublicacion === this.idPublicacion);
-					const igualCliente: boolean = (adquisicion.idCliente === this.$store.getters.perfil._id);
-
-					return (igualPublicacion && igualCliente);
-				});
-
-				return adquisicionesDelPerfil;
-
-			} else {
-				const arregloDeAdquisicionesVacio: Adquisicion[ ] = [ ];
-				return arregloDeAdquisicionesVacio;
-			}
-		}
-
-		public get ofertaMaxima( ): number {
-			// Junto todas las adquisiciones
-			const adquisiciones: Adquisicion[ ] = this.adquisiciones;
-
-			// Junto todas las adquisiciones que referencian a esta publicacion
-			const adquisicionesDeSubasta = adquisiciones.filter( (adquisicion) => {
-				return adquisicion.idPublicacion === this.idPublicacion;
-			});
-
-			// Junto todas las ofertas de esta publicacion
-			const ofertasDeSubasta = adquisicionesDeSubasta.filter( (adquisicion) => {
-				return adquisicion.tipoDeAdquisicion === 'subasta';
-			});
-
-			// Pregunto si hay adquisiciones
-			if (ofertasDeSubasta.length > 0) {
-				const maximo = ofertasDeSubasta
-					.sort( ( a, b ) => {
-						if ( moment(a.monto) > moment(b.monto) ) {
-							return -1;
-						}
-						else if ( moment(a.monto) < moment(b.monto) ) {
-							return +1;
-						}
-						else {
-							return 0;
-						}
+						tipo: 'error',
+						texto: 'La tarjeta de crédito es invalida'
 					});
-				return maximo[0].monto;
-			} else {
-				return this.publicacion.montoInicialDeSubasta;
 			}
-		}
-
-		public get adquisicionesDePublicacion( ): Adquisicion[ ] {
-			const adquisicionesDePublicacion: Adquisicion[ ] = this.$store.getters.adquisiciones;
-
-			return adquisicionesDePublicacion.filter( (adquisicion) => {
-				const igualPublicacion: boolean = adquisicion.idPublicacion === this.idPublicacion;
-				const esSubasta: boolean = adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.Subasta;
-				return igualPublicacion && esSubasta;
+		} else {
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'error',
+				texto: 'Debe iniciar sesión para poder particiar en la subasta'
 			});
-		}
-
-		public formatearFecha(fecha: string): string {
-			return moment(fecha).format('DD/MM/YYYY');
-		}
-
-		/*
-		* +-----------------------------------------------------------------+
-		* |	Desde aca va todo lo relacionado con el formulario de ofertar	|
-		* +-----------------------------------------------------------------+
-		*/
-
-		public extraerNumero( texto: string, predeterminado: number ): number {
-			const valorNumerico: number = Number.parseFloat( texto );
-
-			return ( isNaN( valorNumerico ) )
-				? predeterminado
-				: valorNumerico;
-		}
-
-		public cancelarCarga( ): void {
-			this.restablecerFormulario( );
-		}
-
-		public restablecerFormulario( ): void {
-			this.montoDeOferta = 0;
-			this.formularioDeOferta = false;
-		}
-
-		public async realizarOferta( ) {
-			// Creo la adquisicion cargando los datos del modelo
-			this.modeloDeAdquisicion.idCliente = this.$store.getters.perfil._id;
-			this.modeloDeAdquisicion.idPublicacion = this.idPublicacion;
-			this.modeloDeAdquisicion.monto = this.montoDeOferta;
-			this.modeloDeAdquisicion.fechaDeCreacion = moment( moment() ).utc().toISOString();
-			// this.modeloDeAdquisicion.tipoDeAdquisicion no es necesario el tipo, ya que esta en el modelo
-
-			// Me fijo si ya había ofertado anteriormente, en caso de que si busco la adquisicion y la modifico
-			if (this.adquisicionesDePerfil.length > 0) {
-				// Hay ofertas, modifico la nueva
-				this.modeloParaModificar.monto = this.montoDeOferta;
-
-				await this.$store.dispatch( 'modificarAdquisicion', {
-					_id: this.adquisicionesDePerfil[0]._id,
-					adquisicionParaModificar: this.modeloParaModificar,
-				});
-			} else {
-				// No hay ofertas, cargo una nueva
-				await this.$store.dispatch( 'crearAdquisicion', this.modeloDeAdquisicion );
-			}
-
-			// Para terminar oculto el formulario
-			this.formularioDeOferta = false;
-			// Vuelvo a tener las adquisiciones
-			this.$store.dispatch( 'obtenerAdquisiciones' );
 		}
 	}
+
+	public get adquisiciones( ) {
+		return this.$store.getters.adquisiciones;
+	}
+
+	public get adquisicionesDePerfil( ): Adquisicion[ ] {
+		const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null);
+
+		if (perfilValido) {
+			const adquisiciones: Adquisicion[ ] = this.adquisiciones;
+
+			const adquisicionesDelPerfil = adquisiciones.filter( (adquisicion) => {
+
+				const igualPublicacion: boolean = (adquisicion.idPublicacion === this.idPublicacion);
+				const igualCliente: boolean = (adquisicion.idCliente === this.$store.getters.perfil._id);
+
+				return (igualPublicacion && igualCliente);
+			});
+
+			return adquisicionesDelPerfil;
+
+		} else {
+			const arregloDeAdquisicionesVacio: Adquisicion[ ] = [ ];
+			return arregloDeAdquisicionesVacio;
+		}
+	}
+
+	public get ofertaMaxima( ): number {
+		// Junto todas las adquisiciones
+		const adquisiciones: Adquisicion[ ] = this.adquisiciones;
+
+		// Junto todas las adquisiciones que referencian a esta publicacion
+		const adquisicionesDeSubasta = adquisiciones.filter( (adquisicion) => {
+			return adquisicion.idPublicacion === this.idPublicacion;
+		});
+
+		// Junto todas las ofertas de esta publicacion
+		const ofertasDeSubasta = adquisicionesDeSubasta.filter( (adquisicion) => {
+			return adquisicion.tipoDeAdquisicion === 'subasta';
+		});
+
+		// Pregunto si hay adquisiciones
+		if (ofertasDeSubasta.length > 0) {
+			const maximo = ofertasDeSubasta
+				.sort( ( a, b ) => {
+					if ( moment(a.monto) > moment(b.monto) ) {
+						return -1;
+					}
+					else if ( moment(a.monto) < moment(b.monto) ) {
+						return +1;
+					}
+					else {
+						return 0;
+					}
+				});
+			return maximo[0].monto;
+		} else {
+			return this.publicacion.montoInicialDeSubasta;
+		}
+	}
+
+	public get adquisicionesDePublicacion( ): Adquisicion[ ] {
+		const adquisicionesDePublicacion: Adquisicion[ ] = this.$store.getters.adquisiciones;
+
+		return adquisicionesDePublicacion.filter( (adquisicion) => {
+			const igualPublicacion: boolean = adquisicion.idPublicacion === this.idPublicacion;
+			const esSubasta: boolean = adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.Subasta;
+			return igualPublicacion && esSubasta;
+		});
+	}
+
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('DD/MM/YYYY');
+	}
+
+	/*
+	* +-----------------------------------------------------------------+
+	* |	Desde aca va todo lo relacionado con el formulario de ofertar	|
+	* +-----------------------------------------------------------------+
+	*/
+
+	public extraerNumero( texto: string, predeterminado: number ): number {
+		const valorNumerico: number = Number.parseFloat( texto );
+
+		return ( isNaN( valorNumerico ) )
+			? predeterminado
+			: valorNumerico;
+	}
+
+	public cancelarCarga( ): void {
+		this.restablecerFormulario( );
+	}
+
+	public restablecerFormulario( ): void {
+		this.montoDeOferta = 0;
+		this.formularioDeOferta = false;
+	}
+
+	public async realizarOferta( ) {
+		// Creo la adquisicion cargando los datos del modelo
+		this.modeloDeAdquisicion.idCliente = this.$store.getters.perfil._id;
+		this.modeloDeAdquisicion.idPublicacion = this.idPublicacion;
+		this.modeloDeAdquisicion.monto = this.montoDeOferta;
+		this.modeloDeAdquisicion.fechaDeCreacion = moment( moment() ).utc().toISOString();
+		// this.modeloDeAdquisicion.tipoDeAdquisicion no es necesario el tipo, ya que esta en el modelo
+
+		// Me fijo si ya había ofertado anteriormente, en caso de que si busco la adquisicion y la modifico
+		if (this.adquisicionesDePerfil.length > 0) {
+			// Hay ofertas, modifico la nueva
+			this.modeloParaModificar.monto = this.montoDeOferta;
+
+			await this.$store.dispatch( 'modificarAdquisicion', {
+				_id: this.adquisicionesDePerfil[0]._id,
+				adquisicionParaModificar: this.modeloParaModificar,
+			});
+		} else {
+			// No hay ofertas, cargo una nueva
+			await this.$store.dispatch( 'crearAdquisicion', this.modeloDeAdquisicion );
+		}
+
+		// Para terminar oculto el formulario
+		this.formularioDeOferta = false;
+		// Vuelvo a tener las adquisiciones
+		this.$store.dispatch( 'obtenerAdquisiciones' );
+	}
+}
 </script>

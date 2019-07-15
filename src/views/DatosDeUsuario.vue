@@ -324,8 +324,8 @@ export default class DatosDeUsuario extends Vue {
 			return null;
 		}
 
-		this.fechaNac = moment(perfil.fechaDeNacimiento).utc().format('DD-MM-YYYY');
-		this.fechaExp = moment(perfil.fechaDeExpiracion).utc().format('DD-MM-YYYY');
+		this.fechaNac = moment(perfil.fechaDeNacimiento).utc().format('DD/MM/YYYY');
+		this.fechaExp = moment(perfil.fechaDeExpiracion).utc().format('DD/MM/YYYY');
 		return perfil;
 	}
 
