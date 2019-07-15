@@ -410,6 +410,16 @@ export default new Vuex.Store({
 				state.residencias.splice( indiceDeResidencia, 1 );
 			}
 		},
+
+		eliminarAdquisicion( state, idAdquisicion: Adquisicion[ '_id' ] ): void {
+			const indiceDeAdquisicion = state.adquisiciones.findIndex( ( _adquisicion ) => {
+				return _adquisicion._id === idAdquisicion;
+			});
+
+			if ( indiceDeAdquisicion !== -1 ) {
+				state.adquisiciones.splice( indiceDeAdquisicion, 1 );
+			}
+		},
 		// Subastas
 		actualizarSubastas( state, subastas: Subasta[ ] ): void {
 			state.subastas = subastas;
@@ -734,6 +744,23 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerResidencias' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+		async eliminarAdquisicion( { commit, dispatch }, idAdquisicion: Adquisicion[ '_id' ] ): Promise<void> {
+			try {
+				const url: string = `${ server.baseURL }/adquisiciones/${ idAdquisicion }`;
+				await axios.delete( url );
+				commit( 'eliminarAdquisicion', idAdquisicion );
+
+				await dispatch( 'obtenerAdquisiciones' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {

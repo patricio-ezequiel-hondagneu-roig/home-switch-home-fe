@@ -4,7 +4,7 @@
 		<!-- Contenido a mostrar si la subasta no cerro -->
 		<div
 			v-if="esUnaSubastaActiva"
-    		style="max-width: 800px; margin: auto;"
+			style="max-width: 800px; margin: auto;"
 		>
 
 			<br>
@@ -82,7 +82,7 @@
 
 				<v-spacer></v-spacer>
 				<br>
-         		<v-divider></v-divider>
+				<v-divider></v-divider>
 				<br>
 
 				<!-- Contenido de la v-card -->
@@ -97,8 +97,27 @@
 
 					<!-- Tengo que llamar a un metodo que junte todas las ofertas y agarre la mayor -->
 					${{ ofertaMaxima }}
+
+					<br>
+
+					<span v-if="noHayOfertasDelCliente( publicacion._id )" class="font-weight-bold">
+						<br>
+						Tu oferta:
+						$ {{ ofertaDelCliente( publicacion._id ) }}
+					</span>
+
 					<br>
 					<v-flex text-xs-right>
+						<!-- Boton para cancelar la oferta si es que el cliente posee ofertas en la publicacion -->
+						<v-btn
+							text-xs-right v-if="noHayOfertasDelCliente( publicacion._id )"
+							outline
+							large
+							@click.stop="cancelarOferta( publicacion._id )"
+						>
+							Cancelar oferta
+						</v-btn>
+
 						<v-btn
 							color="#ed9702"
 							large
@@ -107,12 +126,13 @@
 							Ofertar
 						</v-btn>
 					</v-flex>
+
 				</h1>
 
 				<v-spacer></v-spacer>
 				<br>
 
-         		<v-divider></v-divider>
+				<v-divider></v-divider>
 				<br>
 
 				<!-- Tabla que contiene el historial de las ofertas -->
@@ -331,6 +351,23 @@ export default class Publicacion extends Vue {
 		}
 	}
 
+	public async cancelarOferta( idPublicacion: string ) {
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+		const ofertasDeClietneEnLaPublicacion = adquisiciones.filter( ( adquisicion ) => {
+			const igualPublicacion = adquisicion.idPublicacion === idPublicacion;
+			const igualPerfil = adquisicion.idCliente === this.$store.getters.perfil._id;
+			const esOferta = adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.Subasta;
+			return igualPublicacion && igualPerfil && esOferta;
+		});
+
+		await this.$store.dispatch( 'eliminarAdquisicion', ofertasDeClietneEnLaPublicacion[0]._id );
+
+		await this.$store.dispatch( 'mostrarAlerta', {
+			tipo: 'success',
+			texto: 'Se retiro la oferta de la subasta'
+		});
+	}
+
 	public get adquisiciones( ) {
 		return this.$store.getters.adquisiciones;
 	}
@@ -403,6 +440,41 @@ export default class Publicacion extends Vue {
 
 	public formatearFecha(fecha: string): string {
 		return moment(fecha).format('DD/MM/YYYY');
+	}
+
+	public noHayOfertasDelCliente( idPublicacion: string ): boolean {
+		const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null );
+		if (perfilValido) {
+			const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+			const ofertasDeClietneEnLaPublicacion = adquisiciones.filter( ( adquisicion ) => {
+				const igualPublicacion = adquisicion.idPublicacion === idPublicacion;
+				const igualPerfil = adquisicion.idCliente === this.$store.getters.perfil._id;
+				return igualPublicacion && igualPerfil;
+			});
+
+			if (ofertasDeClietneEnLaPublicacion.length > 0 ) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public ofertaDelCliente( idPublicacion: string ): number {
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+		const ofertasDeClietneEnLaPublicacion = adquisiciones.filter( ( adquisicion ) => {
+			const igualPublicacion = adquisicion.idPublicacion === idPublicacion;
+			const igualPerfil = adquisicion.idCliente === this.$store.getters.perfil._id;
+			return igualPublicacion && igualPerfil;
+		});
+
+		if (ofertasDeClietneEnLaPublicacion.length > 0 ) {
+			return ofertasDeClietneEnLaPublicacion[0].monto;
+		} else {
+			return 0;
+		}
 	}
 
 	/*
