@@ -65,11 +65,14 @@
 	import axios from 'axios';
 	import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
 	import { Publicacion, PublicacionParaModificar } from '@/interfaces/publicacion.interface';
+	import { Adquisicion } from '@/interfaces/adquisicion.interface';
+	import { Hotsale } from '@/interfaces/hotsale.interface';
 	import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
 	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 	import { server } from '@/utils/helper';
 	import ModificacionDePublicacion from './ModificacionDePublicacion.vue';
 	import moment from 'moment';
+import { TipoDeAdquisicion } from '../utils/tipoDeAdquisicion.enum';
 
 	@Component({
 		components: {
@@ -143,7 +146,64 @@
 		 * Falla en caso de que no exista publicacion con el ID recibido.
 		 */
 		public eliminarPublicacion( idPublicacion: string ): void {
-			this.$store.dispatch( 'eliminarPublicacion', idPublicacion );
+			// Me fijo si tiene hot sales que referencian a la publicacion
+			const hotsales: Hotsale[ ] = this.$store.getters.hotsales;
+			const hotsalesDePublicacion = hotsales.filter( (hotsale) => {
+				return hotsale.idPublicacion === idPublicacion;
+			});
+
+			// Me tengo que fijar que no hayan adquisiciones que referencien a la publicacion
+			const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+			const adquisicionesDePublicacion = adquisiciones.filter( (adquisicion) => {
+				return adquisicion.idPublicacion === idPublicacion;
+			});
+
+			if (hotsalesDePublicacion.length > 0) {
+				// Caso de hot sale
+				this.$store.dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: 'Hay un Hot Sale asociado a la publicacion'
+				});
+			} else if (adquisicionesDePublicacion.length > 0)  {
+				// Me fijo si tiene ofertas
+				const ofertas: Adquisicion[ ] = adquisicionesDePublicacion.filter( (adquisicion) => {
+					return adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.Subasta;
+				});
+
+				if (ofertas.length > 0) {
+					this.$store.dispatch( 'mostrarAlerta', {
+						tipo: 'error',
+						texto: 'Hay ofertas asociadas a la publicacion'
+					});
+				} else {
+					// Me fijo si tiene una reserva directa
+					const reservaDirecta: Adquisicion[ ] = adquisicionesDePublicacion.filter( (adquisicion) => {
+						return adquisicion.tipoDeAdquisicion === TipoDeAdquisicion.ReservaDirecta;
+					});
+
+					if (reservaDirecta.length > 0) {
+						this.$store.dispatch( 'mostrarAlerta', {
+							tipo: 'error',
+							texto: 'Hay una reserva directa asociada a la publicacion'
+						});
+					} else {
+						// Esto no es necesario pero lo agrego por si las moscas
+						this.$store.dispatch( 'mostrarAlerta', {
+							tipo: 'error',
+							texto: 'Puede haber una reserva directa, ofertas o un hot sale que referencien a esta publicacion'
+						});
+					}
+				}
+			} else {
+				this.$store.dispatch( 'eliminarPublicacion', idPublicacion );
+			}
+		}
+
+		public created( ) {
+			this.$store.dispatch( 'obtenerResidencias' );
+			this.$store.dispatch( 'obtenerPublicaciones' );
+			this.$store.dispatch( 'obtenerAdquisiciones' );
+			this.$store.dispatch( 'obtenerHotsales' );
 		}
 
 		/**

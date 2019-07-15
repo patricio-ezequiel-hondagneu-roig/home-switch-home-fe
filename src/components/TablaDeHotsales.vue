@@ -133,40 +133,51 @@ export default class TablaDeHotsales extends Vue {
 			sortable: false
 		},
 	];
+
 	// al crearse componente se actualizan todos los arreglos a utilizar
 	public created( ) {
 		this.$store.dispatch('obtenerPublicaciones');
 		this.$store.dispatch('obtenerResidencias');
 		this.$store.dispatch('obtenerHotsales');
 	}
+
 	// formatea fecha para poder ser mostrada
 	public formatearFecha(fecha: string): string {
 		return moment(fecha).format('DD/MM/YYYY');
 	}
+
 	/** obtener adquisiciones del cliente logeado */
 	public get hotsales(): Hotsale[ ] {
 		return this.$store.getters.hotsales;
 	}
+
 	// obtiene publicacion por idPublicacion
 	public publicacionId( idPublicacion: string ): Publicacion {
 		return this.$store.getters.publicacionConId( idPublicacion );
 	}
+
 	// obtiene residencia de una idPublicacion que posee idResidencia
-	public obtenerResidenciaConPublicacionId( idPublicacion: string ): Residencia {
+	public obtenerResidenciaConPublicacionId( idPublicacion: string ) {
 		const publicacion = this.publicacionId( idPublicacion );
-		return this.$store.getters.residenciaConId(publicacion.idResidencia);
+		if (publicacion !== null && publicacion !== undefined) {
+			return this.$store.getters.residenciaConId(publicacion.idResidencia);
+		}
 	}
+
 	// obtiene nombre de residencia dada un idPublicacion
 	public nombreDeResidenciaDePublicacionId( idPublicacion: string ): string | undefined {
 		const residencia = this.obtenerResidenciaConPublicacionId( idPublicacion );
-		if ( residencia !== null ) {
+		if ( residencia !== null && residencia !== undefined) {
 			return residencia.titulo;
 		}
 	}
+
 	// obtiene fecha de semana de publicacion dada un idPublicacion
-	public fechaDeSemanaDePublicacionId( idPublicacion: string ): string {
+	public fechaDeSemanaDePublicacionId( idPublicacion: string ) {
 		const publicacion = this.publicacionId( idPublicacion );
-		return this.formatearFecha(publicacion.fechaDeInicioDeSemana);
+		if (publicacion !== null && publicacion !== undefined) {
+			return this.formatearFecha(publicacion.fechaDeInicioDeSemana);
+		}
 	}
 	// sistema de ocultamiento de detalle de residencia
 	public mostrarDetallesResidencia( residencia: Residencia ): void {
