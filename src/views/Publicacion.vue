@@ -317,7 +317,7 @@ export default class Publicacion extends Vue {
 	public async ofertar( idPublicacion: string ) {
 		const perfilValido = (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null );
 		if (perfilValido && this.$store.getters.perfil.creditos.length > 0) {
-			if ( this.$store.getters.perfil.tarjetaDeCredito !== '9999 - 9999 - 9999 - 9999' ) {
+			if ( this.$store.getters.perfil.tarjetaDeCredito !== '9999999999999999' ) {
 				const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
 				const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
 					const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
