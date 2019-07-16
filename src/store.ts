@@ -127,19 +127,24 @@ export default new Vuex.Store({
 
 		subastasActivas: ( state ) => {
 			const meses: number = 6;
+			const dias: number = 3;
 			let subastasActivas: Publicacion[ ];
 
 			// Quiero saber que faltan 6 meses o menos
 			subastasActivas = state.publicaciones.filter( (publicacion) => {
 				// 1° No esta cerrada
 				const noCerroSubasta: boolean = !(publicacion.cerroSubasta);
-				// 2° Faltan más de 6 meses
-				const faltanMenosDeSeisMeses = moment(publicacion.fechaDeInicioDeSemana).subtract(meses, 'M') <= moment();
-				// 3° Faltan
-				// ?° No hay ganador, pero supongo que si hay ganador no esta cerrada
+
+				// 2° Me fijo el intervalo de fechas de una subasta
+				const comienzoDeSubasta = moment(publicacion.fechaDeInicioDeSemana).subtract(meses, 'M');
+				const finDeSubasta = moment(publicacion.fechaDeInicioDeSemana).subtract(meses, 'M').add(dias, 'days');
+
+				const fechaDeSubastaValida = moment( moment( ) ).isBetween(comienzoDeSubasta, finDeSubasta);
+
+				// 3° No hay ganador, pero supongo que si hay ganador no esta cerrada
 				// ?????
 
-				return noCerroSubasta && faltanMenosDeSeisMeses;
+				return noCerroSubasta && fechaDeSubastaValida;
 			});
 
 			return subastasActivas;
