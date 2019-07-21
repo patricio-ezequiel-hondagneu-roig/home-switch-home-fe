@@ -127,6 +127,8 @@
 				: valorNumerico;
 		}
 
+		// Devuelve el mayor monto ofertado en la subasta, en el caso ...
+		// ... de que no haya ofertas devuelve el monto inicial de subasta
 		public get mayorMontoOfertado( ): number {
 			const ofertas: Oferta[ ] = this.$store.getters.ofertas;
 			const ofertasDePublicacion = ofertas.filter( (oferta) => {
@@ -152,10 +154,12 @@
 			}
 		}
 
+		// Validador para ver si el perfil en cuestión es valido o no
 		public get perfilValido( ): boolean {
 			return (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null );
 		}
 
+		// Devuelve las ofertas de la subasta que se esta visualizando
 		public get obtenerOfertasDeLaSubasta( ): Oferta[ ] {
 			const ofertas: Oferta[ ] = this.$store.getters.ofertas;
 			const ofertasDeSubasta = ofertas.filter( (oferta) => {
@@ -164,6 +168,8 @@
 			return ofertasDeSubasta;
 		}
 
+		// Se fija si el perfil (o cliente ingresado en el sistema) ...
+		// ... tiene ofertas en la subasta que se esta visualizando
 		public get hayOfertaDeCliente( ): boolean {
 			if (this.perfilValido) {
 				const ofertaDelCliente = this.obtenerOfertasDeLaSubasta.filter( (oferta) => {
@@ -180,6 +186,9 @@
 			}
 		}
 
+		// Devuelve un arreglo de las ofertas del perfil (o cliente ingresado en el sistema) de la subasta en cuestión
+		// En el caso que tenga ofertas, solo devolvera un arreglo de ofertas con 1 solo elemento.
+		// En el caso que no tenga ofertas, significa que no oferto, solo devolvera un arreglo de ofertas vacio.
 		public get ofertasDelPerfil( ): Oferta[ ] {
 			if (this.perfilValido) {
 				const ofertas: Oferta[ ] = this.$store.getters.ofertas;
@@ -200,6 +209,9 @@
 			}
 		}
 
+		// Crea la oferta para la subasta en cuestión
+		// Si ya posee una oferta el cliente que esta ofertando, entonces modifica su oferta
+		// Caso contrario crea una nueva
 		public async ofertar( ): Promise<void> {
 			if (this.ofertasDelPerfil.length > 0) {
 				// Si el cliente ya oferto, modifico su oferta por un nuevo monto.

@@ -261,6 +261,7 @@
 			return moment(fecha).format('DD/MM/YYYY');
 		}
 
+		// Devuelve las ofertas de la subasta que se esta visualizando
 		public get obtenerOfertasDeLaSubasta( ): Oferta[ ] {
 			const ofertas: Oferta[ ] = this.$store.getters.ofertas;
 			const ofertasDeSubasta = ofertas.filter( (oferta) => {
@@ -269,6 +270,8 @@
 			return ofertasDeSubasta;
 		}
 
+		// Devuelve el mayor monto ofertado en la subasta, en el caso ...
+		// ... de que no haya ofertas devuelve el monto inicial de subasta
 		public get mayorMontoOfertado( ): number {
 			if (this.obtenerOfertasDeLaSubasta.length > 0) {
 				const maximo = this.obtenerOfertasDeLaSubasta.sort( ( a, b ) => {
@@ -289,6 +292,8 @@
 			}
 		}
 
+		// Se fija si el perfil (o cliente ingresado en el sistema) ...
+		// ... tiene ofertas en la subasta que se esta visualizando
 		public get hayOfertaDeCliente( ): boolean {
 			if (this.perfilValido) {
 				const ofertaDelCliente = this.obtenerOfertasDeLaSubasta.filter( (oferta) => {
@@ -305,6 +310,7 @@
 			}
 		}
 
+		// Elimina la oferta que tiene el perfil (o cliente ingresado en el sistema) en subasta que se esta visualizando
 		public async cancelarOferta( idPublicacion: string ) {
 			const ofertasDeLaSubasta: Oferta[ ] = this.obtenerOfertasDeLaSubasta;
 
@@ -323,6 +329,7 @@
 			});
 		}
 
+		// Obtiene el monto de la oferta del perfil (o cliente ingresado en el sistema) de la subasta que se esta visualizando
 		public get obtenerOfertaDelPerfil( ): number {
 			const ofertasDeLaSubasta: Oferta[ ] = this.obtenerOfertasDeLaSubasta;
 
