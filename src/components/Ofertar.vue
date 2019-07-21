@@ -30,7 +30,7 @@
 				color="#ed9702"
 				:loading="esperandoCreacionDeOferta"
 				:disabled="!formularioEsValido"
-				@click.stop="crearOferta( )"
+				@click.stop="ofertar( )"
 			>
 				Cargar
 			</v-btn>
@@ -44,7 +44,7 @@
 	import router from '@/router';
 	import { server } from '@/utils/helper';
 	import { VuetifyFormRef } from '@/typings/vuetify-form-ref.d';
-	import { OfertaParaCrear, Oferta } from '@/interfaces/oferta.interface';
+	import { OfertaParaCrear, OfertaParaModificar, Oferta } from '@/interfaces/oferta.interface';
 	import { requerido } from '@/helpers/validadores/requerido';
 	import { textoNoVacio } from '@/helpers/validadores/texto-no-vacio';
 	import { numeroNoNegativo } from '@/helpers/validadores/numero-no-negativo';
@@ -72,6 +72,10 @@
 				numeroNoNegativo( 'Monto de oferta' ),
 				numeroNoMenorQue( 'Monto de oferta', (this.mayorMontoOfertado) )
 			]
+		};
+
+		public modeloParaModificar: OfertaParaModificar = {
+			monto: 0,
 		};
 
 		@Prop( )
@@ -111,6 +115,8 @@
 
 		public created( ): void {
 			this.$store.dispatch( 'obtenerOfertas' );
+			this.$store.dispatch( 'obtenerClientes' );
+			this.$store.dispatch( 'obtenerPublicaciones' );
 		}
 
 		public extraerNumero( texto: string, predeterminado: number ): number {
@@ -146,21 +152,90 @@
 			}
 		}
 
-		public async crearOferta( ): Promise<void> {
-			this.esperandoCreacionDeOferta = true;
+		public get perfilValido( ): boolean {
+			return (this.$store.getters.perfil !== undefined && this.$store.getters.perfil !== null );
+		}
 
-			this.modelo.idCliente = this.idCliente;
-			this.modelo.idPublicacion = this.idPublicacion;
-			this.modelo.monto = this.montoDeOferta;
-			this.modelo.fechaDeCreacion = moment().utc().toISOString();
+		public get obtenerOfertasDeLaSubasta( ): Oferta[ ] {
+			const ofertas: Oferta[ ] = this.$store.getters.ofertas;
+			const ofertasDeSubasta = ofertas.filter( (oferta) => {
+				return oferta.idPublicacion === this.idPublicacion;
+			});
+			return ofertasDeSubasta;
+		}
 
-			await this.$store.dispatch( 'crearOferta', this.modelo );
-			this.$store.dispatch( 'obtenerOfertas' );
+		public get hayOfertaDeCliente( ): boolean {
+			if (this.perfilValido) {
+				const ofertaDelCliente = this.obtenerOfertasDeLaSubasta.filter( (oferta) => {
+					return oferta.idCliente === this.$store.getters.perfil._id;
+				});
 
-			this.esperandoCreacionDeOferta = false;
+				if (ofertaDelCliente.length > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
 
-			this.restablecerFormulario( );
-			this.emitirEventoOfertaCreada( );
+		public get ofertasDelPerfil( ): Oferta[ ] {
+			if (this.perfilValido) {
+				const ofertas: Oferta[ ] = this.$store.getters.ofertas;
+
+				const ofertasDelPerfil = ofertas.filter( (oferta) => {
+
+					const igualPublicacion: boolean = (oferta.idPublicacion === this.idPublicacion);
+					const igualCliente: boolean = (oferta.idCliente === this.$store.getters.perfil._id);
+
+					return (igualPublicacion && igualCliente);
+				});
+
+				return ofertasDelPerfil;
+
+			} else {
+				const arregloDeOfertasVacio: Oferta[ ] = [ ];
+				return arregloDeOfertasVacio;
+			}
+		}
+
+		public async ofertar( ): Promise<void> {
+			if (this.ofertasDelPerfil.length > 0) {
+				// Si el cliente ya oferto, modifico su oferta por un nuevo monto.
+				this.esperandoCreacionDeOferta = true;
+
+				this.modeloParaModificar.monto = this.montoDeOferta;
+
+				// Hay ofertas, modifico la que ya existe
+				this.modeloParaModificar.monto = this.montoDeOferta;
+
+				await this.$store.dispatch( 'modificarOferta', {
+					_id: this.ofertasDelPerfil[0]._id,
+					ofertaParaModificar: this.modeloParaModificar,
+				});
+
+				this.esperandoCreacionDeOferta = false;
+
+				this.restablecerFormulario( );
+				this.emitirEventoOfertaCreada( );
+			} else {
+				// Si el cliente nunca oferto, creo una nueva oferta.
+				this.esperandoCreacionDeOferta = true;
+
+				this.modelo.idCliente = this.idCliente;
+				this.modelo.idPublicacion = this.idPublicacion;
+				this.modelo.monto = this.montoDeOferta;
+				this.modelo.fechaDeCreacion = moment().utc().toISOString();
+
+				await this.$store.dispatch( 'crearOferta', this.modelo );
+				this.$store.dispatch( 'obtenerOfertas' );
+
+				this.esperandoCreacionDeOferta = false;
+
+				this.restablecerFormulario( );
+				this.emitirEventoOfertaCreada( );
+			}
 		}
 	}
 </script>

@@ -95,8 +95,20 @@
 					<br>
 
 					<br>
+
+
 					<v-flex text-xs-right>
-						<!-- Boton para cancelar la oferta si es que el cliente posee ofertas en la publicacion -->
+						<!-- Boton para cancelar la oferta si es que el cliente posee ofertas en la subasta -->
+						<v-btn
+							text-xs-right v-if="hayOfertaDeCliente"
+							outline
+							large
+							@click.stop="cancelarOferta( publicacion._id )"
+						>
+							Cancelar oferta
+						</v-btn>
+
+						<!-- Boton para ofertar en la subasta en cuestion -->
 						<v-btn
 							color="#ed9702"
 							large
@@ -119,6 +131,17 @@
 					Historial:
 				</h1>
 
+				<v-data-table
+					:headers="encabezadosDeTabla"
+					:items="this.obtenerOfertasDeLaSubasta"
+					class="elevation-1 font-weight-black"
+					no-data-text="No hay ofertas."
+				>
+					<template v-slot:items="props">
+							<td class="text-xs-center font-weight-black"> {{ props.item.monto }} </td>
+							<td class="text-xs-center font-weight-black"> {{ formatearFecha(props.item.fechaDeCreacion) }} </td>
+					</template>
+				</v-data-table>
 
 				<br>
 			</v-card>
@@ -145,6 +168,7 @@
 	import { Residencia } from '@/interfaces/residencia.interface';
 	import Ofertar from '@/components/Ofertar.vue';
 	import { Oferta } from '@/interfaces/oferta.interface';
+	import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 
 	@Component({
 		components: {
@@ -158,9 +182,29 @@
 
 		public formularioDeOferta: boolean = false;
 
+		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
+			{
+				text: 'Monto de oferta',
+				value: 'monto',
+				align: 'center'
+			},
+			{
+				text: 'Día que se oferto',
+				value: 'fechaDeCreacion',
+				align: 'center'
+			},
+		];
+
 		public mostrarFormularioParaOfertar( ): void {
 			if (this.perfilValido) {
-				this.formularioDeOferta = true;
+				if (this.$store.getters.perfil.creditos.length > 0) {
+					this.formularioDeOferta = true;
+				} else {
+					this.$store.dispatch( 'mostrarAlerta', {
+						tipo: 'error',
+						texto: 'No posee créditos suficientes para poder realizar la operacion'
+					});
+				}
 			} else {
 				this.$store.dispatch( 'mostrarAlerta', {
 					tipo: 'error',
@@ -195,6 +239,7 @@
 			this.$store.dispatch( 'obtenerResidencias' );
 			this.$store.dispatch( 'obtenerPublicaciones' );
 			this.$store.dispatch( 'obtenerAdquisiciones' );
+			this.$store.dispatch( 'obtenerOfertas' );
 		}
 
 		public obtenerResidenciaConId( idResidencia: String ): Residencia | undefined {
@@ -214,14 +259,17 @@
 			return moment(fecha).format('DD/MM/YYYY');
 		}
 
-		public get mayorMontoOfertado( ): number {
+		public get obtenerOfertasDeLaSubasta( ): Oferta[ ] {
 			const ofertas: Oferta[ ] = this.$store.getters.ofertas;
-			const ofertasDePublicacion = ofertas.filter( (oferta) => {
+			const ofertasDeSubasta = ofertas.filter( (oferta) => {
 				return oferta.idPublicacion === this.idPublicacion;
 			});
+			return ofertasDeSubasta;
+		}
 
-			if (ofertasDePublicacion.length > 0) {
-				const maximo = ofertasDePublicacion.sort( ( a, b ) => {
+		public get mayorMontoOfertado( ): number {
+			if (this.obtenerOfertasDeLaSubasta.length > 0) {
+				const maximo = this.obtenerOfertasDeLaSubasta.sort( ( a, b ) => {
 					if ( a.monto > b.monto ) {
 						return -1;
 					}
@@ -239,5 +287,38 @@
 			}
 		}
 
+		public get hayOfertaDeCliente( ): boolean {
+			if (this.perfilValido) {
+				const ofertaDelCliente = this.obtenerOfertasDeLaSubasta.filter( (oferta) => {
+					return oferta.idCliente === this.$store.getters.perfil._id;
+				});
+
+				if (ofertaDelCliente.length > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+
+		public async cancelarOferta( idPublicacion: string ) {
+			const ofertasDeLaSubasta: Oferta[ ] = this.obtenerOfertasDeLaSubasta;
+
+			const ofertaDeClietne = ofertasDeLaSubasta.filter( ( oferta ) => {
+				const igualPublicacion = oferta.idPublicacion === idPublicacion;
+				const igualPerfil = oferta.idCliente === this.$store.getters.perfil._id;
+
+				return igualPublicacion && igualPerfil;
+			});
+
+			await this.$store.dispatch( 'eliminarOferta', ofertaDeClietne[0]._id );
+
+			await this.$store.dispatch( 'mostrarAlerta', {
+				tipo: 'success',
+				texto: 'Se retiro la oferta de la subasta'
+			});
+		}
 	}
 </script>

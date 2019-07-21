@@ -14,7 +14,7 @@ import { CreditoBD, CreditoParaCrear } from './interfaces/creditoBD.interface';
 import moment from 'moment';
 import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
 import { Credito } from './interfaces/credito.interface';
-import { Oferta, OfertaParaCrear } from './interfaces/oferta.interface';
+import { Oferta, OfertaParaCrear, OfertaParaModificar } from './interfaces/oferta.interface';
 import { Hotsale, HotsaleParaCrear } from './interfaces/hotsale.interface';
 
 Vue.use( Vuex );
@@ -436,6 +436,16 @@ export default new Vuex.Store({
 				state.adquisiciones.splice( indiceDeAdquisicion, 1 );
 			}
 		},
+
+		eliminarOferta( state, idOferta: Oferta[ '_id' ] ): void {
+			const indiceDeOferta = state.ofertas.findIndex( ( _oferta ) => {
+				return _oferta._id === idOferta;
+			});
+
+			if ( indiceDeOferta !== -1 ) {
+				state.ofertas.splice( indiceDeOferta, 1 );
+			}
+		},
 		// Subastas
 		actualizarSubastas( state, subastas: Subasta[ ] ): void {
 			state.subastas = subastas;
@@ -550,6 +560,7 @@ export default new Vuex.Store({
 		actualizarHotsales( state, hotsales: Hotsale[ ] ): void {
 			state.hotsales = hotsales;
 		},
+
 		eliminarHotsale( state, idHotsale: Hotsale[ '_id' ] ): void {
 			const indiceDeHotsale = state.hotsales.findIndex( ( _hotsale ) => {
 				return _hotsale._id === idHotsale;
@@ -559,6 +570,7 @@ export default new Vuex.Store({
 				state.hotsales.splice( indiceDeHotsale, 1 );
 			}
 		},
+
 		modificarAdquisicion( state, adquisicion: Adquisicion ): void {
 			const indiceDeAdquisicion = state.adquisiciones.findIndex( ( _adquisicion ) => {
 				return _adquisicion._id === adquisicion._id;
@@ -569,6 +581,19 @@ export default new Vuex.Store({
 			}
 			else {
 				state.adquisiciones.push( adquisicion );
+			}
+		},
+
+		modificarOferta( state, oferta: Oferta ): void {
+			const indiceDeOferta = state.ofertas.findIndex( ( _oferta ) => {
+				return _oferta._id === oferta._id;
+			});
+
+			if ( indiceDeOferta !== -1 ) {
+				state.ofertas.splice( indiceDeOferta, 1, oferta );
+			}
+			else {
+				state.ofertas.push( oferta );
 			}
 		},
 
@@ -770,6 +795,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
+
 		async eliminarAdquisicion( { commit, dispatch }, idAdquisicion: Adquisicion[ '_id' ] ): Promise<void> {
 			try {
 				const url: string = `${ server.baseURL }/adquisiciones/${ idAdquisicion }`;
@@ -777,6 +803,24 @@ export default new Vuex.Store({
 				commit( 'eliminarAdquisicion', idAdquisicion );
 
 				await dispatch( 'obtenerAdquisiciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async eliminarOferta( { commit, dispatch }, idOferta: Oferta[ '_id' ] ): Promise<void> {
+			try {
+				const url: string = `${ server.baseURL }/ofertas/${ idOferta }`;
+				await axios.delete( url );
+				commit( 'eliminarOferta', idOferta );
+
+				await dispatch( 'obtenerOfertas' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
@@ -1441,6 +1485,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
+
 		async crearAdquisicion( { commit, dispatch },
 			adquisicionParaCrear: AdquisicionParaCrear ): Promise<void> {
 			try {
@@ -1465,6 +1510,7 @@ export default new Vuex.Store({
 				});
 			}
 		},
+
 		async modificarAdquisicion( { commit, dispatch }, argumentos: {
 			_id: Adquisicion[ '_id' ],
 			adquisicionParaModificar: AdquisicionParaModificar
@@ -1482,6 +1528,34 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerAdquisiciones' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async modificarOferta( { commit, dispatch }, argumentos: {
+			_id: Oferta[ '_id' ],
+			ofertaParaModificar: OfertaParaModificar
+		}): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/ofertas/${ argumentos._id }`;
+				const ofertaParaModificar = argumentos.ofertaParaModificar;
+				const respuesta = await axios.put<Oferta>( url, ofertaParaModificar );
+				const ofertaModificada = respuesta.data;
+				commit( 'modificarOferta', ofertaModificada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo:  'success',
+					texto:  'La oferta se modificó con éxito.'
+				});
+
+				await dispatch( 'obtenerOfertas' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {
