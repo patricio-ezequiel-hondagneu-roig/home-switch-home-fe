@@ -44,6 +44,7 @@
 			this.actualizarPublicaciones( );
 			this.actualizarResidencias( );
 			this.actualizarSuscripciones( );
+			this.actualizarCreditos( );
 		}
 
 		public async actualizarPublicaciones( ): Promise<void> {
@@ -56,6 +57,10 @@
 
 		public async actualizarSuscripciones( ): Promise<void> {
 			await this.$store.dispatch( 'obtenerSuscripciones' );
+		}
+
+		public async actualizarCreditos( ): Promise<void> {
+			await this.$store.dispatch( 'obtenerCreditos' );
 		}
 
 	}

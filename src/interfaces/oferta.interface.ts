@@ -1,11 +1,12 @@
 import { RemoverPropiedades } from '@/typings/remover-propiedades';
 
 export interface Oferta {
-	idOferta: string;
-	email: string;
-	tarjeta: string;
+	_id: string;
+	idCliente: string;
+	idPublicacion: string;
 	monto: number;
+	fechaDeCreacion: string;
 }
 
-export type OfertaParaCrear = RemoverPropiedades<Oferta, 'idOferta'>;
-export type OfertaParaModificar = RemoverPropiedades<Oferta, 'idOferta'>;
+export type OfertaParaCrear = RemoverPropiedades<Oferta, '_id'>;
+export type OfertaParaModificar = RemoverPropiedades<Oferta, '_id' | 'idCliente' | 'idPublicacion' | 'fechaDeCreacion'>;

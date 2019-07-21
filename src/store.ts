@@ -14,6 +14,7 @@ import { CreditoBD, CreditoParaCrear } from './interfaces/creditoBD.interface';
 import moment from 'moment';
 import { Solicitud, SolicitudParaCrear } from './interfaces/solicitud.interface';
 import { Credito } from './interfaces/credito.interface';
+import { Oferta, OfertaParaCrear } from './interfaces/oferta.interface';
 import { Hotsale, HotsaleParaCrear } from './interfaces/hotsale.interface';
 
 Vue.use( Vuex );
@@ -38,6 +39,7 @@ export default new Vuex.Store({
 		publicaciones: <Publicacion[ ]> [ ],
 		creditos: <CreditoBD[ ]> [ ],
 		hotsales: <Hotsale[ ]> [ ],
+		ofertas: <Oferta[ ]> [ ],
 	},
 	getters: {
 		esAdmin: ( state ) => {
@@ -110,6 +112,10 @@ export default new Vuex.Store({
 
 		publicaciones: ( state ) => {
 			return state.publicaciones;
+		},
+
+		ofertas: ( state ) => {
+			return state.ofertas;
 		},
 
 		reservasDirectas: ( state ) => {
@@ -375,9 +381,19 @@ export default new Vuex.Store({
 		agregarHotsale( state, hotsale: Hotsale ): void {
 			state.hotsales.push( hotsale );
 		},
+
 		agregarAdquisicion( state, adquisicion: Adquisicion ): void {
 			state.adquisiciones.push( adquisicion );
 		},
+
+		actualizarOfertas( state, ofertas: Oferta[ ] ): void {
+			state.ofertas = ofertas;
+		},
+
+		agregarOferta( state, oferta: Oferta ): void {
+			state.ofertas.push( oferta );
+		},
+
 		// Residencias
 		actualizarResidencias( state, residencias: Residencia[ ] ): void {
 			state.residencias = residencias;
@@ -1490,6 +1506,46 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerHotsales' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async obtenerOfertas( { commit, dispatch } ): Promise<void> {
+			try {
+				const respuesta = await axios.get<Oferta[ ]>( `${ server.baseURL }/ofertas` );
+				const ofertas = respuesta.data;
+				commit( 'actualizarOfertas', ofertas );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async crearOferta( { commit, dispatch }, ofertaParaCrear: OfertaParaCrear ): Promise<void> {
+			try {
+				const url = `${ server.baseURL }/ofertas`;
+				const respuesta = await axios.post<Oferta>( url, ofertaParaCrear );
+				const ofertaCreada = respuesta.data;
+				commit( 'agregarOferta', ofertaCreada );
+
+				dispatch( 'mostrarAlerta', {
+					tipo: 'success',
+					texto: 'La oferta se cargó con éxito.'
+				});
+
+				await dispatch( 'obtenerOfertas' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {

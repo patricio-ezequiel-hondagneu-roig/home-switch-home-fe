@@ -1,21 +1,42 @@
 <template>
 	<v-container fluid>
+
+		<v-flex align-center>
+			<v-layout align-center justify-center>
+				<p class="display-1">
+					<span class="font-weight-black"> Residencias en el sistema: </span>
+				</p>
+			</v-layout>
+
+			<br>
+			<hr>
+		</v-flex>
+
 		<v-layout column wrap>
 			<v-flex ma-2>
 				<v-btn flat class="primary" @click.stop="mostrarFormularioDeCarga( )">
 					Cargar residencia
 				</v-btn>
 			</v-flex>
+
+			<!-- Tabla de residencias viejo
 			<v-flex>
 				<TablaDeResidencias :residencias="residencias"></TablaDeResidencias>
 			</v-flex>
+			-->
+
+			<!-- Tabla de residencias nueva -->
+			<TablaDeResidenciasNueva :residencias="residencias"></TablaDeResidenciasNueva>
 		</v-layout>
+
 		<v-dialog persistent v-model="formularioDeCargaEsVisible" max-width="40rem">
 			<CargaDeResidencia
 				@residenciaCreada="ocultarFormularioDeCarga( )"
 				@cancelacion="ocultarFormularioDeCarga( )"
 			/>
 		</v-dialog>
+
+
 	</v-container>
 </template>
 
@@ -24,6 +45,7 @@
 	import { Component, Vue } from 'vue-property-decorator';
 	import CargaDeResidencia from '@/components/CargaDeResidencia.vue';
 	import TablaDeResidencias from '@/components/TablaDeResidencias.vue';
+	import TablaDeResidenciasNueva from '@/components/TablaDeResidenciasNueva.vue';
 	import { server } from '@/utils/helper';
 	import { Residencia } from '@/interfaces/residencia.interface';
 	import { VuetifyThemeOptionName } from '@/typings/vuetify-theme-option-name.d';
@@ -32,6 +54,7 @@
 		components: {
 			CargaDeResidencia,
 			TablaDeResidencias,
+			TablaDeResidenciasNueva,
 		},
 	})
 	export default class AdministracionDeResidencias extends Vue {
@@ -77,6 +100,21 @@
 		 */
 		public ocultarFormularioDeCarga( ): void {
 			this.formularioDeCargaEsVisible = false;
+		}
+
+		// Metodos posibles a borrar
+
+		public ubicacionCompleta( _residencia: Residencia ): string {
+			return `${ _residencia.pais }, ${ _residencia.provincia }, ${ _residencia.localidad }, ${ _residencia.domicilio }`;
+		}
+
+		public generarRutaDeResidencia( idResidencia: string ): object {
+			return {
+				name: 'residencia con id',
+				params: {
+					idResidencia
+				}
+			};
 		}
 	}
 </script>
