@@ -93,7 +93,9 @@
 				<h1 class="font-weight-regular headline sombra-texto" style="padding-left: 20px">
 					Precio minimo de oferta: ${{ this.mayorMontoOfertado }}
 					<br>
-
+					<span v-if="hayOfertaDeCliente">
+						Tu oferta: ${{ this.obtenerOfertaDelPerfil }}
+					</span>
 					<br>
 
 
@@ -306,19 +308,32 @@
 		public async cancelarOferta( idPublicacion: string ) {
 			const ofertasDeLaSubasta: Oferta[ ] = this.obtenerOfertasDeLaSubasta;
 
-			const ofertaDeClietne = ofertasDeLaSubasta.filter( ( oferta ) => {
+			const ofertaDeCliente = ofertasDeLaSubasta.filter( ( oferta ) => {
 				const igualPublicacion = oferta.idPublicacion === idPublicacion;
 				const igualPerfil = oferta.idCliente === this.$store.getters.perfil._id;
 
 				return igualPublicacion && igualPerfil;
 			});
 
-			await this.$store.dispatch( 'eliminarOferta', ofertaDeClietne[0]._id );
+			await this.$store.dispatch( 'eliminarOferta', ofertaDeCliente[0]._id );
 
 			await this.$store.dispatch( 'mostrarAlerta', {
 				tipo: 'success',
 				texto: 'Se retiro la oferta de la subasta'
 			});
+		}
+
+		public get obtenerOfertaDelPerfil( ): number {
+			const ofertasDeLaSubasta: Oferta[ ] = this.obtenerOfertasDeLaSubasta;
+
+			const ofertaDeCliente = ofertasDeLaSubasta.filter( ( oferta ) => {
+				const igualPublicacion = oferta.idPublicacion === this.idPublicacion;
+				const igualPerfil = oferta.idCliente === this.$store.getters.perfil._id;
+
+				return igualPublicacion && igualPerfil;
+			});
+
+			return ofertaDeCliente[0].monto;
 		}
 	}
 </script>
