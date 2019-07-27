@@ -86,9 +86,10 @@ export default class CargaDeOfertaDeSubasta extends Vue {
 	 * Objeto que almacena el estado de la oferta para crear de acuerdo al estado del formulario.
 	 */
 	public modelo: OfertaParaCrear = {
-		email: '',
-		tarjeta: '',
-		monto: this.subasta.montoInicial
+		idCliente: '',
+		idPublicacion: '',
+		monto: 0,
+		fechaDeCreacion: '',
 	};
 
 	/**
@@ -183,9 +184,10 @@ export default class CargaDeOfertaDeSubasta extends Vue {
 			this.formulario.resetValidation( );
 		}
 
-		this.modelo.email = '';
-		this.modelo.tarjeta = '';
-		this.modelo.monto = this.subasta.montoInicial;
+		this.modelo.idCliente = '';
+		this.modelo.idPublicacion = '';
+		this.modelo.monto = 0;
+		this.modelo.fechaDeCreacion = '';
 
 		this.formularioEsValido = false;
 	}
