@@ -43,7 +43,7 @@
 									{{	perfil.nombre }} {{ perfil.apellido }}
 								</v-flex>
 								<v-flex ma-1>
-									{{ fechaNac }}
+									{{ formatearFecha( perfil.fechaDeNacimiento ) }}
 								</v-flex>
 								<v-flex ma-1>
 									{{ perfil.pais }}
@@ -88,7 +88,7 @@
 									**** - **** - **** - {{perfil.tarjetaDeCredito.substr(-4)}}
 								</v-flex>
 								<v-flex ma-1>
-									{{fechaExp}}
+									{{ formatearFechaTarjeta( perfil.fechaDeExpiracion )}}
 								</v-flex>
 							</v-layout>
 						</v-layout>
@@ -250,14 +250,15 @@ import TablaDeSemanasDeCliente from '@/components/TablaDeSemanasDeCliente.vue';
 	}
 })
 export default class DatosDeUsuario extends Vue {
-	/* fechas a mostrar */
-	public fechaNac!: String;
-	public fechaExp!: String;
-	/* variable que ayuda a que se muestre o no ventana dialog de modificación */
-	public formularioDeModificacionEsVisible = false;
-	public formularioDeModificacionTarjetaEsVisible = false;
 
-	public formularioDeCompraDeCreditos = false;
+	// getters
+
+	public get perfil( ): Cliente | null {
+		const perfil = this.$store.getters.perfil;
+		return ( perfil === null )
+			? null
+			: perfil;
+	}
 
 	public get suscripcion( ): Suscripcion | null {
 		if ( this.perfil === null ) {
@@ -266,12 +267,32 @@ export default class DatosDeUsuario extends Vue {
 		return this.$store.getters.suscripcionConId( this.perfil.idSuscripcion );
 	}
 
+	public get obtenerSolicitudes(): Solicitud[ ] {
+		return this.$store.getters.solicitudes;
+	}
+
+	// logica de créditos vigentes para mostrar
+
+	public get creditosVigentes(): number {
+		const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
+		const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
+			const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
+			return _credito.activo && expiracion;
+		}).length;
+		return cantidadDeCreditosVigentes;
+	}
+	// ocultación y muestra de formularios
+	/* Muestra formulario de modificación de datos de usuario*/
+	/* variables que ayudan a que se muestre o no ventanas dialog de modificación */
+	public formularioDeModificacionEsVisible = false;
+	public formularioDeModificacionTarjetaEsVisible = false;
+	public formularioDeCompraDeCreditos = false;
+
 	public created( ) {
 		this.$store.dispatch('obtenerSolicitudes');
 		this.$store.dispatch('obtenerSuscripciones');
 	}
 
-	/* Muestra formulario de modificación de datos de usuario*/
 	public mostrarFormularioDeModificacion( ): void {
 		this.formularioDeModificacionEsVisible = true;
 	}
@@ -288,7 +309,6 @@ export default class DatosDeUsuario extends Vue {
 			this.formularioDeCompraDeCreditos = false;
 	}
 
-	/* Oculta formulario de modificación de datos de usuario*/
 	public ocultarFormularioDeModificacion( ): void {
 			this.formularioDeModificacionEsVisible = false;
 	}
@@ -310,23 +330,13 @@ export default class DatosDeUsuario extends Vue {
 		return error;
 	}
 
-	/* metodo que modifica info de Usuario */
+	// metodo que modifica info de Usuario
+
 	public modificarInfo( usuario: Cliente ): void {
 		this.emitirEventoInfoModificada( );
 		this.ocultarFormularioDeModificacion( );
 		this.ocultarFormularioDeModificacionTarjeta( );
 		this.ocultarFormularioDeComprarCreditos( );
-	}
-
-	public get perfil( ): Cliente | null {
-		const perfil = this.$store.getters.perfil;
-		if ( perfil === null ) {
-			return null;
-		}
-
-		this.fechaNac = moment(perfil.fechaDeNacimiento).utc().format('DD/MM/YYYY');
-		this.fechaExp = moment(perfil.fechaDeExpiracion).utc().format('DD/MM/YYYY');
-		return perfil;
 	}
 
 	public suscripcionPorId(id: String): Suscripcion {
@@ -337,24 +347,21 @@ export default class DatosDeUsuario extends Vue {
 		return this.$store.getters.solicitudConId(idCliente);
 	}
 
+	// modificar fecha para mostrarla
+
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('DD/MM/YYYY');
+	}
+	public formatearFechaTarjeta(fecha: string): string {
+			return moment(fecha).lang('es').format('MMMM [de] YYYY');
+	}
+	// logica de peticiones para solicitudes de promoción o degradación
+
 	public async procesarSolicitud( _idCliente: string) {
 		const solicitudParaCrear: SolicitudParaCrear = {
 			idCliente: _idCliente,
 		};
 		await this.$store.dispatch( 'crearSolicitud', solicitudParaCrear );
-	}
-
-	public get obtenerSolicitudes(): Solicitud[ ] {
-		return this.$store.getters.solicitudes;
-	}
-
-	public get creditosVigentes(): number {
-		const creditos: Credito[ ] = this.$store.getters.perfil.creditos;
-		const cantidadDeCreditosVigentes: number = creditos.filter( (_credito) => {
-			const expiracion: boolean = moment( moment(_credito.fechaDeCreacion).add(1, 'years') ).isAfter( moment() );
-			return _credito.activo && expiracion;
-		}).length;
-		return cantidadDeCreditosVigentes;
 	}
 }
 </script>

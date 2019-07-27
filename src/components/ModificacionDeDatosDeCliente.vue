@@ -24,7 +24,7 @@
 					v-model="modelo.fechaDeNacimiento"
 					label="Fecha de nacimiento"
 					:rules="validadores.fechaDeNacimiento"
-					hint="DD/MM/AAAA"
+					hint="DD/MM/YYYY"
 					type="date"
 					required
 				></v-text-field>
@@ -103,7 +103,7 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 		apellido: this.cliente.apellido ,
 		email: this.cliente.email ,
 		contraseña: this.cliente.contraseña ,
-		fechaDeNacimiento: this.cliente.fechaDeNacimiento ,
+		fechaDeNacimiento: this.formatearFecha(this.cliente.fechaDeNacimiento) ,
 		celular: this.cliente.celular ,
 		pais: this.cliente.pais ,
 		tarjetaDeCredito: this.cliente.tarjetaDeCredito ,
@@ -146,7 +146,7 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 	/**
 	 * Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM.
 	 */
-	public beforeMount( ): void {
+	public beforeMount( ) {
 		this.restablecerFormulario( );
 	}
 
@@ -213,8 +213,14 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 		this.modelo.email           	= this.cliente.email;
 		this.modelo.celular             = this.cliente.celular;
 		this.modelo.pais             	= this.cliente.pais;
-		this.modelo.fechaDeNacimiento   = this.cliente.fechaDeNacimiento;
+		this.modelo.fechaDeNacimiento   = this.formatearFecha(this.cliente.fechaDeNacimiento);
 		this.formularioEsValido = false;
+	}
+
+	// modificar fecha para mostrarla
+
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('YYYY-MM-DD');
 	}
 }
 </script>

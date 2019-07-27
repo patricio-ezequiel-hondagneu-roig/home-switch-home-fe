@@ -200,8 +200,12 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 		}
 		this.modelo.tarjetaDeCredito    = this.cliente.tarjetaDeCredito;
 		this.modelo.codigoDeSeguridad    = this.cliente.codigoDeSeguridad;
-		this.modelo.fechaDeExpiracion    = this.cliente.fechaDeExpiracion;
+		this.modelo.fechaDeExpiracion    = this.formatearFecha(this.cliente.fechaDeExpiracion);
 		this.formularioEsValido = false;
+	}
+	// modificar fecha para mostrarla
+	public formatearFecha(fecha: string): string {
+		return moment(fecha).format('YYYY-MM');
 	}
 }
 </script>
