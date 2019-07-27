@@ -4,6 +4,7 @@ import { Credito } from './credito.interface';
 export interface Cliente {
 	_id: string;
 	idSuscripcion: string;
+	esAdmin: boolean;
 	nombre: string;
 	apellido: string;
 	email: string;
@@ -19,5 +20,5 @@ export interface Cliente {
 	creditos: Credito[ ];
 }
 
-export type ClienteParaCrear = RemoverPropiedades<Cliente, '_id' >;
+export type ClienteParaCrear = RemoverPropiedades<Cliente, '_id'>;
 export type ClienteParaModificar = RemoverPropiedades<Cliente, '_id' >;

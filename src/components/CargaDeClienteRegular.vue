@@ -147,6 +147,7 @@
 		 */
 		public modelo: ClienteParaCrear = {
 			idSuscripcion: '',
+			esAdmin: false,
 			nombre: '',
 			apellido: '',
 			contraseña: '',
@@ -319,6 +320,7 @@
 			}
 
 			this.modelo.idSuscripcion = '';
+			this.modelo.esAdmin = false;
 			this.modelo.nombre = '';
 			this.modelo.apellido = '';
 			this.modelo.contraseña = '';
