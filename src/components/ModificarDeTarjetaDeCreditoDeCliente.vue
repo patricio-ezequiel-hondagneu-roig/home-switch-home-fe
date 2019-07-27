@@ -86,7 +86,8 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 	 * Objeto que almacena el estado del cliente para modificar de acuerdo al estado del formulario.
 	 */
 	public modelo: ClienteParaModificar = {
-		idSuscripcion: this.cliente.idSuscripcion ,
+		idSuscripcion: this.cliente.idSuscripcion,
+		esAdmin: this.cliente.esAdmin,
 		nombre: this.cliente.nombre ,
 		apellido: this.cliente.apellido ,
 		email: this.cliente.email ,

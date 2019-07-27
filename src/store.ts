@@ -340,21 +340,18 @@ export default new Vuex.Store({
 			localStorage.setItem( 'perfil', JSON.stringify( cliente ) );
 		},
 
-		// actualizarPerfil( state ) {
-		// 	if (state.perfil === null ){
-		// 		return;
-		// 	} else {
-		// 		const nuevoCliente: Cliente | undefined = state.clientes.find( (_cliente) => {
-		// 			// Dejame de joder tslint
-		// 			if (state.perfil !== null ){
-		// 				return _cliente._id === state.perfil._id;
-		// 			}
-		// 		});
-		// 		if (nuevoCliente !== undefined) {
-		// 			state.perfil = nuevoCliente;
-		// 		}
-		// 	}
-		// },
+		actualizarPerfil( state ) {
+			const perfilActual = state.perfil;
+			if ( perfilActual !== null ) {
+				const perfil = state.clientes.find( (_cliente) => {
+					return _cliente._id === perfilActual._id;
+				});
+				if ( perfil !== undefined ) {
+					state.perfil = perfil;
+					localStorage.setItem( 'perfil', JSON.stringify( perfil ) );
+				}
+			}
+		},
 
 		cerrarSesionComoAdmin( state ) {
 			state.esAdmin = false;
@@ -1132,6 +1129,12 @@ export default new Vuex.Store({
 						: 'Ocurrió un error al conectarse al servidor'
 				});
 			}
+		},
+
+		// actualizar perfil
+		async actualizarPerfil( { commit , dispatch }): Promise<void> {
+			await dispatch('obtenerClientes');
+			commit('actualizarPerfil');
 		},
 
 		/**

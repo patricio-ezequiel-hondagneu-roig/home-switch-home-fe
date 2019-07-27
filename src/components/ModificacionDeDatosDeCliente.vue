@@ -99,6 +99,7 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 	 */
 	public modelo: ClienteParaModificar = {
 		idSuscripcion: this.cliente.idSuscripcion ,
+		esAdmin: this.cliente.esAdmin,
 		nombre: this.cliente.nombre ,
 		apellido: this.cliente.apellido ,
 		email: this.cliente.email ,
@@ -207,7 +208,7 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 		if ( this.formulario !== null ) {
 			this.formulario.resetValidation( );
 		}
-
+		this.modelo.esAdmin          	= this.cliente.esAdmin;
 		this.modelo.nombre           	= this.cliente.nombre;
 		this.modelo.apellido          	= this.cliente.apellido;
 		this.modelo.email           	= this.cliente.email;
