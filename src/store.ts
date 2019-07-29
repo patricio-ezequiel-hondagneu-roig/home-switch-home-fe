@@ -28,6 +28,7 @@ const alerta: InformacionDeAlerta & { esVisible: boolean } = {
 export default new Vuex.Store({
 	state: {
 		alerta: alerta,
+		esSuperAdmin: <boolean | null> null,
 		esAdmin: <boolean | null> null,
 		perfil: <Cliente | null> null,
 		adquisiciones: <Adquisicion[ ]> [ ],
@@ -48,6 +49,12 @@ export default new Vuex.Store({
 			}
 
 			return state.esAdmin;
+		},
+		esSuperAdmin: ( state ) => {
+			if ( state.esSuperAdmin === null ) {
+				state.esSuperAdmin = localStorage.getItem( 'esSuperAdmin' ) !== null;
+			}
+			return state.esSuperAdmin;
 		},
 
 		perfil: ( state ) => {
@@ -334,10 +341,21 @@ export default new Vuex.Store({
 			state.esAdmin = true;
 			localStorage.setItem( 'esAdmin', 'esAdmin' );
 		},
+		iniciarSesionComoSuperAdmin( state ) {
+			state.esSuperAdmin = true;
+			localStorage.setItem( 'esSuperAdmin', 'esSuperAdmin' );
+			state.esAdmin = true;
+			localStorage.setItem( 'esAdmin', 'esAdmin' );
+		},
 
 		iniciarSesionComoCliente( state, cliente: Cliente ) {
-			state.perfil = cliente;
-			localStorage.setItem( 'perfil', JSON.stringify( cliente ) );
+			if ( cliente.esAdmin ) {
+				state.esAdmin = cliente.esAdmin;
+				localStorage.setItem( 'esAdmin', 'esAdmin' );
+			} else {
+				state.perfil = cliente;
+				localStorage.setItem( 'perfil', JSON.stringify( cliente ) );
+			}
 		},
 
 		actualizarPerfil( state ) {
@@ -357,10 +375,20 @@ export default new Vuex.Store({
 			state.esAdmin = false;
 			localStorage.removeItem( 'esAdmin' );
 		},
+		cerrarSesionComoSuperAdmin( state ) {
+			state.esSuperAdmin = false;
+			localStorage.removeItem( 'esSuperAdmin' );
+		},
 
 		cerrarSesionComoCliente( state ) {
-			state.perfil = null;
-			localStorage.removeItem( 'perfil' );
+			if (state.perfil !== null) {
+				if ( state.perfil.esAdmin ) {
+					state.esAdmin = false;
+					localStorage.removeItem( 'esAdmin' );
+				}
+				state.perfil = null;
+				localStorage.removeItem( 'perfil' );
+			}
 		},
 
 		mostrarAlerta( state, informacionDeAlerta: InformacionDeAlerta ) {
@@ -636,6 +664,9 @@ export default new Vuex.Store({
 		iniciarSesionComoAdmin( { commit }, cliente: Cliente ) {
 			commit( 'iniciarSesionComoAdmin', cliente );
 		},
+		iniciarSesionComoSuperAdmin( { commit }, cliente: Cliente ) {
+			commit( 'iniciarSesionComoSuperAdmin', cliente );
+		},
 
 		iniciarSesionComoCliente( { commit }, cliente: Cliente ) {
 			commit( 'iniciarSesionComoCliente', cliente );
@@ -643,6 +674,9 @@ export default new Vuex.Store({
 
 		cerrarSesionComoAdmin( { commit } ) {
 			commit( 'cerrarSesionComoAdmin' );
+		},
+		cerrarSesionComoSuperAdmin( { commit } ) {
+			commit( 'cerrarSesionComoSuperAdmin' );
 		},
 
 		cerrarSesionComoCliente( { commit } ) {

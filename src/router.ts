@@ -13,6 +13,7 @@ import AdministracionDeCreditos from './views/AdministracionDeCreditos.vue';
 import AdministracionDePublicaciones from './views/AdministracionDePublicaciones.vue';
 import AdministracionDeClientes from './views/AdministracionDeClientes.vue';
 import AdministracionDeClientesRegistrados from './views/AdministracionDeClientesRegistrados.vue';
+import AdministracionDeAdmins from './views/AdministracionDeAdmins.vue';
 import AdministracionDeSolicitudes from './views/AdministracionDeSolicitudes.vue';
 import AdministracionDePosiblesHotSales from './views/AdministracionDePosiblesHotSales.vue';
 import AdministracionDeHotsalesActivos from './views/AdministracionDeHotsalesActivos.vue';
@@ -128,6 +129,14 @@ const router = new Router({
 			path: '/administracion/clientes/all',
 			name: 'clientes registrados',
 			component: AdministracionDeClientesRegistrados,
+			meta: {
+				requierePermisosDeAdmin: true,
+			}
+		},
+		{
+			path: '/administracion/admins',
+			name: 'administracion de admins',
+			component: AdministracionDeAdmins,
 			meta: {
 				requierePermisosDeAdmin: true,
 			}

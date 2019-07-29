@@ -104,6 +104,7 @@ export default class TablaDeSemanasDeCliente extends Vue {
 	// ... al cancelarla te devuelve un credito
 	public modelo: ClienteParaModificar = {
 		idSuscripcion: this.cliente.idSuscripcion ,
+		esAdmin: this.cliente.esAdmin,
 		nombre: this.cliente.nombre ,
 		apellido: this.cliente.apellido ,
 		email: this.cliente.email ,

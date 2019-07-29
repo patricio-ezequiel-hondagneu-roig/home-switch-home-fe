@@ -104,7 +104,7 @@ export default class IniciarSesion extends Vue {
 
 			await this.$store.dispatch( 'mostrarAlerta', {
 				tipo: 'success',
-				texto: `Bienvenido ${cliente.nombre} ${cliente.apellido}`
+				texto: `Bienvenido ${(cliente.esAdmin) ? 'administrador' : ''} ${cliente.nombre} ${cliente.apellido}`
 			});
 			router.push('/');
 		} else {

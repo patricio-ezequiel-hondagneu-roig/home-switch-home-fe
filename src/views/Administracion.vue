@@ -2,9 +2,8 @@
 	<v-container fluid fill-height>
 		<v-layout column align-center justify-center>
 			<h1 class="display-2 mb-5">Administración</h1>
-			<section>
+			<container>
 				<v-layout row>
-
 					<v-hover>
 						<v-card
 							slot-scope="{ hover }"
@@ -27,7 +26,6 @@
 							</v-layout>
 						</v-card>
 					</v-hover>
-
 					<v-hover>
 						<v-card
 							slot-scope="{ hover }"
@@ -50,7 +48,6 @@
 						</v-layout>
 						</v-card>
 					</v-hover>
-
 					<v-hover>
 						<v-card
 							slot-scope="{ hover }"
@@ -73,8 +70,10 @@
 						</v-layout>
 						</v-card>
 					</v-hover>
-
-					<v-hover>
+				</v-layout>
+				<br>
+				<v-layout row>
+					<v-hover v-if="esSuperAdmin">
 						<v-card
 							slot-scope="{ hover }"
 							class="tarjeta-de-enlace"
@@ -96,36 +95,53 @@
 						</v-layout>
 						</v-card>
 					</v-hover>
-
+					<v-hover v-if="esSuperAdmin">
+						<v-card
+							slot-scope="{ hover }"
+							class="tarjeta-de-enlace"
+							:class="`elevation-${ hover ? 12 : 2 }`"
+							:to="{ name: 'administracion de admins' }"
+						>
+						<v-layout fill-height column>
+							<v-layout justify-center class="primary pa-2">
+								<v-icon class="icono-grande">person</v-icon>
+							</v-layout>
+							<v-layout column class="verticalmente-desbordable">
+								<v-card-title primary-title>
+									<h1 class="headline mb-0">Admins</h1>
+								</v-card-title>
+								<v-card-text>
+									Ver admins, darles o quitarles permisos de admin a clientes.
+								</v-card-text>
+							</v-layout>
+						</v-layout>
+						</v-card>
+					</v-hover>
+					<!-- Administración de créditos -->
+					<v-hover>
+						<v-card
+							slot-scope="{ hover }"
+							class="tarjeta-de-enlace"
+							:class="`elevation-${ hover ? 12 : 2 }`"
+							:to="{ name: 'administracion de creditos' }"
+						>
+							<v-layout fill-height column>
+								<v-layout justify-center class="primary pa-2">
+									<v-icon class="icono-grande">monetization_on</v-icon>
+								</v-layout>
+								<v-layout column class="verticalmente-desbordable">
+									<v-card-title primary-title>
+										<h1 class="headline mb-0">Créditos</h1>
+									</v-card-title>
+									<v-card-text>
+										Ver y modificar el precio de los créditos.
+									</v-card-text>
+								</v-layout>
+							</v-layout>
+						</v-card>
+					</v-hover>
 				</v-layout>
-
-				<br>
-
-				<!-- Administración de créditos -->
-				<v-hover>
-					<v-card
-						slot-scope="{ hover }"
-						class="tarjeta-de-enlace"
-						:class="`elevation-${ hover ? 12 : 2 }`"
-						:to="{ name: 'administracion de creditos' }"
-					>
-					<v-layout fill-height column>
-						<v-layout justify-center class="primary pa-2">
-							<v-icon class="icono-grande">monetization_on</v-icon>
-						</v-layout>
-						<v-layout column class="verticalmente-desbordable">
-							<v-card-title primary-title>
-								<h1 class="headline mb-0">Créditos</h1>
-							</v-card-title>
-							<v-card-text>
-								Ver y modificar el precio de los créditos.
-							</v-card-text>
-						</v-layout>
-					</v-layout>
-					</v-card>
-				</v-hover>
-
-			</section>
+			</container>
 		</v-layout>
 	</v-container>
 </template>
@@ -135,8 +151,11 @@ import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Administracion extends Vue {
-
+	public get esSuperAdmin( ): boolean {
+		return this.$store.getters.esSuperAdmin;
+	}
 }
+
 </script>
 
 <style lang="stylus" scoped>

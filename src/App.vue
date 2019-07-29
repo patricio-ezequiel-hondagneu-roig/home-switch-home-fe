@@ -40,7 +40,7 @@
 				</v-btn>
 				<v-btn
 					flat
-					v-if="perfil !== null"
+					v-if="perfil !== null & !esAdmin"
 					color="primary"
 					class="text--lighten-1"
 					:to="{ name: 'info de usuario' }"
@@ -84,6 +84,9 @@ export default class App extends Vue {
 	public get esAdmin( ): boolean {
 		return this.$store.getters.esAdmin;
 	}
+	public get esSuperAdmin( ): boolean {
+		return this.$store.getters.esSuperAdmin;
+	}
 	public get perfil(): Cliente | null {
 		return this.$store.getters.perfil;
 	}
@@ -91,9 +94,13 @@ export default class App extends Vue {
 	 * Cierra la sesión del usuario actual
 	 */
 	public async salir( ): Promise<void> {
-		if (this.perfil === null) {
+		if ( this.esAdmin ) {
 			await this.$store.dispatch( 'cerrarSesionComoAdmin' );
-		} else {
+		}
+		if ( this.esSuperAdmin ) {
+			await this.$store.dispatch( 'cerrarSesionComoSuperAdmin' );
+		}
+		if ( this.perfil !== null ) {
 			await this.$store.dispatch( 'cerrarSesionComoCliente' );
 		}
 		await this.$store.dispatch( 'mostrarAlerta', { texto: 'Saliste de Home Switch Home', tipo: 'success' } );

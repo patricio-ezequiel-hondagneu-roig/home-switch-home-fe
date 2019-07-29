@@ -106,12 +106,12 @@ export default class Ingreso extends Vue {
 	public async ingresar( ): Promise<void> {
 		if ( this.codigo === '12345' ) {
 			this.esperandoValidacionDeIngreso = true;
-			await this.$store.dispatch( 'iniciarSesionComoAdmin' );
+			await this.$store.dispatch( 'iniciarSesionComoSuperAdmin' );
 			this.esperandoValidacionDeIngreso = false;
 
 			await this.$store.dispatch( 'mostrarAlerta', {
 				tipo: 'success',
-				texto: 'Ingresaste a Home Switch Home'
+				texto: 'Ingresaste como super admin'
 			});
 
 			this.restablecerFormulario( );

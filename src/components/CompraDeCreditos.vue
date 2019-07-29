@@ -69,6 +69,7 @@ export default class CompraDeCreditos extends Vue {
 
 	public modelo: ClienteParaModificar = {
 		idSuscripcion: this.cliente.idSuscripcion ,
+		esAdmin: this.cliente.esAdmin,
 		nombre: this.cliente.nombre ,
 		apellido: this.cliente.apellido ,
 		email: this.cliente.email ,
