@@ -2,7 +2,7 @@
 	<v-container fluid fill-height>
 		<v-layout column align-center justify-center>
 			<h1 class="display-2 mb-5">Administración</h1>
-			<container>
+			<v-container>
 				<v-layout row>
 					<v-hover>
 						<v-card
@@ -141,7 +141,7 @@
 						</v-card>
 					</v-hover>
 				</v-layout>
-			</container>
+			</v-container>
 		</v-layout>
 	</v-container>
 </template>
