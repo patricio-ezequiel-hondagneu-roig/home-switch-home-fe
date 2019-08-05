@@ -180,7 +180,7 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 			this.esperandoModificacionDeInfo = true;
 
 			// Transformo las fecha de expiracion con moment js
-			this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeNacimiento).utc().toISOString();
+			this.modelo.fechaDeExpiracion = moment(this.modelo.fechaDeExpiracion).utc().toISOString();
 
 			await this.$store.dispatch( 'modificarPerfil', {
 				idCliente: this.cliente._id,
@@ -210,4 +210,3 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 	}
 }
 </script>
-
