@@ -54,6 +54,7 @@ import { server } from '@/utils/helper';
 import { CreditoBD } from '@/interfaces/creditoBD.interface';
 import { Cliente, ClienteParaModificar } from '../interfaces/cliente.interface';
 import moment from 'moment';
+import { numeroNoMenorQue } from '../helpers/validadores/numero-no-menor-que';
 
 @Component
 export default class CompraDeCreditos extends Vue {
@@ -93,7 +94,8 @@ export default class CompraDeCreditos extends Vue {
 	public validadores = {
 		cantidad: [
 			requerido( 'Cantidad de creditos' ),
-			numeroNoNegativo( 'Cantidad de creditos' )
+			numeroNoNegativo( 'Cantidad de creditos' ),
+			numeroNoMenorQue( 'Cantidad de crèditos', 0 ),
 		]
 	};
 
@@ -210,6 +212,7 @@ export default class CompraDeCreditos extends Vue {
 		this.esperandoModificacionDeInfo = false;
 		this.restablecerFormulario( );
 		this.emitirEventoInfoModificada( );
+		this.formularioEsValido = true;
 	}
 }
 </script>

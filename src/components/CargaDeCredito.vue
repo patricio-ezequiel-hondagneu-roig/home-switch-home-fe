@@ -46,6 +46,7 @@
 	import { server } from '@/utils/helper';
 	import { CreditoBD } from '../interfaces/creditoBD.interface';
 	import * as moment from 'moment';
+import { numeroNoMenorQue } from '../helpers/validadores/numero-no-menor-que';
 
 	@Component
 	export default class CargaDeCredito extends Vue {
@@ -66,7 +67,8 @@
 			],
 			monto: [
 				requerido( 'Monto de credito' ),
-				numeroNoNegativo( 'Monto de credito' )
+				numeroNoNegativo( 'Monto de credito' ),
+				numeroNoMenorQue( 'Monto de crédito', 0 ),
 			]
 		};
 
@@ -111,6 +113,8 @@
 
 			this.restablecerFormulario( );
 			this.emitirEventoCreditoCreado( );
+
+			this.formularioEsValido = true;
 		}
 
 		/**
