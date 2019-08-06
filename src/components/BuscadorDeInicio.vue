@@ -50,11 +50,8 @@
 			<ReservasDirectasActivas :reservasDirectas="separarReservasDirectas( publicaciones )"/>
 			<br>
 			<SubastasActivas :subastasActivas="separarSubastas( publicaciones )"/>
-<<<<<<< HEAD
 			<br>
 			<HotsalesActivos :hotsalesActivos="separarHotsales( publicaciones )"/>
-=======
->>>>>>> 91087b970a4586a97fcf398035d7fece7bc450e7
 		</v-container>
 	</v-layout>
 </template>
@@ -74,21 +71,12 @@ import { Adquisicion } from '../interfaces/adquisicion.interface';
 import { Hotsale } from '@/interfaces/hotsale.interface';
 
 @Component({
-<<<<<<< HEAD
 		components: {
 			SubastasActivas,
 			ReservasDirectasActivas,
 			HotsalesActivos
 		},
 	})
-=======
-	components: {
-		SubastasActivas,
-		ReservasDirectasActivas,
-		HotsalesActivas
-	},
-})
->>>>>>> 91087b970a4586a97fcf398035d7fece7bc450e7
 export default class BuscadorDeInicio extends Vue {
 	public esperandoPublicaciones: boolean = false;
 	public publicaciones: Publicacion[ ] = [ ];
@@ -160,7 +148,6 @@ export default class BuscadorDeInicio extends Vue {
 		this.mostrarPublicaciones = true;
 	}
 
-<<<<<<< HEAD
 	public esUnHotsale( publicacion: Publicacion ): boolean {
 		let esHotsale = false;
 
@@ -196,8 +183,6 @@ export default class BuscadorDeInicio extends Vue {
 		return esHotsale;
 	}
 
-=======
->>>>>>> 91087b970a4586a97fcf398035d7fece7bc450e7
 	// verifica que sea una subasta activa
 	public esUnaSubastaActiva( publicacion: Publicacion ): boolean {
 		// 1° No esta cerrada
