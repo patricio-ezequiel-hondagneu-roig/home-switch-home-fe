@@ -92,7 +92,7 @@
 																color="#E0E0E0"
 																icon
 																class="secondary--text"
-																@click.stop="adquirirReservaDirecta( reservaDirecta._id )"
+																@click.stop="mostrarConfirmacion( reservaDirecta._id )"
 																v-on="on"
 															>
 															<v-icon color="darken-2">monetization_on</v-icon>
@@ -135,6 +135,23 @@
 				@ok="ocultarDetalleDeResidencia( )"
 			/>
 		</v-dialog>
+		<v-dialog persistent v-model="verConfirmacion" width="300">
+			<v-card class="pa-4">
+				<v-layout column align-center pt-2>
+					<span class="title" mt-2>
+						¿Desea confirmar su compra?
+					</span>
+					<v-layout row mt-2>
+						<v-btn @click.stop="cancelar()" color="grey">
+							Cancelar
+						</v-btn>
+						<v-btn @click.stop="confirmar()" color="primary">
+							Confirmar
+						</v-btn>
+					</v-layout>
+				</v-layout>
+			</v-card>
+		</v-dialog>
 	</div>
 </template>
 
@@ -158,6 +175,8 @@ export default class ReservasDirectasActivas extends Vue {
 	@Prop( )
 	public readonly reservasDirectas!: Publicacion[ ];
 
+	public idSeleccionada: string = '';
+	public verConfirmacion = false;
 	public detalleDeResidenciaEsVisible: boolean = false;
 	public residenciaParam: Residencia = {
 		_id: '',
@@ -274,7 +293,18 @@ export default class ReservasDirectasActivas extends Vue {
 			});
 		}
 	}
-
+	public mostrarConfirmacion( idPublicacion: string ) {
+		this.idSeleccionada = idPublicacion;
+		this.verConfirmacion = true;
+	}
+	public confirmar(){
+		this.verConfirmacion = false;
+		this.adquirirReservaDirecta( this.idSeleccionada )
+	}
+	public cancelar(){
+		this.verConfirmacion = false;
+		this.idSeleccionada = '';
+	}
 }
 </script>
 
