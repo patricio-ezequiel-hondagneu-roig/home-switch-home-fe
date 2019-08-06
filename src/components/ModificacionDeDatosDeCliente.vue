@@ -199,6 +199,7 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 		this.esperandoModificacionDeInfo = false;
 		this.restablecerFormulario( );
 		this.emitirEventoInfoModificada( );
+		this.formularioEsValido = true;
 	}
 
 	/**
@@ -215,7 +216,6 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 		this.modelo.celular             = this.cliente.celular;
 		this.modelo.pais             	= this.cliente.pais;
 		this.modelo.fechaDeNacimiento   = this.formatearFecha(this.cliente.fechaDeNacimiento);
-		this.formularioEsValido = false;
 	}
 
 	// modificar fecha para mostrarla
@@ -225,4 +225,3 @@ export default class ModificacionDeDatosDeCliente extends Vue {
 	}
 }
 </script>
-

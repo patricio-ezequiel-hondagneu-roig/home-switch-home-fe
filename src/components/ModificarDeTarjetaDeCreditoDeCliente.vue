@@ -189,6 +189,7 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 			this.esperandoModificacionDeInfo = false;
 			this.restablecerFormulario( );
 			this.emitirEventoInfoModificada( );
+			this.formularioEsValido = true;
 		}
 	}
 
@@ -202,7 +203,6 @@ export default class ModificarDeTarjetaDeCreditoDeCliente extends Vue {
 		this.modelo.tarjetaDeCredito    = this.cliente.tarjetaDeCredito;
 		this.modelo.codigoDeSeguridad    = this.cliente.codigoDeSeguridad;
 		this.modelo.fechaDeExpiracion    = this.formatearFecha(this.cliente.fechaDeExpiracion);
-		this.formularioEsValido = false;
 	}
 	// modificar fecha para mostrarla
 	public formatearFecha(fecha: string): string {
