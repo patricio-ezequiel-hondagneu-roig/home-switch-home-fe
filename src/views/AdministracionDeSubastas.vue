@@ -23,12 +23,10 @@
 						no-data-text="No hay posibles hot sales por el momento."
 					>
 						<template #items="props">
-							<td class="text-xs-right">{{ props.item._id }}</td>
-							<td class="text-xs-right">{{ ofertaMaximaDeSubasta(props.item._id) }}</td>
-							<td class="text-xs-right">{{ ganador(props.item._id) }}</td>
-							<td class="text-xs-right">{{ cantidadDeOfertas(props.item._id) }}</td>
 							<td class="text-xs-right">{{ residenciaConId(props.item.idResidencia).titulo }}</td>
 							<td class="text-xs-right">{{ formatearFecha(props.item.fechaDeInicioDeSemana) }}</td>
+							<td class="text-xs-right">{{ ofertaMaximaDeSubasta(props.item._id) }}</td>
+
 
 							<td>
 								<v-layout row>
@@ -54,12 +52,12 @@
 												flat
 												icon
 												class="secondary--text"
-												@click.stop="crearHotSale( props.item._id, props.item.fechaDeInicioDeSemana)"
+												@click.stop="cerrarSubasta( props.item._id)"
 											>
-											<v-icon>whatshot</v-icon>
+											<v-icon>lock</v-icon>
 											</v-btn>
 										</template>
-										<span>Crear hot sale</span>
+										<span>Cerrar Subasta</span>
 									</v-tooltip>
 
 									<v-tooltip left open-delay="100" close-delay="0">
@@ -211,26 +209,6 @@ export default class AdministracionDeSubastasNuevo extends Vue {
 
 	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 		{
-			text: 'Id',
-			value: '_id',
-			align: 'right'
-		},
-		{
-			text: 'Precio',
-			value: '',
-			align: 'right'
-		},
-		{
-			text: 'Titular de la oferta más grande',
-			value: '',
-			align: 'right'
-		},
-		{
-			text: 'Ofertas',
-			value: '',
-			align: 'right'
-		},
-		{
 			text: 'Titulo',
 			value: 'titulo',
 			align: 'right'
@@ -238,6 +216,11 @@ export default class AdministracionDeSubastasNuevo extends Vue {
 		{
 			text: 'Fecha de inicio de semana',
 			value: 'fechaDeInicioDeSemana',
+			align: 'right'
+		},
+		{
+			text: 'Precio',
+			value: '',
 			align: 'right'
 		},
 		{
@@ -389,45 +372,6 @@ export default class AdministracionDeSubastasNuevo extends Vue {
 		}
 	}
 
-	public ganador( idPublicacion: string ): string {
-		// Junto todas las adquisiciones
-		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
-
-		// Junto todas las adquisiciones que referencian a esta publicacion
-		const adquisicionesDeSubasta = adquisiciones.filter( (adquisicion) => {
-			return adquisicion.idPublicacion === idPublicacion;
-		});
-
-		// Junto todas las ofertas de esta publicacion, igual es poco necesario este paso ...
-		// ... ya que se sabe que es una subasta
-		const ofertasDeSubasta = adquisicionesDeSubasta.filter( (adquisicion) => {
-			return adquisicion.tipoDeAdquisicion === 'subasta';
-		});
-
-		// Pregunto si hay adquisiciones de tipo subasta, osea ofertas, utilizando el tamaño del arreglo
-		if (ofertasDeSubasta.length > 0) {
-			const maximo = ofertasDeSubasta
-				.sort( ( a, b ) => {
-					if ( a.monto > b.monto ) {
-						return -1;
-					}
-					else if ( a.monto < b.monto ) {
-						return +1;
-					}
-					else {
-						return 0;
-					}
-				});
-			const cliente: Cliente = this.$store.getters.clienteConId(maximo[0].idCliente);
-			if ( cliente !== null ) {
-				return cliente.email;
-			} else {
-				return 'Error en la carga, ir a AdministracionDeSubastasNuevo linea 404';
-			}
-		} else {
-			return 'No hay ofertas';
-		}
-	}
 
 	public cantidadDeOfertas( idPublicacion: string ): number {
 		// Junto todas las adquisiciones
@@ -459,6 +403,10 @@ export default class AdministracionDeSubastasNuevo extends Vue {
 				idPublicacion
 			}
 		};
+	}
+
+	public cerrarSubasta( idSubasta: string){
+		this.$store.dispatch('terminarSubasta',idSubasta);
 	}
 }
 </script>

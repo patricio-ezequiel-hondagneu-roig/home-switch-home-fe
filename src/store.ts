@@ -399,7 +399,7 @@ export default new Vuex.Store({
 					localStorage.removeItem( 'esAdmin' );
 				}
 				state.idPerfil = null;
-				localStorage.removeItem( 'perfil' );
+				localStorage.removeItem( 'idPerfil' );
 			}
 		},
 
@@ -898,6 +898,21 @@ export default new Vuex.Store({
 				const respuesta = await axios.get<Subasta[ ]>( `${ server.baseURL }/subastas` );
 				const subastas = respuesta.data;
 				commit( 'actualizarSubastas', subastas );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async terminarSubasta( { commit, dispatch } , idSubasta: Subasta[ '_id' ] ): Promise<void> {
+			try {
+				await axios.put<void>( `${ server.baseURL }/publicaciones/${idSubasta}/finalizar` );
+				await dispatch( 'obtenerPublicaciones' );
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {

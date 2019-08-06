@@ -58,6 +58,21 @@
 										</template>
 										<span>Crear hot sale</span>
 									</v-tooltip>
+									<v-tooltip left open-delay="100" close-delay="0">
+										<template v-slot:activator="{ on }">
+											<v-btn
+												v-on="on"
+												flat
+												icon
+												:disabled="poseeHotsale(props.item._id)"
+												class="secondary--text"
+												@click.stop="borrarHotSale( props.item._id)"
+											>
+											<v-icon>delete</v-icon>
+											</v-btn>
+										</template>
+										<span>Descartar Hotsale</span>
+									</v-tooltip>
 								</v-layout>
 							</td>
 						</template>
@@ -319,6 +334,10 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 		return hotsales.some( (hotsale) => {
 			return hotsale.idPublicacion === idPublicacion;
 		});
+	}
+
+	public borrarHotSale( idPublicacion: string ) {
+		this.$store.dispatch('eliminarPublicacion' , idPublicacion);
 	}
 }
 </script>
