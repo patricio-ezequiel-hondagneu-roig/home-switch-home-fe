@@ -11,6 +11,9 @@
 
 					<!-- Elementos con una estructura de control FOR -->
 						<v-container wrap>
+							<p v-if="subastasActivas.length === 0">
+								No hay publicaciones disponibles para subasta actualmente
+							</p>
 							<v-layout
 								v-for="(subastaActiva, index) in subastasActivas"
 								:key="index"
