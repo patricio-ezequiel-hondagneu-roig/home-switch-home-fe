@@ -4,14 +4,17 @@
 		<v-data-table
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
-			:items="publicaciones"
+			:items="entradasDeTabla"
 			no-data-text="No hay publicaciones cargadas aún."
 		>
 			<template #items="props">
-				<td class="text-xs-right">{{ props.item._id }}</td>
-				<td class="text-xs-right">{{ props.item.idResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.tituloDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.paisDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.provinciaDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.localidadDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.domicilioDeResidencia }}</td>
 				<td class="text-xs-right">{{ formatearFecha(props.item.fechaDeInicioDeSemana) }}</td>
-				<td class="text-xs-right">{{ adquirida(props.item._id) }}</td>
+				<td class="text-xs-right">{{ props.item.estaAdquirida ? 'Si' : 'No' }}</td>
 
 				<td>
 					<v-layout row>
@@ -46,15 +49,37 @@ import { VuetifyDataTableHeader } from '@/typings/vuetify-data-table-header.d';
 import { server } from '@/utils/helper';
 import moment from 'moment';
 import { Adquisicion } from '../interfaces/adquisicion.interface';
+import { Residencia } from '../interfaces/residencia.interface';
 
 @Component
 export default class TablaDeReservasDirectas extends Vue {
 
-	/**
-	 * Lista de todas las publicaciones actualmente en el sistema.
-	 */
-	public get publicaciones( ): Publicacion[ ] {
-		return this.$store.getters.publicaciones;
+	public get entradasDeTabla() {
+		const residencias: Residencia[ ] = this.$store.getters.residencias;
+		const publicaciones: Publicacion[ ] = this.$store.getters.publicaciones;
+		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+
+		const entradas = publicaciones.map( ( _publicacion ) => {
+			const residenciaDePublicacion = residencias.find( ( _residencia ) => {
+				return _residencia._id === _publicacion.idResidencia;
+			});
+			const adquisicionDePublicacion = adquisiciones.find( ( _adquisicion ) => {
+				return _adquisicion.idPublicacion === _publicacion._id;
+			});
+
+			return {
+				idResidencia: _publicacion.idResidencia,
+				tituloDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.titulo : '',
+				paisDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.pais : '',
+				provinciaDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.provincia : '',
+				localidadDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.localidad : '',
+				domicilioDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.domicilio : '',
+				fechaDeInicioDeSemana: _publicacion.fechaDeInicioDeSemana,
+				estaAdquirida: adquisicionDePublicacion !== undefined,
+			};
+		});
+
+		return entradas;
 	}
 
 	/**
@@ -62,13 +87,28 @@ export default class TablaDeReservasDirectas extends Vue {
 	 */
 	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 		{
-			text: 'Id',
-			value: '_id',
+			text: 'Residencia',
+			value: 'tituloDeResidencia',
 			align: 'right'
 		},
 		{
-			text: 'idResidencia',
-			value: 'idResidencia',
+			text: 'Pais',
+			value: 'paisDeResidencia',
+			align: 'right'
+		},
+		{
+			text: 'Provincia',
+			value: 'provinciaDeResidencia',
+			align: 'right'
+		},
+		{
+			text: 'Localidad',
+			value: 'localidadDeResidencia',
+			align: 'right'
+		},
+		{
+			text: 'Domicilio',
+			value: 'domicilioDeResidencia',
 			align: 'right'
 		},
 		{
@@ -78,7 +118,7 @@ export default class TablaDeReservasDirectas extends Vue {
 		},
 		{
 			text: 'Esta adquirida',
-			value: '',
+			value: 'estaAdquirida',
 			align: 'right'
 		},
 		{

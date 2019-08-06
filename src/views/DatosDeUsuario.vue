@@ -281,6 +281,7 @@ export default class DatosDeUsuario extends Vue {
 		}).length;
 		return cantidadDeCreditosVigentes;
 	}
+
 	// ocultación y muestra de formularios
 	/* Muestra formulario de modificación de datos de usuario*/
 	/* variables que ayudan a que se muestre o no ventanas dialog de modificación */
