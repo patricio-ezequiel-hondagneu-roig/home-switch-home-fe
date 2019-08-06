@@ -30,7 +30,7 @@ export default new Vuex.Store({
 		alerta: alerta,
 		esSuperAdmin: <boolean | null> null,
 		esAdmin: <boolean | null> null,
-		perfil: <Cliente | null> null,
+		idPerfil: <string | null> null,
 		adquisiciones: <Adquisicion[ ]> [ ],
 		clientes: <Cliente[ ]> [ ],
 		solicitudes: <Solicitud[ ]> [ ],
@@ -50,6 +50,7 @@ export default new Vuex.Store({
 
 			return state.esAdmin;
 		},
+
 		esSuperAdmin: ( state ) => {
 			if ( state.esSuperAdmin === null ) {
 				state.esSuperAdmin = localStorage.getItem( 'esSuperAdmin' ) !== null;
@@ -57,15 +58,26 @@ export default new Vuex.Store({
 			return state.esSuperAdmin;
 		},
 
-		perfil: ( state ) => {
-			if ( state.perfil === null ) {
-				const perfilEnLocalStorage = localStorage.getItem( 'perfil' );
-				state.perfil = ( perfilEnLocalStorage !== null )
-					? <Cliente> JSON.parse( perfilEnLocalStorage )
-					: null;
+		idPerfil: ( state ) => {
+			if ( state.idPerfil === null ) {
+				state.idPerfil = localStorage.getItem( 'perfil' );
 			}
 
-			return state.perfil;
+			return state.idPerfil;
+		},
+
+		perfil: ( state ) => {
+			if ( state.idPerfil === null ) {
+				return null;
+			}
+			else {
+				const clienteLogueado = state.clientes.find( ( _cliente ) => {
+					return _cliente._id === state.idPerfil;
+				});
+				return ( clienteLogueado !== undefined )
+					? clienteLogueado
+					: null;
+			}
 		},
 
 		adquisiciones: ( state ) => {
@@ -353,20 +365,20 @@ export default new Vuex.Store({
 				state.esAdmin = cliente.esAdmin;
 				localStorage.setItem( 'esAdmin', 'esAdmin' );
 			} else {
-				state.perfil = cliente;
-				localStorage.setItem( 'perfil', JSON.stringify( cliente ) );
+				state.idPerfil = cliente._id;
+				localStorage.setItem( 'idPerfil', cliente._id );
 			}
 		},
 
 		actualizarPerfil( state ) {
-			const perfilActual = state.perfil;
-			if ( perfilActual !== null ) {
-				const perfil = state.clientes.find( (_cliente) => {
-					return _cliente._id === perfilActual._id;
+			const idPerfilActual = state.idPerfil;
+			if ( idPerfilActual !== null ) {
+				const clienteActual = state.clientes.find( (_cliente) => {
+					return _cliente._id === idPerfilActual;
 				});
-				if ( perfil !== undefined ) {
-					state.perfil = perfil;
-					localStorage.setItem( 'perfil', JSON.stringify( perfil ) );
+				if ( clienteActual !== undefined ) {
+					state.idPerfil = clienteActual._id;
+					localStorage.setItem( 'idPerfil', clienteActual._id );
 				}
 			}
 		},
@@ -381,12 +393,12 @@ export default new Vuex.Store({
 		},
 
 		cerrarSesionComoCliente( state ) {
-			if (state.perfil !== null) {
-				if ( state.perfil.esAdmin ) {
+			if (state.idPerfil !== null) {
+				if ( state.esAdmin === true ) {
 					state.esAdmin = false;
 					localStorage.removeItem( 'esAdmin' );
 				}
-				state.perfil = null;
+				state.idPerfil = null;
 				localStorage.removeItem( 'perfil' );
 			}
 		},
@@ -525,6 +537,13 @@ export default new Vuex.Store({
 		// Clientes
 		actualizarClientes( state, clientes: Cliente[ ] ): void {
 			state.clientes = clientes;
+
+			if ( state.idPerfil !== null ) {
+				const clienteLogueado = clientes.find( ( _cliente ) => _cliente._id === state.idPerfil );
+				if ( clienteLogueado === undefined ) {
+					state.idPerfil === null;
+				}
+			}
 		},
 
 		agregarCliente( state, cliente: Cliente ): void {
@@ -546,7 +565,7 @@ export default new Vuex.Store({
 		},
 
 		modificarPerfil( state, cliente: Cliente ): void {
-			state.perfil = cliente;
+			state.idPerfil = cliente._id;
 		},
 
 		eliminarCliente( state, idCliente: Cliente[ '_id' ] ): void {
@@ -657,6 +676,12 @@ export default new Vuex.Store({
 		// Adquisiciones
 		actualizarAdquisicionesDeCliente( state, adquisiciones: Adquisicion[ ] ): void {
 			state.adquisiciones = adquisiciones;
+		},
+
+		obtenerPerfilDeLocalStorage( state ): void {
+			if ( state.idPerfil === null ) {
+				state.idPerfil = localStorage.getItem( 'idPerfil' );
+			}
 		},
 
 	},
@@ -1215,6 +1240,7 @@ export default new Vuex.Store({
 		/** Solicitudes de mejora de plan */
 		async obtenerSolicitudes( { commit, dispatch } ): Promise<void> {
 			try {
+				await dispatch( 'obtenerClientes' );
 				const respuesta = await axios.get<Solicitud[ ]>( `${ server.baseURL }/solicitudes` );
 				const solicitudes = respuesta.data;
 				commit( 'actualizarSolicitudes', solicitudes );
@@ -1624,6 +1650,36 @@ export default new Vuex.Store({
 				});
 
 				await dispatch( 'obtenerOfertas' );
+			}
+			catch ( error ) {
+				dispatch( 'mostrarAlerta', {
+					tipo: 'error',
+					texto: ( error.response !== undefined )
+						? error.response.data.message
+						: 'Ocurrió un error al conectarse al servidor'
+				});
+			}
+		},
+
+		async obtenerClienteActual({ commit, dispatch, state }): Promise<void> {
+			try {
+				commit( 'obtenerPerfilDeLocalStorage' );
+				if ( state.idPerfil !== null ) {
+					const url = `${ server.baseURL }/clientes/${ state.idPerfil }`;
+					const respuesta = await axios.get<Cliente>( url );
+
+					const notFoundStatusCode = 404;
+					if ( respuesta.status !== notFoundStatusCode ) {
+						const cliente = respuesta.data;
+						if ( state.clientes.includes( cliente ) ) {
+							const index = state.clientes.indexOf( cliente );
+							state.clientes.splice( index, 1, cliente );
+						}
+						else {
+							state.clientes.push( cliente );
+						}
+					}
+				}
 			}
 			catch ( error ) {
 				dispatch( 'mostrarAlerta', {

@@ -84,12 +84,19 @@ export default class App extends Vue {
 	public get esAdmin( ): boolean {
 		return this.$store.getters.esAdmin;
 	}
+
 	public get esSuperAdmin( ): boolean {
 		return this.$store.getters.esSuperAdmin;
 	}
+
 	public get perfil(): Cliente | null {
 		return this.$store.getters.perfil;
 	}
+
+	public async created( ): Promise<void> {
+		this.$store.dispatch( 'obtenerClienteActual' );
+	}
+
 	/**
 	 * Cierra la sesión del usuario actual
 	 */
