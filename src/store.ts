@@ -138,11 +138,12 @@ export default new Vuex.Store({
 		},
 
 		reservasDirectas: ( state ) => {
-			const meses: number = 6;
 			let reservasDirectas: Publicacion[ ];
 			// Primero quiero saber que faltan más de 6 meses
 			reservasDirectas = state.publicaciones.filter( (publicacion) => {
-				return moment().add(meses, 'M') < moment(publicacion.fechaDeInicioDeSemana);
+				const fechaActual = moment.utc( );
+				const fechaDeInicioDeSubasta = moment.utc( publicacion.fechaDeInicioDeSemana ).subtract({ months: 6 });
+				return fechaActual < fechaDeInicioDeSubasta;
 			});
 
 			// Segundo me interesa que no este adquirida

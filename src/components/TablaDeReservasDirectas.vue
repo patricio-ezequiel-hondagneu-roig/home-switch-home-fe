@@ -56,7 +56,7 @@ export default class TablaDeReservasDirectas extends Vue {
 
 	public get entradasDeTabla() {
 		const residencias: Residencia[ ] = this.$store.getters.residencias;
-		const publicaciones: Publicacion[ ] = this.$store.getters.publicaciones;
+		const publicaciones: Publicacion[ ] = this.$store.getters.reservasDirectas;
 		const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
 
 		const entradas = publicaciones.map( ( _publicacion ) => {

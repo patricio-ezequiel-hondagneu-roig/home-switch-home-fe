@@ -11,6 +11,9 @@
 
 					<!-- Elementos con una estructura de control FOR -->
 						<v-container wrap>
+							<p v-if="hotsalesActivos.length === 0">
+								No hay hot sales disponibles actualmente
+							</p>
 							<v-layout
 								v-for="(hotsale , index) in hotsalesActivos"
 								:key="index"
