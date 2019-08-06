@@ -71,7 +71,7 @@
 		public modelo: SuscripcionParaCrear = {
 			tipoDeSuscripcion: '',
 			fechaDeCreacion: '',
-			monto: 0,
+			monto: this.$store.getters.obtenerSuscripcionPremium.monto || 0,
 		};
 
 		/**
@@ -108,6 +108,10 @@
 			}
 		}
 
+		public created( ): void {
+			this.$store.dispatch( 'obtenerSuscripciones' );
+		}
+
 		/**
 		 * Emite el evento _cancelacion_.
 		 */
@@ -141,6 +145,8 @@
 
 			this.restablecerFormulario( );
 			this.emitirEventoSuscripcionCreada( );
+
+			this.formularioEsValido = true;
 		}
 
 		/**
@@ -153,9 +159,7 @@
 
 			this.modelo.tipoDeSuscripcion = 'Premium';
 			this.modelo.fechaDeCreacion = '';
-			this.modelo.monto = 0;
-
-			this.formularioEsValido = false;
+			this.modelo.monto = this.$store.getters.obtenerSuscripcionPremium.monto || 0;
 		}
 
 		/**

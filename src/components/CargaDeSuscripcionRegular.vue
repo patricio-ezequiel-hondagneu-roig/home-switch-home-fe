@@ -71,7 +71,7 @@
 		public modelo: SuscripcionParaCrear = {
 			tipoDeSuscripcion: '',
 			fechaDeCreacion: '',
-			monto: 0,
+			monto: this.$store.getters.obtenerSuscripcionRegular.monto || 0,
 		};
 
 		/**
@@ -141,6 +141,8 @@
 
 			this.restablecerFormulario( );
 			this.emitirEventoSuscripcionCreada( );
+
+			this.formularioEsValido = true;
 		}
 
 		/**
@@ -153,9 +155,7 @@
 
 			this.modelo.tipoDeSuscripcion = 'Regular';
 			this.modelo.fechaDeCreacion = '';
-			this.modelo.monto = 0;
-
-			this.formularioEsValido = false;
+			this.modelo.monto = this.$store.getters.obtenerSuscripcionRegular.monto || 0;
 		}
 
 		/**
