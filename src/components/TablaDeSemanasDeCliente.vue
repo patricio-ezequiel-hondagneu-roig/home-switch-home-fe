@@ -177,14 +177,18 @@ export default class TablaDeSemanasDeCliente extends Vue {
 	}
 
 	// obtiene publicacion por idPublicacion
-	public publicacionId( idPublicacion: string ): Publicacion {
+	public publicacionId( idPublicacion: string ): Publicacion | null {
 		return this.$store.getters.publicacionConId( idPublicacion );
 	}
 
 	// obtiene residencia de una idPublicacion que posee idResidencia
-	public obtenerResidenciaConPublicacionId( idPublicacion: string ): Residencia {
+	public obtenerResidenciaConPublicacionId( idPublicacion: string ): Residencia | null {
 		const publicacion = this.publicacionId( idPublicacion );
-		return this.$store.getters.residenciaConId(publicacion.idResidencia);
+		if ( publicacion !== null  ) {
+			return this.$store.getters.residenciaConId(publicacion.idResidencia);
+		}else {
+			return null;
+		}
 	}
 
 	// obtiene nombre de residencia dada un idPublicacion
@@ -196,15 +200,21 @@ export default class TablaDeSemanasDeCliente extends Vue {
 	}
 
 	// obtiene fecha de semana de publicacion dada un idPublicacion
-	public fechaDeSemanaDePublicacionId( idPublicacion: string ): string {
+	public fechaDeSemanaDePublicacionId( idPublicacion: string ): string | null {
 		const publicacion = this.publicacionId( idPublicacion );
-		return this.formatearFecha(publicacion.fechaDeInicioDeSemana);
+		if ( publicacion !== null ) {
+			return this.formatearFecha(publicacion.fechaDeInicioDeSemana);
+		}else {
+			return null;
+		}
 	}
 
 	// sistema de ocultamiento de detalle de residencia
-	public mostrarDetallesResidencia( residencia: Residencia ): void {
-		this.residenciaParaMostrar = residencia;
-		this.detalleDeResidenciaEsVisible = true;
+	public mostrarDetallesResidencia( residencia: Residencia | null ): void {
+		if ( residencia !== null ) {
+			this.residenciaParaMostrar = residencia;
+			this.detalleDeResidenciaEsVisible = true;
+		}
 	}
 
 	public ocultarDetalleDeResidencia( ): void {
@@ -213,7 +223,9 @@ export default class TablaDeSemanasDeCliente extends Vue {
 
 	// cancelacion de adquisicion segun idAdquisicion
 	public async cancelarAdquisicion( idAdquisicion: string ) {
-		const adquisicion = this.$store.getters.adquisicionConId(idAdquisicion);
+		const adquisicion: Adquisicion | null = this.$store.getters.adquisicionConId(idAdquisicion);
+		if ( adquisicion === null ) { return; }
+
 		switch ( adquisicion.tipoDeAdquisicion ) {
 			case 'reserva directa': {
 				// Primero elimino la reserva directa
@@ -222,7 +234,9 @@ export default class TablaDeSemanasDeCliente extends Vue {
 				// En el caso que ya paso la semana no devuelvo un credito.
 				// En el caso de que se cancele una reserva directa y no haya ...
 				// ... comenzado la semana se devuelve un credito.
-				const publicacion: Publicacion = this.$store.getters.publicacionConId( adquisicion.idPublicacion );
+				const publicacion: Publicacion | null = this.$store.getters.publicacionConId( adquisicion.idPublicacion );
+				if ( publicacion === null ) { return; }
+
 				if ( moment(publicacion.fechaDeInicioDeSemana).isAfter( moment() ) ) {
 					// Agrego el credito a retornar por la cancelacion de la reserva directa
 					this.modelo.creditos.push({
@@ -239,11 +253,11 @@ export default class TablaDeSemanasDeCliente extends Vue {
 				break;
 			}
 			case 'hot sale': {
-				// statements;
+				await this.$store.dispatch( 'eliminarAdquisicion', adquisicion._id );
 				break;
 			}
 			case 'subasta': {
-				// statements;
+				await this.$store.dispatch( 'eliminarAdquisicion', adquisicion._id );
 				break;
 			}
 			default: {

@@ -65,7 +65,9 @@
 		>
 			<ReservasDirectasActivas :reservasDirectas="separarReservasDirectas( publicaciones )" />
 			<br>
-			<SubastasActivas :subastasActivas="separarSubastas( publicaciones )"></SubastasActivas>
+			<SubastasActivas :subastasActivas="separarSubastas( publicaciones )"/>
+			<br>
+			<HotsalesActivos :hotsalesActivos="separarHotsales( publicaciones )"/>
 		</v-container>
 	</v-layout>
 </template>
@@ -80,14 +82,15 @@ import { Publicacion } from '@/interfaces/publicacion.interface';
 import { Residencia } from '@/interfaces/residencia.interface';
 import ReservasDirectasActivas from '@/components/ReservasDirectasActivas.vue';
 import SubastasActivas from '@/components/SubastasActivas.vue';
-import HotsalesActivas from '@/components/HotsalesActivas.vue';
+import HotsalesActivos from '@/components/HotsalesActivos.vue';
 import { Adquisicion } from '../interfaces/adquisicion.interface';
+import { Hotsale } from '@/interfaces/hotsale.interface';
 
 @Component({
 		components: {
 			SubastasActivas,
 			ReservasDirectasActivas,
-			HotsalesActivas
+			HotsalesActivos
 		},
 	})
 export default class BuscadorDeInicio extends Vue {
@@ -148,6 +151,42 @@ export default class BuscadorDeInicio extends Vue {
 		this.esperandoPublicaciones = false;
 		this.mostrarPublicaciones = true;
 	}
+
+	public esUnHotsale( publicacion: Publicacion ): boolean {
+		let esHotsale = false;
+
+		// 2° Me fijo el intervalo de fechas de una subasta
+		const dias: number = 3;
+		const meses: number = 6;
+
+		const comienzoDeSubasta = moment( publicacion.fechaDeInicioDeSemana ).subtract( meses, 'M' );
+		const finDeSubasta = comienzoDeSubasta.add( dias, 'd' );
+
+		const esPosibleHotsale = moment( ).isAfter( finDeSubasta );
+		if ( esPosibleHotsale ) {
+			this.$store.dispatch( 'obtenerHotsales' );
+			const hotsales: Hotsale[] = this.$store.getters.hotsales;
+			const hotsaleDePublicacion = hotsales.find( ( hotsale ) => {
+				return hotsale.idPublicacion === publicacion._id;
+			});
+			if ( hotsaleDePublicacion !== undefined ) {
+				esHotsale = moment().isBetween( hotsaleDePublicacion.fechaDeInicio,
+				hotsaleDePublicacion.fechaDeFin );
+				if ( esHotsale ) {
+					const adquisiciones: Adquisicion[] = this.$store.getters.adquisiciones;
+					const noEsAdquirida = !adquisiciones.some( ( adquisicion ) => {
+						return adquisicion.idPublicacion === publicacion._id;
+					});
+					esHotsale = noEsAdquirida;
+				}
+			}
+		}
+		// 3° No hay ganador, pero supongo que si hay ganador no esta cerrada
+		// ?????
+
+		return esHotsale;
+	}
+
 	// verifica que sea una subasta activa
 	public esUnaSubastaActiva( publicacion: Publicacion ): boolean {
 		// 1° No esta cerrada
@@ -193,6 +232,12 @@ export default class BuscadorDeInicio extends Vue {
 	public separarReservasDirectas( publicaciones: Publicacion[ ] ): Publicacion[ ] {
 		const reservasDirectas = publicaciones.filter( (_publicacion) => {
 			return this.esUnaReservaDirectaActiva( _publicacion );
+		});
+		return reservasDirectas;
+	}
+	public separarHotsales( publicaciones: Publicacion[ ] ): Publicacion[ ] {
+		const reservasDirectas = publicaciones.filter( (_publicacion) => {
+			return this.esUnHotsale( _publicacion );
 		});
 		return reservasDirectas;
 	}

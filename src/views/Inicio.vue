@@ -25,7 +25,7 @@
 	import SubastasActivasViejo from '@/components/SubastasActivasViejo.vue';
 	import ReservasDirectasActivas from '@/components/ReservasDirectasActivas.vue';
 	import SubastasActivas from '@/components/SubastasActivas.vue';
-	import HotsalesActivas from '@/components/HotsalesActivas.vue';
+	import HotsalesActivos from '@/components/HotsalesActivos.vue';
 	import BuscadorDeInicio from '@/components/BuscadorDeInicio.vue';
 
 	@Component({
@@ -34,7 +34,7 @@
 			SubastasActivasViejo,
 			SubastasActivas,
 			ReservasDirectasActivas,
-			HotsalesActivas
+			HotsalesActivos
 		},
 	})
 

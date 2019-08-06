@@ -23,7 +23,6 @@
 						no-data-text="No hay posibles hot sales por el momento."
 					>
 						<template #items="props">
-							<td class="text-xs-right">{{ props.item._id }}</td>
 							<td class="text-xs-right">{{ residenciaConId(props.item.idResidencia).titulo }}</td>
 							<td class="text-xs-right">{{ formatearFecha(props.item.fechaDeInicioDeSemana) }}</td>
 
@@ -50,6 +49,7 @@
 												v-on="on"
 												flat
 												icon
+												:disabled="poseeHotsale(props.item._id)"
 												class="secondary--text"
 												@click.stop="crearHotSale( props.item._id, props.item.fechaDeInicioDeSemana)"
 											>
@@ -191,11 +191,6 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 
 	public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 		{
-			text: 'Id',
-			value: '_id',
-			align: 'right'
-		},
-		{
 			text: 'Titulo',
 			value: 'titulo',
 			align: 'right'
@@ -316,6 +311,14 @@ export default class AdministracionDePosiblesHotSales extends Vue {
 		return ( isNaN( valorNumerico ) )
 			? predeterminado
 			: valorNumerico;
+	}
+
+	public poseeHotsale( idPublicacion: string ): boolean {
+		this.$store.dispatch('obtenerHotsales');
+		const hotsales: Hotsale[] = this.$store.getters.hotsales;
+		return hotsales.some( (hotsale) => {
+			return hotsale.idPublicacion === idPublicacion;
+		});
 	}
 }
 </script>
