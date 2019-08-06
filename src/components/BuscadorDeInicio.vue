@@ -71,12 +71,12 @@ import { Adquisicion } from '../interfaces/adquisicion.interface';
 import { Hotsale } from '@/interfaces/hotsale.interface';
 
 @Component({
-		components: {
-			SubastasActivas,
-			ReservasDirectasActivas,
-			HotsalesActivos
-		},
-	})
+	components: {
+		SubastasActivas,
+		ReservasDirectasActivas,
+		HotsalesActivos
+	},
+})
 export default class BuscadorDeInicio extends Vue {
 	public esperandoPublicaciones: boolean = false;
 	public publicaciones: Publicacion[ ] = [ ];
@@ -101,13 +101,15 @@ export default class BuscadorDeInicio extends Vue {
 	};
 
 	public async created( ) {
-		await this.$store.dispatch( 'obtenerPublicaciones' );
-		await this.$store.dispatch( 'obtenerAdquisiciones' );
+		this.$store.dispatch( 'obtenerPublicaciones' );
+		this.$store.dispatch( 'obtenerAdquisiciones' );
+		this.$store.dispatch( 'obtenerHotsales' );
 	}
 
 	public async buscarPublicaciones( busqueda: Busqueda ) {
 		await this.$store.dispatch( 'obtenerPublicaciones' );
 		await this.$store.dispatch( 'obtenerAdquisiciones' );
+		await this.$store.dispatch( 'obtenerHotsales' );
 
 		this.esperandoPublicaciones = true;
 		this.mostrarPublicaciones = false;
@@ -160,7 +162,6 @@ export default class BuscadorDeInicio extends Vue {
 
 		const esPosibleHotsale = moment( ).isAfter( finDeSubasta );
 		if ( esPosibleHotsale ) {
-			this.$store.dispatch( 'obtenerHotsales' );
 			const hotsales: Hotsale[] = this.$store.getters.hotsales;
 			const hotsaleDePublicacion = hotsales.find( ( hotsale ) => {
 				return hotsale.idPublicacion === publicacion._id;
@@ -234,6 +235,7 @@ export default class BuscadorDeInicio extends Vue {
 		});
 		return reservasDirectas;
 	}
+
 	public separarHotsales( publicaciones: Publicacion[ ] ): Publicacion[ ] {
 		const reservasDirectas = publicaciones.filter( (_publicacion) => {
 			return this.esUnHotsale( _publicacion );
