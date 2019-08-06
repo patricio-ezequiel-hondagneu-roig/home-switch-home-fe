@@ -3,7 +3,7 @@
 		<v-expansion-panel>
 			<v-expansion-panel-content>
 				<template v-slot:header>
-					<div class="font-weight-bold headline sombra-texto">Reservas Directas</div>
+					<div class="font-weight-bold headline sombra-texto">Reservas directas</div>
 				</template>
 
 				<!-- Contenido del panel de reservas directas -->
@@ -11,6 +11,9 @@
 
 					<!-- Elementos con una estructura de control FOR -->
 						<v-container wrap>
+							<p v-if="reservasDirectas.length === 0">
+								No hay publicaciones disponibles para reserva directa actualmente
+							</p>
 							<v-layout
 								v-for="(reservaDirecta , index) in reservasDirectas"
 								:key="index"

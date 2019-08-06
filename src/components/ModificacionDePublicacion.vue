@@ -1,4 +1,4 @@
-<template>
+ <template>
 	<v-card class="pa-3">
 
 		<v-card-title>
@@ -16,6 +16,7 @@
 				<v-text-field
 					v-model="modelo.fechaDeInicioDeSemana"
 					label="Fecha de inicio de semana"
+					:rules="validadores.fechaDeInicioDeSemana"
 					required
 					type="date"
 				></v-text-field>
@@ -41,7 +42,7 @@
 </template>
 
 <script lang="ts">
-	import axios from 'axios';
+import axios from 'axios';
 	import { Component, Vue, Emit, Prop } from 'vue-property-decorator';
 	import { requerido } from '@/helpers/validadores/requerido';
 	import { textoNoVacio } from '@/helpers/validadores/texto-no-vacio';
@@ -51,6 +52,8 @@
 	import { server } from '@/utils/helper';
 	import { Publicacion, PublicacionParaModificar } from '../interfaces/publicacion.interface';
 	import moment from 'moment';
+import { fechaEsPosteriorQue } from '../helpers/validadores/fecha-es-posterior-que';
+import { fechaEsFutura } from '../helpers/validadores/fecha-es-futura';
 
 	@Component
 	export default class ModificacionDePublicacion extends Vue {
@@ -73,11 +76,16 @@
 		 */
 		public modelo: PublicacionParaModificar = {
 			montoInicialDeSubasta: this.publicacion.montoInicialDeSubasta,
-			fechaDeInicioDeSemana: this.publicacion.fechaDeInicioDeSemana,
+			fechaDeInicioDeSemana: moment( this.publicacion.fechaDeInicioDeSemana ).format( 'YYYY-MM-DD' ),
 			cerroSubasta: this.publicacion.cerroSubasta,
 		};
 
 		// TODO -> Validadores
+		public validadores = {
+			fechaDeInicioDeSemana: [
+				fechaEsFutura( 'Fecha de inicio de semana' )
+			]
+		};
 
 		/**
 		 * Hook de ciclo de vida. Restablece el formulario antes de que el componente se monte en el DOM.
@@ -146,7 +154,7 @@
 			}
 
 			this.modelo.montoInicialDeSubasta = this.publicacion.montoInicialDeSubasta;
-			this.modelo.fechaDeInicioDeSemana = this.publicacion.fechaDeInicioDeSemana;
+			this.modelo.fechaDeInicioDeSemana = moment( this.publicacion.fechaDeInicioDeSemana ).format('YYYY-MM-DD');
 			this.modelo.cerroSubasta = this.publicacion.cerroSubasta;
 
 			this.formularioEsValido = false;

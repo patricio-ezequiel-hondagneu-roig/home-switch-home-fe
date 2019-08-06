@@ -1,17 +1,12 @@
 <template>
 	<v-layout column align-center>
 		<v-flex mb-4>
-			<h1>
-				Encuentre su semana ideal para vacacionar
-			</h1>
+			<h1>Encuentre su semana ideal para vacacionar</h1>
 		</v-flex>
 		<v-form>
 			<v-container>
 				<v-layout>
-					<v-flex
-					xs12
-					md4
-					>
+					<v-flex xs12 md4>
 						<v-text-field
 							v-model="camposBusqueda.ubicacion"
 							:rules="validadores.ubicacion"
@@ -20,35 +15,26 @@
 							hint="Ej. Argentina, Buenos Aires, La Plata"
 						></v-text-field>
 					</v-flex>
-					<v-flex
-					xs12
-					md4
-					>
+					<v-flex xs12 md4>
 						<v-text-field
 							v-model="camposBusqueda.desde"
 							label="Desde"
-							:rules="validadores.fechaA"
+							:rules="validadores.fechaDesde"
 							hint="DD/MM/AAAA"
 							type="date"
 						></v-text-field>
 					</v-flex>
-					<v-flex
-					xs12
-					md4
-					>
+					<v-flex xs12 md4>
 						<v-text-field
 							v-model="camposBusqueda.hasta"
 							label="Hasta"
-							:rules="validadores.fechaB"
+							:rules="validadores.fechaHasta"
 							required
 							hint="DD/MM/AAAA"
 							type="date"
 						></v-text-field>
 					</v-flex>
-					<v-flex
-					xs12
-					md4
-					>
+					<v-flex xs12 md4>
 						<v-btn
 							class="primary"
 							:loading="esperandoPublicaciones"
@@ -60,12 +46,10 @@
 				</v-layout>
 			</v-container>
 		</v-form>
-		<v-container class="pa-3"
-		v-if="mostrarPublicaciones && publicaciones !== null"
-		>
-			<ReservasDirectasActivas :reservasDirectas="separarReservasDirectas( publicaciones )" />
+		<v-container class="pa-3" v-if="mostrarPublicaciones && publicaciones !== null">
+			<ReservasDirectasActivas :reservasDirectas="separarReservasDirectas( publicaciones )"/>
 			<br>
-			<SubastasActivas :subastasActivas="separarSubastas( publicaciones )"></SubastasActivas>
+			<SubastasActivas :subastasActivas="separarSubastas( publicaciones )"/>
 		</v-container>
 	</v-layout>
 </template>
@@ -84,17 +68,18 @@ import HotsalesActivas from '@/components/HotsalesActivas.vue';
 import { Adquisicion } from '../interfaces/adquisicion.interface';
 
 @Component({
-		components: {
-			SubastasActivas,
-			ReservasDirectasActivas,
-			HotsalesActivas
-		},
-	})
+	components: {
+		SubastasActivas,
+		ReservasDirectasActivas,
+		HotsalesActivas
+	},
+})
 export default class BuscadorDeInicio extends Vue {
 	public esperandoPublicaciones: boolean = false;
 	public publicaciones: Publicacion[ ] = [ ];
 	public subastas: Publicacion[ ] = [ ];
 	public mostrarPublicaciones: boolean = false;
+
 	public camposBusqueda: Busqueda = {
 		ubicacion: '',
 		desde: `${ moment().format('YYYY-MM-DD') }`,
@@ -102,24 +87,31 @@ export default class BuscadorDeInicio extends Vue {
 	};
 
 	public validadores = {
-			ubicacion: [ ],
-			fechaA: [
-				fechaEsFutura( 'Fecha de comienzo de la semana' ),
-			],
-			fechaB: [
-				fechaEsFutura( 'Fecha de fin de la semana' ),
-				fechaEsPosteriorQue( 'Fecha de fin de la semana' , this.camposBusqueda.desde ),
-			],
+		ubicacion: [ ],
+		fechaDesde: [
+			fechaEsFutura( 'Fecha de comienzo de la semana' ),
+		],
+		fechaHasta: [
+			fechaEsFutura( 'Fecha de fin de la semana' ),
+			fechaEsPosteriorQue( 'Fecha de fin de la semana' , this.camposBusqueda.desde ),
+		],
 	};
+
 	public async created( ) {
 		await this.$store.dispatch( 'obtenerPublicaciones' );
 		await this.$store.dispatch( 'obtenerAdquisiciones' );
 	}
-	public buscarPublicaciones( busqueda: Busqueda ) {
+
+	public async buscarPublicaciones( busqueda: Busqueda ) {
+		await this.$store.dispatch( 'obtenerPublicaciones' );
+		await this.$store.dispatch( 'obtenerAdquisiciones' );
+
 		this.esperandoPublicaciones = true;
 		this.mostrarPublicaciones = false;
+
 		let publicacionesBuscadas: Publicacion[ ] = this.$store.getters.publicaciones;
 		let residenciasBuscadas: Residencia[ ] = this.$store.getters.residencias;
+
 		if ( busqueda.ubicacion !== '' ) {
 			residenciasBuscadas = residenciasBuscadas.filter(( _residencia ) => {
 				const _ubicacion = `${ _residencia.pais }, ${ _residencia.provincia }, ${ _residencia.localidad }`;
@@ -132,22 +124,27 @@ export default class BuscadorDeInicio extends Vue {
 				return residencia !== undefined;
 			});
 		}
+
 		if ( busqueda.desde !== '' ) {
 			publicacionesBuscadas = publicacionesBuscadas.filter( ( _publicacion ) => {
-					const fechaDesde = moment(busqueda.desde).subtract( 1, 'day' );
-					return ( moment( _publicacion.fechaDeInicioDeSemana ).isAfter( fechaDesde ) );
+				const fechaDesde = moment(busqueda.desde).subtract( 1, 'day' );
+				return ( moment( _publicacion.fechaDeInicioDeSemana ).isAfter( fechaDesde ) );
 			});
 		}
+
 		if ( busqueda.hasta !== '' ) {
 			publicacionesBuscadas = publicacionesBuscadas.filter( ( _publicacion ) => {
-					const fechaHasta = moment(busqueda.hasta).add( 1, 'day' );
-					return ( moment( _publicacion.fechaDeInicioDeSemana ).isBefore( fechaHasta ) );
+				const fechaHasta = moment(busqueda.hasta).add( 1, 'day' );
+				return ( moment( _publicacion.fechaDeInicioDeSemana ).isBefore( fechaHasta ) );
 			});
 		}
+
 		this.publicaciones = publicacionesBuscadas;
+
 		this.esperandoPublicaciones = false;
 		this.mostrarPublicaciones = true;
 	}
+
 	// verifica que sea una subasta activa
 	public esUnaSubastaActiva( publicacion: Publicacion ): boolean {
 		// 1° No esta cerrada
@@ -167,6 +164,7 @@ export default class BuscadorDeInicio extends Vue {
 
 		return noCerroSubasta && fechaDeSubastaValida;
 	}
+
 	// verifica que sea una reserva directa
 	public esUnaReservaDirectaActiva( publicacion: Publicacion ): boolean {
 		// número de meses antes de que termine la reserva directa
@@ -183,6 +181,7 @@ export default class BuscadorDeInicio extends Vue {
 		});
 		return aunNoEsSubasta && noEsAdquirida;
 	}
+
 	// separa las subastas de las publicaciones
 	public separarSubastas( publicaciones: Publicacion[ ] ): Publicacion[ ] {
 		const subastas = publicaciones.filter( (_publicacion) => {
@@ -190,6 +189,7 @@ export default class BuscadorDeInicio extends Vue {
 		});
 		return subastas;
 	}
+
 	public separarReservasDirectas( publicaciones: Publicacion[ ] ): Publicacion[ ] {
 		const reservasDirectas = publicaciones.filter( (_publicacion) => {
 			return this.esUnaReservaDirectaActiva( _publicacion );
@@ -198,4 +198,3 @@ export default class BuscadorDeInicio extends Vue {
 	}
 }
 </script>
-

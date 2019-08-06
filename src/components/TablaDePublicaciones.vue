@@ -4,13 +4,19 @@
 		<v-data-table
 			class="elevation-1"
 			:headers="encabezadosDeTabla"
-			:items="publicaciones"
+			:items="entradasDeTabla"
 			no-data-text="No hay publicaciones cargadas aún."
 		>
 			<template #items="props">
+				<td class="text-xs-right">{{ props.item.tituloDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.paisDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.provinciaDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.localidadDeResidencia }}</td>
+				<td class="text-xs-right">{{ props.item.domicilioDeResidencia }}</td>
 				<td class="text-xs-right">{{ props.item.montoInicialDeSubasta }}</td>
 				<td class="text-xs-right">{{ formatearFecha(props.item.fechaDeInicioDeSemana) }}</td>
-				<td class="text-xs-right">{{ formatearBooleano(props.item.cerroSubasta) }}</td>
+				<td class="text-xs-right">{{ props.item.estaAdquirida ? 'Si' : 'No' }}</td>
+				<td class="text-xs-right">{{ props.item.cerroSubasta ? 'Si' : 'No' }}</td>
 
 				<td>
 					<v-layout row>
@@ -20,6 +26,7 @@
 									flat
 									icon
 									class="secondary--text"
+									:disabled="props.item.estaAdquirida"
 									@click.stop="mostrarFormularioDeModificacion( props.item._id )"
 									v-on="on"
 								>
@@ -72,7 +79,8 @@
 	import { server } from '@/utils/helper';
 	import ModificacionDePublicacion from './ModificacionDePublicacion.vue';
 	import moment from 'moment';
-import { TipoDeAdquisicion } from '../utils/tipoDeAdquisicion.enum';
+	import { TipoDeAdquisicion } from '../utils/tipoDeAdquisicion.enum';
+	import { Residencia } from '../interfaces/residencia.interface';
 
 	@Component({
 		components: {
@@ -87,6 +95,36 @@ import { TipoDeAdquisicion } from '../utils/tipoDeAdquisicion.enum';
 		@Prop( )
 		public readonly publicaciones!: Publicacion[ ];
 
+		public get entradasDeTabla( ) {
+			const residencias: Residencia[ ] = this.$store.getters.residencias;
+			const publicaciones: Publicacion[ ] = this.$store.getters.publicaciones;
+			const adquisiciones: Adquisicion[ ] = this.$store.getters.adquisiciones;
+
+			const entradas = publicaciones.map( ( _publicacion ) => {
+				const residenciaDePublicacion = residencias.find( ( _residencia ) => {
+					return _residencia._id === _publicacion.idResidencia;
+				});
+				const adquisicionDePublicacion = adquisiciones.find( ( _adquisicion ) => {
+					return _adquisicion.idPublicacion === _publicacion._id;
+				});
+
+				return {
+					_id: _publicacion._id,
+					tituloDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.titulo : '',
+					paisDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.pais : '',
+					provinciaDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.provincia : '',
+					localidadDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.localidad : '',
+					domicilioDeResidencia: residenciaDePublicacion ? residenciaDePublicacion.domicilio : '',
+					montoInicialDeSubasta: _publicacion.montoInicialDeSubasta,
+					fechaDeInicioDeSemana: _publicacion.fechaDeInicioDeSemana,
+					estaAdquirida: adquisicionDePublicacion !== undefined,
+					cerroSubasta: _publicacion.cerroSubasta,
+				};
+			});
+
+			return entradas;
+		}
+
 		/**
 		 * Flag que indica si se debe o no mostrar el formulario de modificación.
 		 */
@@ -97,6 +135,31 @@ import { TipoDeAdquisicion } from '../utils/tipoDeAdquisicion.enum';
 		 */
 		public encabezadosDeTabla: VuetifyDataTableHeader[ ] = [
 			{
+				text: 'Residencia',
+				value: 'tituloDeResidencia',
+				align: 'right'
+			},
+			{
+				text: 'Pais',
+				value: 'paisDeResidencia',
+				align: 'right'
+			},
+			{
+				text: 'Provincia',
+				value: 'provinciaDeResidencia',
+				align: 'right'
+			},
+			{
+				text: 'Localidad',
+				value: 'localidadDeResidencia',
+				align: 'right'
+			},
+			{
+				text: 'Domicilio',
+				value: 'domicilioDeResidencia',
+				align: 'right'
+			},
+			{
 				text: 'Monto inicial de subasta',
 				value: 'montoInicialDeSubasta',
 				align: 'right'
@@ -104,6 +167,11 @@ import { TipoDeAdquisicion } from '../utils/tipoDeAdquisicion.enum';
 			{
 				text: 'Fecha de inicio de semana',
 				value: 'fechaDeInicioDeSemana',
+				align: 'right'
+			},
+			{
+				text: 'Esta adquirida',
+				value: 'estaAdquirida',
 				align: 'right'
 			},
 			{
