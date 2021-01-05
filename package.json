@@ -12,7 +12,7 @@
 		"linter + pruebas unitarias + pruebas e2e": "vue-cli-service lint && vue-cli-service test:unit && vue-cli-service test:e2e --headless"
 	},
 	"dependencies": {
-		"axios": "^0.18.0",
+		"axios": "^0.21.1",
 		"vue": "^2.6.10",
 		"vue-class-component": "^7.1.0",
 		"vue-property-decorator": "^8.1.1",
